@@ -1,0 +1,6 @@
+[submodule "server"]
+	path = server
+	url = https://github.com/nafundi/jubilant-garbanzo.git
+[submodule "client"]
+	path = client
+	url = https://github.com/nafundi/super-adventure.git
