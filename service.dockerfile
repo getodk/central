@@ -7,8 +7,9 @@ RUN npm install
 
 COPY server/ ./
 COPY scripts/ ./
-COPY docker-server.json ./config/local.json
+COPY config/service.json ./config/local.json
 
 EXPOSE 8383
 
 VOLUME [ "/usr/odk" ]
+
