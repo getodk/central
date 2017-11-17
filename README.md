@@ -3,7 +3,7 @@ Effective Spork
 
 This repository serves several functions:
 
-* Tickets/issues entrypoint for user problems with either the [server](/nafundi/jubilant-garbanzo) or the [client](/nafundi/super-adventure).
+* Tickets/issues entrypoint for user problems with either the [server](https://github.com/nafundi/jubilant-garbanzo) or the [client](https://github.com/nafundi/super-adventure).
 * Central project management repository; in particular the projectboards.
 * Aggregation repository for packaging the server and client into a Docker Compose application.
 * Release repository for publishing binary artifacts.
