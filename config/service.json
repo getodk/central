@@ -1,0 +1,8 @@
+{
+  "database": {
+    "host": "postgres",
+    "user": "odk",
+    "password": "odk",
+    "database": "odk"
+  }
+}

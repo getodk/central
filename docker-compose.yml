@@ -1,0 +1,27 @@
+version: "3"
+services:
+  postgres:
+    image: "postgres:9.6"
+    environment:
+      POSTGRES_USER: odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DATABASE: odk
+  service:
+    build:
+      context: .
+      dockerfile: service.dockerfile
+    volumes:
+      - ".:/srv/odk"
+    depends_on:
+      - postgres
+    command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    depends_on:
+      - service
+    ports:
+      - "80:80"
+      - "443:443"
+
