@@ -27,5 +27,5 @@ services:
     environment:
       - SSLTYPE=${SSLTYPE}
       - SSLDOMAIN=${SSLDOMAIN}
-      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - CERTBOT_EMAIL=${SSLEMAIL}
 
