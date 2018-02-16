@@ -1,12 +1,16 @@
 server {
   listen 443 ssl;
-  ssl_certificate /etc/nginx/external/cert.pem;
-  ssl_certificate_key /etc/nginx/external/key.pem;
+  ssl_certificate /etc/${SSLTYPE}/live/${SSLDOMAIN}/cert.pem;
+  ssl_certificate_key /etc/${SSLTYPE}/live/${SSLDOMAIN}/privkey.pem;
 
   ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
   ssl_prefer_server_ciphers on;
   ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
+  ssl_dhparam /etc/nginx/dh.pem;
+
+  server_tokens off;
   add_header Strict-Transport-Security "max-age=31536000";
+  add_header X-Content-Type-Options nosniff;
 
   location /api {
     rewrite /api(.*) $1 break;
@@ -17,10 +21,5 @@ server {
   location / {
     root /usr/share/nginx/html;
   }
-}
-
-server {
-  listen 80;
-  return 301 https://$host$request_uri;
 }
 
