@@ -24,11 +24,11 @@ services:
       dockerfile: nginx.dockerfile
     depends_on:
       - service
-    ports:
-      - "80:80"
-      - "443:443"
     environment:
       - SSLTYPE=${SSLTYPE}
       - SSLDOMAIN=${SSLDOMAIN}
       - CERTBOT_EMAIL=${SSLEMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
 

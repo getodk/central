@@ -1,4 +1,4 @@
-DHPATH=/etc/nginx/dh.pem
+DHPATH=/etc/dh/nginx.pem
 if [ ! -e "$DHPATH" ]
 then
   echo "diffie hellman private key does not exist; creating.."

@@ -11,5 +11,7 @@ COPY files/nginx/odk-setup.sh /scripts
 EXPOSE 80
 EXPOSE 443
 
+VOLUME [ "/etc/dh", "/etc/selfsign" ]
+
 ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 
