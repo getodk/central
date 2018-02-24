@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
+  mail:
+    image: "namshi/smtp"
   service:
     build:
       context: .
@@ -14,6 +16,7 @@ services:
       - ".:/srv/odk"
     depends_on:
       - postgres
+      - mail
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
   nginx:
     build:
