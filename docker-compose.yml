@@ -2,6 +2,8 @@ version: "3"
 services:
   postgres:
     image: "postgres:9.6"
+    volumes:
+      - /var/lib/postgresql/data
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
@@ -12,8 +14,6 @@ services:
     build:
       context: .
       dockerfile: service.dockerfile
-    volumes:
-      - ".:/srv/odk"
     depends_on:
       - postgres
       - mail

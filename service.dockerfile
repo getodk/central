@@ -12,5 +12,3 @@ COPY files/service/odk-cmd /usr/bin
 
 EXPOSE 8383
 
-VOLUME [ "/usr/odk" ]
-
