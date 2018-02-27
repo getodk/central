@@ -5,7 +5,7 @@ then
   openssl dhparam -out "$DHPATH" 2048
 fi
 
-SELFSIGN_BASEPATH=/etc/selfsign/live/local
+SELFSIGN_BASEPATH=/etc/selfsign/live/$DOMAIN
 if [ "$SSL_TYPE" = "selfsign" ] && [ ! -e "$SELFSIGN_BASEPATH/privkey.pem" ]
 then
   echo "self-signed cert requested but does not exist; creating.. (this could take a while)"
