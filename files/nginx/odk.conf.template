@@ -1,7 +1,7 @@
 server {
   listen 443 ssl;
-  ssl_certificate /etc/${SSLTYPE}/live/${SSLDOMAIN}/cert.pem;
-  ssl_certificate_key /etc/${SSLTYPE}/live/${SSLDOMAIN}/privkey.pem;
+  ssl_certificate /etc/${SSL_TYPE}/live/${DOMAIN}/cert.pem;
+  ssl_certificate_key /etc/${SSL_TYPE}/live/${DOMAIN}/privkey.pem;
 
   ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
   ssl_prefer_server_ciphers on;

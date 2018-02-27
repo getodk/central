@@ -17,6 +17,8 @@ services:
     depends_on:
       - postgres
       - mail
+    environment:
+      - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
   nginx:
     build:
@@ -25,9 +27,9 @@ services:
     depends_on:
       - service
     environment:
-      - SSLTYPE=${SSLTYPE}
-      - SSLDOMAIN=${SSLDOMAIN}
-      - CERTBOT_EMAIL=${SSLEMAIL}
+      - SSL_TYPE=${SSL_TYPE}
+      - DOMAIN=${DOMAIN}
+      - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
     ports:
       - "80:80"
       - "443:443"

@@ -6,7 +6,7 @@ then
 fi
 
 SELFSIGN_BASEPATH=/etc/selfsign/live/local
-if [ ! "$SSL" = "selfsign" ] && [ ! -e "$SELFSIGN_BASEPATH/privkey.pem" ]
+if [ "$SSL_TYPE" = "selfsign" ] && [ ! -e "$SELFSIGN_BASEPATH/privkey.pem" ]
 then
   echo "self-signed cert requested but does not exist; creating.. (this could take a while)"
   openssl req -x509 -newkey rsa:4086 \
@@ -19,7 +19,7 @@ fi
 if [ ! -e "/etc/nginx/conf.d/odk.conf" ]
 then
   echo "nginx configuration does not exist; creating.."
-  /bin/bash -c "envsubst '\$SSLTYPE \$SSLDOMAIN' < /usr/share/nginx/odk.conf.template > /etc/nginx/conf.d/odk.conf"
+  /bin/bash -c "envsubst '\$SSL_TYPE \$DOMAIN' < /usr/share/nginx/odk.conf.template > /etc/nginx/conf.d/odk.conf"
 fi
 
 /bin/bash /scripts/entrypoint.sh
