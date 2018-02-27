@@ -10,6 +10,8 @@ services:
       POSTGRES_DATABASE: odk
   mail:
     image: "namshi/smtp"
+    environment:
+      - MAILNAME=${DOMAIN}
   service:
     build:
       context: .
