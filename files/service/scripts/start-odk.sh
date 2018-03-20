@@ -9,5 +9,5 @@ echo "running migrations.."
 node -e 'const { withDatabase, migrate } = require("./lib/model/database"); withDatabase(migrate);'
 
 echo "starting server."
-node lib/run-server.js
+node lib/bin/run-server.js
 
