@@ -8,6 +8,9 @@ fi
 echo "running migrations.."
 node -e 'const { withDatabase, migrate } = require("./lib/model/database"); withDatabase(migrate);'
 
+echo "starting cron.."
+cron
+
 echo "starting server."
 node lib/bin/run-server.js
 
