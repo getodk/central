@@ -19,6 +19,8 @@ services:
     depends_on:
       - postgres
       - mail
+    volumes:
+      - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
@@ -35,4 +37,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
+volumes:
+  transfer:
 
