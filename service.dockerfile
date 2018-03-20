@@ -2,7 +2,10 @@ FROM node:carbon
 
 WORKDIR /usr/odk
 
-RUN apt-get update; apt-get install -y gettext
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
+  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+  apt-key add -; \
+  apt-get update; apt-get install -y gettext postgresql-client-9.6
 
 COPY server/package*.json ./
 RUN npm install
