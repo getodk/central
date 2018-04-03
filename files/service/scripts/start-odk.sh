@@ -6,7 +6,7 @@ then
 fi
 
 echo "running migrations.."
-node -e 'const { withDatabase, migrate } = require("./lib/model/database"); withDatabase(migrate);'
+node -e 'const { withDatabase, migrate } = require("./lib/model/database"); withDatabase(require("config").get("default.database"))(migrate);'
 
 echo "starting cron.."
 cron
