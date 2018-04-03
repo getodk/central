@@ -12,7 +12,7 @@ then
   openssl req -x509 -newkey rsa:4086 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_BASEPATH/privkey.pem" \
-    -out "$SELFSIGN_BASEPATH/cert.pem" \
+    -out "$SELFSIGN_BASEPATH/fullchain.pem" \
     -days 3650 -nodes -sha256
 fi
 
