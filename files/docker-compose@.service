@@ -1,0 +1,15 @@
+[Unit]
+Description=%i via docker-compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+WorkingDirectory=/root/%i
+
+ExecStart=/usr/local/bin/docker-compose up
+ExecStop=/usr/local/bin/docker-compose stop -v
+
+[Install]
+WantedBy=multi-user.target
+
