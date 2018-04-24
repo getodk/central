@@ -48,9 +48,10 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
     * Change the `SSLDOMAIN` line so that after the `=` is the domain name you registered above. As an example: `SSLDOMAIN=MyOdkCollectionServer.com`. Do not include anything like `http://`.
     * Change the `SSLEMAIL` line so that after the `=` is your own email address. The Let's Encrypt service will use this address only to notify you if something is wrong with your security certificate.
     * Hold `Ctrl` and press `X` to quit the text editor. Press `Y` to indicate that you want to save the file, and then press **Enter** to confirm the file name. Do not change the file name.
-12. You now have everything you need to start your ODK server software. Type `docker-compose up -d` and the server will start working on this.
-13. At this point, you can try visiting the domain name you registered to see if it all worked. If it doesn't, you may have to wait a few minutes or hours for the domain name itself to get working.
-14. Once you do see it working, you'll want to set up your first administrator account. To do this:
+12. Next, you need to bundle everything together into a server. Run `make` to do this.
+13. You now have everything you need to start your ODK server software. Type `docker-compose up -d` and the server will start working on this.
+14. At this point, you can try visiting the domain name you registered to see if it all worked. If it doesn't, you may have to wait a few minutes or hours for the domain name itself to get working.
+15. Once you do see it working, you'll want to set up your first administrator account. To do this:
     1. In the server window, type `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-create`. Press **Enter**, and you will be asked for a password for this new account.
     2. The previous step created an account but did not make it an administrator. To do this, type `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-promote` **Enter**.
     3. You are done for now, but if you ever lose track of your password, you can always reset it by typing `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-set-password`. As with account creation, you will be prompted for a new password after you press **Enter**.

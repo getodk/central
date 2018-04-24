@@ -2,6 +2,7 @@ FROM staticfloat/nginx-certbot
 
 COPY client/ /usr/share/nginx/html
 COPY files/nginx/odk.conf.template /usr/share/nginx
+COPY version* /usr/share/nginx/html/
 
 RUN apt-get update; apt-get install -y openssl
 
