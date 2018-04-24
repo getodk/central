@@ -13,6 +13,8 @@ server {
   add_header Strict-Transport-Security "max-age=31536000";
   add_header X-Content-Type-Options nosniff;
 
+  client_max_body_size 100m;
+
   location ~ ^/v\d {
     proxy_pass http://service:8383;
     proxy_redirect off;
