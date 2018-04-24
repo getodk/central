@@ -16,12 +16,14 @@ server {
   client_max_body_size 100m;
 
   location ~ ^/v\d {
+    proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://service:8383;
     proxy_redirect off;
   }
 
   location /api {
     rewrite /api(.*) $1 break;
+    proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://service:8383;
     proxy_redirect off;
   }
