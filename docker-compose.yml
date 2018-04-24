@@ -9,7 +9,9 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
-    image: "namshi/smtp"
+    build:
+      context: .
+      dockerfile: mail.dockerfile
     environment:
       - MAILNAME=${DOMAIN}
   service:
