@@ -51,8 +51,11 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
 12. Next, you need to bundle everything together into a server. Run `docker-compose build` to do this. When that finishes, run `docker-compose create`.
 13. Now we want to run your new ODK server software. But we don't want to just run it once: if we do that, then if your server machine crashes or restarts, the software won't start back up. We want to tell the machine to always run the server.
     1. We have provided the file required to do this. To put it in the right spot, run `cp files/docker-compose@.service /etc/systemd/system`. This configuration file teaches the machine how to run our server.
-    2. Now run `systemctl start docker-compose@effective-spork`. You can then run `systemctl status docker-compose@effective-spork` to see if it worked. If you see text that says `Active: active (running)` then everything is working great.
-    3. Since we're finally sure that everything is working, run `systemctl enable docker-compose@effective-spork`. This will make sure the ODK server is always running, even if something goes wrong or the machine reboots.
+    2. Now run `systemctl start docker-compose@effective-spork` to start Docker, which will then load the ODK server. The first time you start it, it will take a while to set itself up.
+    3. Now you'll want to see whether everything is running correctly:
+        1. To see if Docker itself is working correctly, you can run `systemctl status docker-compose@effective-spork`. If you see text that says `Active: active (running)` then everything is working great.
+        2. To see if ODK has finished loading inside of Docker, run `docker-compose ps`. Under the `State` column, you will want to see text that reads `Up (healthy)`. If you see `Up (health: starting)`, give it a few minutes. If you see some other text, something has gone wrong.
+    4. Since we're finally sure that everything is working, run `systemctl enable docker-compose@effective-spork`. This will make sure the ODK server is always running, even if something goes wrong or the machine reboots.
 14. At this point, you can try visiting the domain name you registered to see if it all worked. If it doesn't, you may have to wait a few minutes or hours for the domain name itself to get working.
 15. Once you do see it working, you'll want to set up your first administrator account. To do this:
     1. In the server window, type `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-create`. Press **Enter**, and you will be asked for a password for this new account.

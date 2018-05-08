@@ -39,6 +39,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
 volumes:
   transfer:
 
