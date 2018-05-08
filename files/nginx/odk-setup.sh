@@ -9,6 +9,7 @@ SELFSIGN_BASEPATH=/etc/selfsign/live/$DOMAIN
 if [ "$SSL_TYPE" = "selfsign" ] && [ ! -e "$SELFSIGN_BASEPATH/privkey.pem" ]
 then
   echo "self-signed cert requested but does not exist; creating.. (this could take a while)"
+  mkdir -p $SELFSIGN_BASEPATH
   openssl req -x509 -newkey rsa:4086 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_BASEPATH/privkey.pem" \

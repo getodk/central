@@ -9,7 +9,7 @@ FROM staticfloat/nginx-certbot
 EXPOSE 80
 EXPOSE 443
 
-VOLUME [ "/etc/dh", "/etc/selfsign" ]
+VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
 
 ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 
