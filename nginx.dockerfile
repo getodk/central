@@ -1,7 +1,8 @@
-FROM alpine/git as intermediate
+FROM node:carbon as intermediate
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
+RUN files/prebuild/build-frontend.sh
 
 
 FROM staticfloat/nginx-certbot
@@ -17,8 +18,7 @@ RUN apt-get update; apt-get install -y openssl netcat
 RUN mkdir -p /etc/selfsign/live/local
 COPY files/nginx/odk-setup.sh /scripts
 
-COPY client/ /usr/share/nginx/html
 COPY files/nginx/odk.conf.template /usr/share/nginx
-
+COPY --from=intermediate client/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html/
 
