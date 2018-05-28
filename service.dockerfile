@@ -10,7 +10,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" > /etc/
 COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
-RUN npm install
+RUN npm install --production
 
 COPY server/ ./
 COPY files/service/scripts/ ./
