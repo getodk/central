@@ -5,7 +5,7 @@ RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
 
-FROM staticfloat/nginx-certbot
+FROM staticfloat/nginx-certbot:latest
 
 EXPOSE 80
 EXPOSE 443
