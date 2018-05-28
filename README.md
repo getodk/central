@@ -63,3 +63,14 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
     2. The previous step created an account but did not make it an administrator. To do this, type `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-promote` **Enter**.
     3. You are done for now, but if you ever lose track of your password, you can always reset it by typing `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-set-password`. As with account creation, you will be prompted for a new password after you press **Enter**.
     4. Once you have one account, you do not have to go through this process again for future accounts: you can log into the website with your new account, and directly create new users that way.
+
+Upgrading to the latest version
+-------------------------------
+
+* Log onto your server and navigate back to the project directory (likely `cd effective-spork`).
+* Get the latest version of the infrastructure: `git pull`.
+    * If you have made local changes to the files, you may have to start with `git stash`, then run `git stash pop` after you perform the `pull`.
+* Get the latest client and server: `git submodule update -i`.
+* Build your server from the latest code you just fetched: `docker-compose build`.
+* Restart the running server to pick up the changes: `systemctl restart docker-compose@effective-spork`.
+
