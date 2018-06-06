@@ -3,7 +3,7 @@ ODK Central
 
 This repository serves several functions:
 
-* Tickets/issues entrypoint for user problems with either the [server](https://github.com/opendatakit/central-server) or the [client](https://github.com/opendatakit/central-client).
+* Tickets/issues entrypoint for user problems with either the [server](https://github.com/opendatakit/central-backend) or the [client](https://github.com/opendatakit/central-frontend).
 * Central project management repository; in particular the projectboards.
 * Aggregation repository for packaging the server and client into a Docker Compose application.
 * Release repository for publishing binary artifacts.
