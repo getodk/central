@@ -1,9 +1,9 @@
-Effective Spork
-===============
+ODK Central
+===========
 
 This repository serves several functions:
 
-* Tickets/issues entrypoint for user problems with either the [server](https://github.com/nafundi/jubilant-garbanzo) or the [client](https://github.com/nafundi/super-adventure).
+* Tickets/issues entrypoint for user problems with either the [server](https://github.com/opendatakit/central-server) or the [client](https://github.com/opendatakit/central-client).
 * Central project management repository; in particular the projectboards.
 * Aggregation repository for packaging the server and client into a Docker Compose application.
 * Release repository for publishing binary artifacts.
@@ -42,7 +42,7 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
 6. New domain names take a little bit to get working. In the meantime, we can get working on installing the server software. First, you'll need to be able to log into the server itself. If you are an advanced user who filled in an SSH key above, you're good to go. Otherwise, click on your new server's name in the **Droplets** management panel, then go to **Access** on the left. Choose to Reset the root password so that a password gets emailed to you.
 7. Once you have that password in hand, you'll be able to use the **Launch Console** button to log into your server: when it asks for `login`, type `root` and press **Enter**. Then type the password you were emailed and press **Enter** again.
 8. Once you are in your server, you'll want to change your password so that people snooping your email do not gain access. Type `passwd` and press **Enter**, then follow the instructions to choose a new password. From now on, you will use that password to log in.
-9. Now you'll need to download the software. In the server window, type `git clone https://github.com/nafundi/effective-spork` and press **Enter**. It should think for some time and download many things. Then type `cd effective-spork` to start working with the software.
+9. Now you'll need to download the software. In the server window, type `git clone https://github.com/opendatakit/central` and press **Enter**. It should think for some time and download many things. Then type `cd central` to start working with the software.
 10. You now have the framework of the server software, but some components are missing. Type `git submodule update -i` and press **Enter** to download them.
 11. You now need to update some settings. Type `nano .env` and press **Enter**.
     * Change the `SSLTYPE` line to read: `SSLTYPE=letsencrypt`. This instructs the server to attempt to obtain a security certificate from the free Let's Encrypt provider.
@@ -52,11 +52,11 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
 12. Next, you need to bundle everything together into a server. Run `docker-compose build` to do this. When that finishes, run `docker-compose create`.
 13. Now we want to run your new ODK server software. But we don't want to just run it once: if we do that, then if your server machine crashes or restarts, the software won't start back up. We want to tell the machine to always run the server.
     1. We have provided the file required to do this. To put it in the right spot, run `cp files/docker-compose@.service /etc/systemd/system`. This configuration file teaches the machine how to run our server.
-    2. Now run `systemctl start docker-compose@effective-spork` to start Docker, which will then load the ODK server. The first time you start it, it will take a while to set itself up.
+    2. Now run `systemctl start docker-compose@central` to start Docker, which will then load the ODK server. The first time you start it, it will take a while to set itself up.
     3. Now you'll want to see whether everything is running correctly:
-        1. To see if Docker itself is working correctly, you can run `systemctl status docker-compose@effective-spork`. If you see text that says `Active: active (running)` then everything is working great.
+        1. To see if Docker itself is working correctly, you can run `systemctl status docker-compose@central`. If you see text that says `Active: active (running)` then everything is working great.
         2. To see if ODK has finished loading inside of Docker, run `docker-compose ps`. Under the `State` column, you will want to see text that reads `Up (healthy)`. If you see `Up (health: starting)`, give it a few minutes. If you see some other text, something has gone wrong.
-    4. Since we're finally sure that everything is working, run `systemctl enable docker-compose@effective-spork`. This will make sure the ODK server is always running, even if something goes wrong or the machine reboots.
+    4. Since we're finally sure that everything is working, run `systemctl enable docker-compose@central`. This will make sure the ODK server is always running, even if something goes wrong or the machine reboots.
 14. At this point, you can try visiting the domain name you registered to see if it all worked. If it doesn't, you may have to wait a few minutes or hours for the domain name itself to get working.
 15. Once you do see it working, you'll want to set up your first administrator account. To do this:
     1. In the server window, type `docker-compose exec service odk-cmd --email YOUREMAIL@ADDRESSHERE.com user-create`. Press **Enter**, and you will be asked for a password for this new account.
@@ -67,10 +67,10 @@ If you'd like to set up an ODK server that's accessible from anywhere via the In
 Upgrading to the latest version
 -------------------------------
 
-* Log onto your server and navigate back to the project directory (likely `cd effective-spork`).
+* Log onto your server and navigate back to the project directory (likely `cd central`).
 * Get the latest version of the infrastructure: `git pull`.
     * If you have made local changes to the files, you may have to start with `git stash`, then run `git stash pop` after you perform the `pull`.
 * Get the latest client and server: `git submodule update -i`.
 * Build your server from the latest code you just fetched: `docker-compose build`.
-* Restart the running server to pick up the changes: `systemctl restart docker-compose@effective-spork`.
+* Restart the running server to pick up the changes: `systemctl restart docker-compose@central`.
 
