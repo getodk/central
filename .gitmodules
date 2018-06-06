@@ -1,6 +1,6 @@
 [submodule "server"]
 	path = server
-	url = https://github.com/nafundi/jubilant-garbanzo.git
+	url = https://github.com/opendatakit/central-backend.git
 [submodule "client"]
 	path = client
-	url = https://github.com/nafundi/super-adventure.git
+	url = https://github.com/opendatakit/central-frontend.git
