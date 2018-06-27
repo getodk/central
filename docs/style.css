@@ -1,0 +1,41 @@
+body {
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+a {
+  background-color: transparent;
+  color: #337ab7;
+  text-decoration: none;
+}
+
+a:hover, a:focus {
+  color: #23527c;
+  text-decoration: underline;
+}
+
+a:hover, a:active {
+  outline: 0;
+}
+
+a:focus {
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+@media print {
+  a, a:visited {
+    text-decoration: underline;
+  }
+}
+
+.item-date {
+  margin-right: 10px;
+}
