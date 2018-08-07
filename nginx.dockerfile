@@ -18,6 +18,8 @@ RUN apt-get update; apt-get install -y openssl netcat
 RUN mkdir -p /etc/selfsign/live/local
 COPY files/nginx/odk-setup.sh /scripts
 
+COPY files/local/customssl/*.pem /etc/customssl/live/local/
+
 COPY files/nginx/odk.conf.template /usr/share/nginx
 COPY --from=intermediate client/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html/
