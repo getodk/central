@@ -74,3 +74,13 @@ Upgrading to the latest version
 * Build your server from the latest code you just fetched: `docker-compose build`.
 * Restart the running server to pick up the changes: `systemctl restart docker-compose@central`.
 
+Using a custom SSL certificate (advanced)
+-----------------------------------------
+
+To use a custom SSL certificate:
+
+1. Generate appropriate `fullchain.pem` (`-out`) and `privkey.pem` (`-keyout`) files.
+2. Copy those files into `files/local/customssl/` within the repository root.
+3. In `.env`, set `SSL_TYPE` to `customssl` and set `DOMAIN` to `local`.
+4. Build and run. If you already had an nginx image built, you may need to wipe it. Don't worry, no data will be lost in this case.
+
