@@ -17,11 +17,8 @@ then
     -days 3650 -nodes -sha256
 fi
 
-if [ ! -e "/etc/nginx/conf.d/odk.conf" ]
-then
-  echo "nginx configuration does not exist; creating.."
-  /bin/bash -c "envsubst '\$SSL_TYPE \$DOMAIN' < /usr/share/nginx/odk.conf.template > /etc/nginx/conf.d/odk.conf"
-fi
+echo "writing a new nginx configuration file.."
+/bin/bash -c "envsubst '\$SSL_TYPE \$DOMAIN' < /usr/share/nginx/odk.conf.template > /etc/nginx/conf.d/odk.conf"
 
 /bin/bash /scripts/entrypoint.sh
 
