@@ -12,5 +12,6 @@ echo "starting cron.."
 cron -f &
 
 echo "starting server."
-node lib/bin/run-server.js
+mkdir -p /var/log/odk
+node node_modules/naught/lib/main.js start --remove-old-ipc true --worker-count 4 --daemon-mode false --log /var/log/odk/naught.log --stdout /var/log/odk/stdout.log --stderr /var/log/odk/stderr.log lib/bin/run-server.js
 
