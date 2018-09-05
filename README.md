@@ -69,7 +69,7 @@ Upgrading to the latest version
 
 * Log onto your server and navigate back to the project directory (likely `cd central`).
 * Get the latest version of the infrastructure: `git pull`.
-    * If you have made local changes to the files, you may have to start with `git stash`, then run `git stash pop` after you perform the `pull`.
+    * If you have made local changes to the files, you may have to start with `git stash`, then run `git stash pop` after you perform the `pull`. Note that before `git stash`, you may be required to specify your email address using `git config`.
 * Get the latest client and server: `git submodule update -i`.
 * Build your server from the latest code you just fetched: `docker-compose build`.
 * Restart the running server to pick up the changes: `systemctl restart docker-compose@central`.
