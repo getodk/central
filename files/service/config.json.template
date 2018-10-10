@@ -16,6 +16,12 @@
     },
     "env": {
       "domain": "https://${DOMAIN}"
+    },
+    "external": {
+      "sentry": {
+        "key": "3cf75f54983e473da6bd07daddf0d2ee",
+        "project": "1298632"
+      }
     }
   }
 }
