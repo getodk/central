@@ -20,5 +20,10 @@ fi
 echo "writing a new nginx configuration file.."
 /bin/bash -c "envsubst '\$SSL_TYPE \$DOMAIN' < /usr/share/nginx/odk.conf.template > /etc/nginx/conf.d/odk.conf"
 
-/bin/bash /scripts/entrypoint.sh
+if [ "$SSL_TYPE" = "letsencrypt" ]
+then
+  /bin/bash /scripts/entrypoint.sh
+else
+  nginx -g "daemon off;"
+fi
 
