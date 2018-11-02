@@ -74,8 +74,30 @@ Upgrading to the latest version
 * Build your server from the latest code you just fetched: `docker-compose build`.
 * Restart the running server to pick up the changes: `systemctl restart docker-compose@central`.
 
+Custom Configurations
+---------------------
+
+Disabling Sentry
+================
+
+By default, we enable [Sentry error logging](https://sentry.io) on the backend server, which provides with an anonymized log of unexpected programming errors that occur while your server is running. This information never includes any of your user or form data, but if you feel uncomfortable with this anyway, you can take the following steps to disable Sentry:
+
+1. Edit the file `files/service/config.json.template` and remove the `sentry` lines, starting with `"sentry": {` through the next three lines until you remove the matching `}`.
+2. Build and run. If you already had a service image built, you may need to wipe it (`docker-compose rm service`).
+
+Using a custom Mail Server
+==========================
+
+To use a custom mail server:
+
+1. Ensure you have an SMTP relay server available to your Central server network host.
+2. Edit the file `files/service/config.json.template`:
+  * Under `email`, then `transportOpts`, you'll find settings for `host` and `port.
+  * These correspond with the network `host`name and the TCP `port`, respectively.
+3. Build and run. If you already had a service image built, you may need to wipe it (`docker-compose rm service`).
+
 Using a custom SSL certificate (advanced)
------------------------------------------
+=========================================
 
 To use a custom SSL certificate:
 
