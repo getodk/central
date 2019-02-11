@@ -1,0 +1,5 @@
+DKIM_DOMAIN = ${lc:${domain:$h_from:}}
+DKIM_KEY_FILE = /etc/exim4/domain.key
+DKIM_PRIVATE_KEY = ${if exists{DKIM_KEY_FILE}{DKIM_KEY_FILE}{0}}
+DKIM_SELECTOR = dkim
+DKIM_CANON = simple
