@@ -1,19 +1,33 @@
 version: "3"
 services:
+  traefik:
+    image: traefik # The official Traefik docker image
+    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      - "80:80"     # The HTTP port
+      - "443:443"     # The HTTPS port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/${TRAEFIK_CONFIG:-traefik_dev.toml}:/traefik.toml
+      - ./traefik/acme.json:/acme.json
+
   postgres:
     image: "postgres:9.6"
     volumes:
-      - /var/lib/postgresql/data
+      - ./db-postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
+
   mail:
     build:
       context: .
       dockerfile: mail.dockerfile
     environment:
       - MAILNAME=${DOMAIN}
+
   service:
     build:
       context: .
@@ -22,25 +36,25 @@ services:
       - postgres
       - mail
     volumes:
-      - /data/transfer:/data/transfer
+      - ./data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+
   nginx:
     build:
       context: .
       dockerfile: nginx.dockerfile
     depends_on:
       - service
-    environment:
-      - SSL_TYPE=${SSL_TYPE}
-      - DOMAIN=${DOMAIN}
-      - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
+    # environment:
+      # - SSL_TYPE=${SSL_TYPE}
+      # - DOMAIN=${DOMAIN}
+      # - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
-    healthcheck:
-      test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
-volumes:
-  transfer:
-
+      - 80
+    labels:
+      - "traefik.port=80"
+      - "traefik.backend=front"
+      - "traefik.frontend.rule=Host:${BASE_URL:-localhost}" # add another rule with ";Host:host"
+      - "traefik.enable=true"
