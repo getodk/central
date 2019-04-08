@@ -9,9 +9,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
-    build:
-      context: .
-      dockerfile: mail.dockerfile
+    image: "namshi/smtp:latest"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
