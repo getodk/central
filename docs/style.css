@@ -35,6 +35,16 @@ a:focus {
   }
 }
 
+.news-item {
+  position: relative;
+}
+
 .item-date {
-  margin-right: 10px;
+  max-width: 72px;
+  overflow: hidden;
+  position: absolute;
+}
+
+.news-item a {
+  margin-left: 82px;
 }
