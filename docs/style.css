@@ -45,6 +45,15 @@ a:focus {
   position: absolute;
 }
 
+.no-date {
+  left: 29px;
+  position: absolute;
+}
+
+.no-date::after {
+  content: '\2014';
+}
+
 .news-item a {
   margin-left: 82px;
 }
