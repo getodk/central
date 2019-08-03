@@ -5,7 +5,7 @@ RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
 
-FROM staticfloat/nginx-certbot:latest
+FROM staticfloat/nginx-certbot@sha256:a3fff8a1d75ae2b28d8e77d71468bc51bf98588c4762c6c7d7c55e0e548e6976
 
 EXPOSE 80
 EXPOSE 443
