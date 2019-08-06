@@ -24,6 +24,6 @@ COPY files/nginx/default /etc/nginx/sites-enabled/
 COPY files/nginx/inflate_body.lua /usr/share/nginx
 COPY files/nginx/odk.conf.template /usr/share/nginx
 COPY files/nginx/run_certbot.sh /scripts/
-COPY --from=intermediate client/dist/ /usr/share/nginx/html
+COPY --from=intermediate client/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html/
 
