@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+
+    steps:
+      - checkout
+
+      - run: git submodule update -i
+
+      - run: |
+          echo 'SSL_TYPE=selfsign
+          DOMAIN=local
+          SYSADMIN_EMAIL=no-reply@opendatakit.org' > .env
+
+      - run: docker-compose build
+
+      - run:
+          # we allow a long retry period for the first check because the first-run
+          # nginx setup could take several minutes due to key generation.
+          name: Verify frontend and backend load
+          command: |
+            set -x
+            docker-compose up -d
+            docker run --network container:nginx \
+              appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ \
+              | tee /dev/tty \
+              | grep -q 'ODK Central'
+            docker run --network container:nginx \
+              appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects \
+              | tee /dev/tty \
+              | grep -q '\[\]'
+
