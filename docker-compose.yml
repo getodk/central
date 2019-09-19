@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
+    container_name: mail
     image: "itsissa/namshi-smtp:4.89-2.deb9u5"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
@@ -16,6 +17,7 @@ services:
     environment:
       - MAILNAME=${DOMAIN}
   service:
+    container_name: service
     build:
       context: .
       dockerfile: service.dockerfile
@@ -28,6 +30,7 @@ services:
       - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
   nginx:
+    container_name: nginx
     build:
       context: .
       dockerfile: nginx.dockerfile
