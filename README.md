@@ -7,16 +7,11 @@ Our goal with Central is to create a modern sibling to Aggregate that is easier 
 
 This repository serves as an umbrella for the Central project as a whole:
 
-* Tickets/issues entrypoint for user problems with either the [server](https://github.com/opendatakit/central-backend) or the [client](https://github.com/opendatakit/central-frontend).
+* Tickets/issues entrypoint for user problems with either the [server](https://github.com/im2019/central-backend) or the [client](https://github.com/im2019/central-frontend).
 * Operations repository for packaging the server and client into a Docker Compose application.
 * Release repository for publishing binary artifacts.
 
 If you are looking for help, please take a look at the [Documentation Website](https://docs.opendatakit.org/central-intro/). If that doesn't solve your problem, please head over to the [ODK Forum](https://forum.opendatakit.org) and do a search to see if anybody else has had the same problem.
-
-Contributing
-============
-
-We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Features board](https://forum.opendatakit.org/c/features) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/opendatakit/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/opendatakit/central-frontend/blob/master/CONTRIBUTING.md)), or both.
 
 Operations
 ==========
@@ -24,6 +19,21 @@ Operations
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
 
 To learn how to run such a stack in production, please take a look at [our DigitalOcean installation guide](https://docs.opendatakit.org/central-install-digital-ocean/).
+
+Development
+===========
+
+Add git modules:
+
+```bash
+git submodule update --init --recursive --remote
+```
+
+If you want to change code in submodules, change in the corresponding root, push the new code and update submodules in this repo:
+
+```bash
+git submodule update
+```
 
 License
 =======
