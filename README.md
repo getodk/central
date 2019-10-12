@@ -26,13 +26,93 @@ Development
 Add git modules:
 
 ```bash
-git submodule update --init --recursive --remote
+git submodule update -i
 ```
 
 If you want to change code in submodules, change in the corresponding root, push the new code and update submodules in this repo:
 
 ```bash
 git submodule update
+```
+
+Instalación
+===========
+
+- Instalar Docker CE (Community Edition)
+
+- Ingresar al sistema con la cuenta del usuario que va a ejecutar los contenedores.
+
+- Agregar a dicho usuario al grupo `docker` del sistema.
+
+- Ejecutar en una terminal dentro de la carpeta de este proyecto:
+
+```bash
+cp env.example .env
+```
+
+y agregar los valores de las variables faltantes en el archivo `.env` que se acaba de crear.
+
+- Crear en la carpeta `HOME` del usuario que va a ejecutar los contenedores, la siguiente carpeta:
+
+```bash
+cd
+mkdir postgresql-data
+```
+
+- Ejecutar
+
+```bash
+docker-compose build
+```
+
+- Para probar en local
+
+```bash
+docker-compose up
+```
+
+Ejecución
+===========
+
+Ejecutar con permisos de administrador:
+
+```bash
+cp files/docker-compose@.service /etc/systemd/system
+systemctl start docker-compose@central
+systemctl enable docker-compose@central
+systemctl status docker-compose@central
+```
+
+Debe aparecer el texto `Active: active (running)`
+
+Para verificar el estado de los contenedores:
+
+```bash
+docker-compose ps
+```
+
+Ingreso a ODK Central
+=====================
+
+Ingresar a la carpeta raiíz del proyecto.
+
+- Para crear un usuario de la aplicación ODK Central:
+
+```bash
+docker-compose exec service odk-cmd --email DIRECCION@DE_CORREO.com user-create
+```
+Escriba la contraseña y presione ENTER.
+
+- Para convertir a un usuario en administrador de la aplicación ODK Central:
+
+```bash
+docker-compose exec service odk-cmd --email DIRECCION@DE_CORREO.com user-promote
+```
+
+- Para restablecer la contraseña de un usuario de la aplicación ODK Central:
+
+```bash
+docker-compose exec service odk-cmd --email DIRECCION@DE_CORREO.com user-set-password
 ```
 
 License

@@ -1,13 +1,13 @@
 version: "3"
 services:
   postgres:
-    image: "postgres:9.6"
+    image: "postgres:9.6-alpine"
     volumes:
-      - /var/lib/postgresql/data
+      - ~/postgresql-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: odk
-      POSTGRES_PASSWORD: odk
-      POSTGRES_DATABASE: odk
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
   mail:
     container_name: mail
     image: "itsissa/namshi-smtp:4.89-2.deb9u5"
@@ -41,7 +41,7 @@ services:
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
     ports:
-      - "80:80"
+      - "${PORT_APPLICATION}:80"
       - "443:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
