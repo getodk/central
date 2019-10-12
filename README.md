@@ -68,7 +68,7 @@ docker-compose build
 - Para probar en local
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 Ejecución
