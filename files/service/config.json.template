@@ -15,7 +15,7 @@
       }
     },
     "xlsform": {
-      "host": "xlsform",
+      "host": "pyxform",
       "port": 80
     },
     "env": {

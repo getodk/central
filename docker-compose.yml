@@ -45,8 +45,8 @@ services:
       - "443:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
-  xlsform:
-    container_name: xlsform
+  pyxform:
+    container_name: pyxform
     image: 'yanokwa/pyxform-http:v0.3.0'
 volumes:
   transfer:
