@@ -14,6 +14,10 @@
         "port": 25
       }
     },
+    "xlsform": {
+      "host": "pyxform",
+      "port": 80
+    },
     "env": {
       "domain": "https://${DOMAIN}"
     },

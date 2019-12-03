@@ -52,6 +52,12 @@ if content_encoding == "gzip" then
   ngx.req.read_body()
   local data = ngx.req.get_body_data()
 
+  if data == nil or data == '' then
+    local file = io.open(ngx.req.get_body_file(), "r")
+    data = file:read("*a")
+    file:close()
+  end
+
   if data ~= nil and data ~= '' then
     local new_data = inflate_body(data)
 
