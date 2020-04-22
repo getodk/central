@@ -1,4 +1,4 @@
-FROM node:carbon as intermediate
+FROM node:12.6.0 as intermediate
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
