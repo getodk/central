@@ -1,8 +1,8 @@
 server {
   listen 443 ssl;
-  ssl_certificate /etc/${SSL_TYPE}/live/${DOMAIN}/fullchain.pem;
-  ssl_certificate_key /etc/${SSL_TYPE}/live/${DOMAIN}/privkey.pem;
-  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${DOMAIN}/fullchain.pem;
+  ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
+  ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
+  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
 
   ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
   ssl_prefer_server_ciphers on;
