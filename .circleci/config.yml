@@ -12,7 +12,7 @@ jobs:
       - run: |
           echo 'SSL_TYPE=selfsign
           DOMAIN=local
-          SYSADMIN_EMAIL=no-reply@opendatakit.org' > .env
+          SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
       - run: docker-compose build
 

@@ -1,6 +1,6 @@
 [submodule "server"]
 	path = server
-	url = https://github.com/opendatakit/central-backend.git
+	url = https://github.com/getodk/central-backend.git
 [submodule "client"]
 	path = client
-	url = https://github.com/opendatakit/central-frontend.git
+	url = https://github.com/getodk/central-frontend.git
