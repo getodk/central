@@ -1,0 +1,32 @@
+{
+    "app name": "Enketo",
+    "base path": "enketo",
+    "encryption key": "${SECRET}",
+    "id length": 31,
+    "less secure encryption key": "${LESS_SECRET}",
+    "linked form and data server": {
+        "api key": "${API_KEY}",
+        "authentication": {
+            "type": "cookie",
+            "url": "https://${DOMAIN}/#/login?next={RETURNURL}"
+        },
+        "name": "ODK Central",
+        "server url": ""
+    },
+    "logo": {
+        "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+        "href": ""
+    },
+    "offline enabled": true,
+    "port": "8005",
+    "redis": {
+        "main": {
+            "host": "enketo_redis_main",
+            "port": "6379"
+        },
+        "cache": {
+            "host": "enketo_redis_cache",
+            "port": "6380"
+        }
+    }
+}

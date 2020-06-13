@@ -16,15 +16,20 @@ services:
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
     environment:
       - MAILNAME=${DOMAIN}
+
   service:
     container_name: service
     build:
       context: .
       dockerfile: service.dockerfile
     depends_on:
+      - secrets
       - postgres
       - mail
+      - pyxform
+      - enketo
     volumes:
+      - secrets:/etc/secrets
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
@@ -36,6 +41,7 @@ services:
       dockerfile: nginx.dockerfile
     depends_on:
       - service
+      - enketo
     environment:
       - SSL_TYPE=${SSL_TYPE}
       - DOMAIN=${DOMAIN}
@@ -45,9 +51,57 @@ services:
       - "443:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
+
   pyxform:
     container_name: pyxform
     image: 'getodk/pyxform-http:v1.0.0'
+
+  secrets:
+    container_name: secrets
+    volumes:
+      - secrets:/etc/secrets
+    build:
+      context: .
+      dockerfile: secrets.dockerfile
+    command: './generate-secrets.sh'
+  enketo:
+    container_name: enketo
+    volumes:
+      - secrets:/etc/secrets
+    build:
+      context: .
+      dockerfile: enketo.dockerfile
+    restart: unless-stopped
+    depends_on:
+      - secrets
+      - enketo_redis_main
+      - enketo_redis_cache
+    environment:
+      - DOMAIN=${DOMAIN}
+  enketo_redis_main:
+    image: redis:5
+    container_name: enketo_redis_main
+    volumes:
+      - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
+      - enketo_redis_main:/data
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+  enketo_redis_cache:
+    image: redis:5
+    container_name: enketo_redis_cache
+    volumes:
+      - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
+      - enketo_redis_cache:/data
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+
 volumes:
   transfer:
+  enketo_redis_main:
+  enketo_redis_cache:
+  secrets:
 
