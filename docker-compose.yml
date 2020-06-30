@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
+    restart: always
   mail:
     container_name: mail
     image: "itsissa/namshi-smtp:4.89-2.deb9u5"
@@ -16,6 +17,7 @@ services:
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
     environment:
       - MAILNAME=${DOMAIN}
+    restart: always
 
   service:
     container_name: service
@@ -34,6 +36,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+    restart: always
   nginx:
     container_name: nginx
     build:
@@ -51,10 +54,12 @@ services:
       - "443:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
+    restart: always
 
   pyxform:
     container_name: pyxform
     image: 'getodk/pyxform-http:v1.0.0'
+    restart: always
 
   secrets:
     container_name: secrets
@@ -71,7 +76,7 @@ services:
     build:
       context: .
       dockerfile: enketo.dockerfile
-    restart: unless-stopped
+    restart: always
     depends_on:
       - secrets
       - enketo_redis_main
@@ -87,7 +92,7 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
-    restart: unless-stopped
+    restart: always
   enketo_redis_cache:
     image: redis:5
     container_name: enketo_redis_cache
@@ -97,7 +102,7 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
-    restart: unless-stopped
+    restart: always
 
 volumes:
   transfer:
