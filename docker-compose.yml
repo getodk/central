@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
+    restart: always
   mail:
     container_name: mail
     image: "itsissa/namshi-smtp:4.89-2.deb9u5"
@@ -16,19 +17,26 @@ services:
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
     environment:
       - MAILNAME=${DOMAIN}
+    restart: always
+
   service:
     container_name: service
     build:
       context: .
       dockerfile: service.dockerfile
     depends_on:
+      - secrets
       - postgres
       - mail
+      - pyxform
+      - enketo
     volumes:
+      - secrets:/etc/secrets
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+    restart: always
   nginx:
     container_name: nginx
     build:
@@ -36,6 +44,7 @@ services:
       dockerfile: nginx.dockerfile
     depends_on:
       - service
+      - enketo
     environment:
       - SSL_TYPE=${SSL_TYPE}
       - DOMAIN=${DOMAIN}
@@ -45,9 +54,59 @@ services:
       - "443:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
+    restart: always
+
   pyxform:
     container_name: pyxform
     image: 'getodk/pyxform-http:v1.0.0'
+    restart: always
+
+  secrets:
+    container_name: secrets
+    volumes:
+      - secrets:/etc/secrets
+    build:
+      context: .
+      dockerfile: secrets.dockerfile
+    command: './generate-secrets.sh'
+  enketo:
+    container_name: enketo
+    volumes:
+      - secrets:/etc/secrets
+    build:
+      context: .
+      dockerfile: enketo.dockerfile
+    restart: always
+    depends_on:
+      - secrets
+      - enketo_redis_main
+      - enketo_redis_cache
+    environment:
+      - DOMAIN=${DOMAIN}
+  enketo_redis_main:
+    image: redis:5
+    container_name: enketo_redis_main
+    volumes:
+      - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
+      - enketo_redis_main:/data
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    restart: always
+  enketo_redis_cache:
+    image: redis:5
+    container_name: enketo_redis_cache
+    volumes:
+      - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
+      - enketo_redis_cache:/data
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    restart: always
+
 volumes:
   transfer:
+  enketo_redis_main:
+  enketo_redis_cache:
+  secrets:
 

@@ -18,6 +18,10 @@
       "host": "pyxform",
       "port": 80
     },
+    "enketo": {
+      "url": "http://enketo:8005/enketo",
+      "apiKey": "${ENKETO_API_KEY}"
+    },
     "env": {
       "domain": "https://${DOMAIN}"
     },
