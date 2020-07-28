@@ -19,7 +19,7 @@
       "port": 80
     },
     "enketo": {
-      "url": "http://enketo:8005/enketo",
+      "url": "http://enketo:8005/_",
       "apiKey": "${ENKETO_API_KEY}"
     },
     "env": {

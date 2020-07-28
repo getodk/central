@@ -1,6 +1,6 @@
 {
     "app name": "Enketo",
-    "base path": "enketo",
+    "base path": "_",
     "encryption key": "${SECRET}",
     "id length": 31,
     "less secure encryption key": "${LESS_SECRET}",
