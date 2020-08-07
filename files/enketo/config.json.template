@@ -19,6 +19,7 @@
     },
     "offline enabled": true,
     "port": "8005",
+    "query parameter to pass to submission": "st",
     "redis": {
         "main": {
             "host": "enketo_redis_main",
