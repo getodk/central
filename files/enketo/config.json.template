@@ -18,7 +18,9 @@
         "href": ""
     },
     "offline enabled": true,
+    "payload limit": "1mb",
     "port": "8005",
+    "query parameter to pass to submission": "st",
     "redis": {
         "main": {
             "host": "enketo_redis_main",
@@ -28,5 +30,7 @@
             "host": "enketo_redis_cache",
             "port": "6380"
         }
-    }
+    },
+    "support": "${SUPPORT_EMAIL}",
+    "text field character limit": 1000000
 }

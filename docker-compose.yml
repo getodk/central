@@ -83,6 +83,7 @@ services:
       - enketo_redis_cache
     environment:
       - DOMAIN=${DOMAIN}
+      - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
   enketo_redis_main:
     image: redis:5
     container_name: enketo_redis_main
