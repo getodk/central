@@ -21,8 +21,8 @@ server {
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/x-javascript text/xml text/csv;
 
-  location /_ {
-    proxy_pass http://enketo:8005/_;
+  location /- {
+    proxy_pass http://enketo:8005/-;
     proxy_redirect off;
     proxy_set_header Host $host;
   }
