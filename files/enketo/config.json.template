@@ -31,6 +31,6 @@
             "port": "6380"
         }
     },
-    "support": "${SUPPORT_EMAIL}",
+    "support": "errors@getodk.org",
     "text field character limit": 1000000
 }
