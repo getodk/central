@@ -1,6 +1,6 @@
 {
     "app name": "Enketo",
-    "base path": "enketo",
+    "base path": "-",
     "encryption key": "${SECRET}",
     "id length": 31,
     "less secure encryption key": "${LESS_SECRET}",
@@ -18,7 +18,9 @@
         "href": ""
     },
     "offline enabled": true,
+    "payload limit": "1mb",
     "port": "8005",
+    "query parameter to pass to submission": "st",
     "redis": {
         "main": {
             "host": "enketo_redis_main",
@@ -28,5 +30,9 @@
             "host": "enketo_redis_cache",
             "port": "6380"
         }
-    }
+    },
+    "support": {
+        "email": "errors@getodk.org"
+    },
+    "text field character limit": 1000000
 }
