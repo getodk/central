@@ -15,7 +15,7 @@ If you are looking for help, please take a look at the [Documentation Website](h
 Contributing
 ============
 
-We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Features board](https://forum.getodk.org/c/features) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/CONTRIBUTING.md)), or both.
+We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Features board](https://forum.getodk.org/c/features) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/CONTRIBUTING.md)), or both. To set up a development environment, first follow the [Backend instructions](https://github.com/getodk/central-backend#setting-up-a-development-environment) and then optionally the [Frontend instructions](https://github.com/getodk/central-frontend#running-in-development).
 
 Operations
 ==========
