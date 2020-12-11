@@ -35,6 +35,7 @@ services:
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
+      - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
   nginx:
