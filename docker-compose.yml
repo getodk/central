@@ -4,10 +4,16 @@ services:
     image: "postgres:9.6"
     volumes:
       - /var/lib/postgresql/data
+      - database:/var/lib/postgresql/db
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
+      PGDATA: "/var/lib/postgresql/db"
+    # we used to store all postgres data in an anonymous volume. this was fine except sometimes people would do docker-compose down and lose their data.
+    # so this command will, if it finds the data in the old directory, move it all on over to a named volume. it will also ensure some sometimes-empty directories exist.
+    # otherwise, it will double check the old directory really is empty, then start postgres.
+    command: 'bash -c "[ -f /var/lib/postgresql/data/pg_hba.conf ] && { mv -uv /var/lib/postgresql/data/* /var/lib/postgresql/db/ && /bin/mkdir -pv /var/lib/postgresql/db/{{pg_commit_ts,pg_dynshmem,pg_replslot,pg_serial,pg_snapshots,pg_stat,pg_stat_tmp,pg_tblspc,pg_twophase},pg_logical/{mappings,snapshots}} && ./docker-entrypoint.sh postgres; } || { test \"$$(ls -A /var/lib/postgresql/data)\" || ./docker-entrypoint.sh postgres; }"'
     restart: always
   mail:
     container_name: mail
@@ -110,4 +116,5 @@ volumes:
   enketo_redis_main:
   enketo_redis_cache:
   secrets:
+  database:
 
