@@ -1,5 +1,5 @@
 DHPATH=/etc/dh/nginx.pem
-if [ ! -e "$DHPATH" ]
+if [ ! -e "$DHPATH" ] && [ "$SSL_TYPE" != "none" ]
 then
   echo "diffie hellman private key does not exist; creating.."
   openssl dhparam -out "$DHPATH" 2048
@@ -25,6 +25,12 @@ if [ "$SSL_TYPE" = "letsencrypt" ]
 then
   echo "starting nginx with certbot.."
   /bin/bash /scripts/entrypoint.sh
+elif [ "$SSL_TYPE" = "none" ]
+then
+  perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
+  rm -f /etc/nginx/conf.d/certbot.conf
+  echo "starting open nginx (no SSL) without certbot.."
+  nginx -g "daemon off;"
 else
   echo "starting nginx without certbot.."
   nginx -g "daemon off;"

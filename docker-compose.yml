@@ -50,8 +50,8 @@ services:
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${OPEN_PORT}:80"
+      - "${SSL_PORT}:443"
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
     restart: always
