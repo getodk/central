@@ -58,7 +58,7 @@ services:
 
   pyxform:
     container_name: pyxform
-    image: 'getodk/pyxform-http:v1.0.0'
+    image: 'getodk/pyxform-http:v1.3.3'
     restart: always
 
   secrets:
