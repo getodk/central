@@ -1,4 +1,4 @@
-FROM enketo/enketo-express:2.3.12
+FROM enketo/enketo-express:2.5.3
 
 ENV ENKETO_SRC_DIR=/srv/src/enketo_express
 WORKDIR ${ENKETO_SRC_DIR}
