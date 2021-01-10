@@ -29,7 +29,7 @@ elif [ "$SSL_TYPE" = "none" ]
 then
   perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
   rm -f /etc/nginx/conf.d/certbot.conf
-  echo "starting open nginx (no SSL) without certbot.."
+  echo "starting insecure nginx without certbot (no SSL, potential security issue: SSL should always be active).."
   nginx -g "daemon off;"
 else
   echo "starting nginx without certbot.."
