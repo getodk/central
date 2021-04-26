@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: ODK Forum
+    url: https://forum.getodk.org
+    about: Most discussions should begin on the ODK Forum so that the broader user community can be involved.
