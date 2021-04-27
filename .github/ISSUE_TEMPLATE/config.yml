@@ -1,5 +1,11 @@
 blank_issues_enabled: true
-contact_links:
-  - name: Discuss Central on the ODK Forum
-    url: https://forum.getodk.org
-    about: Please describe issues you're running into in the Support category, ideas for improvements in the Features category and anything else in the Development category.
+contact_links: 
+  - name: "Report an issue"
+    about: "For when Central is behaving in an unexpected way"
+    url: "https://forum.getodk.org/c/support/6"
+  - name: "Request a feature"
+    about: "For when Central is missing functionality"
+    url: "https://forum.getodk.org/c/features/9"
+  - name: "Everything else"
+    about: "For everything else"
+    url: "https://forum.getodk.org/c/support/6"
