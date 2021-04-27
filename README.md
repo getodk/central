@@ -8,7 +8,7 @@ Our goal with Central is to create a modern server that is easy to install, easy
 This repository serves as an umbrella for the Central project as a whole:
 
 * Operations repository for packaging the server and client into a Docker Compose application.
-* Release repository for publishing binary artifacts. Release notes can be found in this repository.
+* Release repository for publishing binary artifacts. Release notes can be found in this repository: see the [releases](https://github.com/getodk/central/releases).
 
 If you are looking for help, please take a look at the [Documentation Website](https://docs.getodk.org/central-intro/). If that doesn't solve your problem, please head over to the [ODK Forum](https://forum.getodk.org) and do a search to see if anybody else has had the same problem. If you've identified a new problem or have a feature request, please post on the forum. We prefer forum posts to Github issues because more of the community is on the forum.
 
