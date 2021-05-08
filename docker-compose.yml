@@ -55,7 +55,7 @@ services:
       - "${HTTPS_PORT:-443}:443"
 
     healthcheck:
-      test: [ "CMD-SHELL", "nc -z localhost 443 || exit 1" ]
+      test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
     restart: always
 
   pyxform:
