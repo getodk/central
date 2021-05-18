@@ -53,7 +53,7 @@ services:
       test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
     restart: always
   pyxform:
-    image: 'getodk/pyxform-http:v1.5.0'
+    image: 'getodk/pyxform-http:v1.5.1'
     restart: always
   secrets:
     volumes:
