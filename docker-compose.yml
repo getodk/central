@@ -10,7 +10,6 @@ services:
       POSTGRES_DATABASE: odk
     restart: always
   mail:
-    container_name: mail
     image: "itsissa/namshi-smtp:4.89-2.deb9u5"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
@@ -19,7 +18,6 @@ services:
       - MAILNAME=${DOMAIN}
     restart: always
   service:
-    container_name: service
     build:
       context: .
       dockerfile: service.dockerfile
@@ -38,7 +36,6 @@ services:
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
   nginx:
-    container_name: nginx
     build:
       context: .
       dockerfile: nginx.dockerfile
@@ -56,11 +53,9 @@ services:
       test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
     restart: always
   pyxform:
-    container_name: pyxform
     image: 'getodk/pyxform-http:v1.5.0'
     restart: always
   secrets:
-    container_name: secrets
     volumes:
       - secrets:/etc/secrets
     build:
@@ -68,7 +63,6 @@ services:
       dockerfile: secrets.dockerfile
     command: './generate-secrets.sh'
   enketo:
-    container_name: enketo
     volumes:
       - secrets:/etc/secrets
     build:
@@ -84,7 +78,6 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
   enketo_redis_main:
     image: redis:5
-    container_name: enketo_redis_main
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -94,7 +87,6 @@ services:
     restart: always
   enketo_redis_cache:
     image: redis:5
-    container_name: enketo_redis_cache
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data

@@ -23,12 +23,12 @@ jobs:
           command: |
             set -x
             docker-compose up -d
-            docker run --network container:nginx \
+            CONTAINER_NAME=$(docker inspect -f '{{.Name}}' $(docker-compose ps -q nginx) | cut -c2-)
+            docker run --network container:$CONTAINER_NAME \
               appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ \
               | tee /dev/tty \
               | grep -q 'ODK Central'
-            docker run --network container:nginx \
+            docker run --network container:$CONTAINER_NAME \
               appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects \
               | tee /dev/tty \
               | grep -q '\[\]'
-
