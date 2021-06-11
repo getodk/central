@@ -20,7 +20,7 @@ We would love your contributions to Central. If you have thoughts or suggestions
 In addition to the Backend and the Frontend, Central deploys services:
 
 * Central relies on [pyxform-http](https://github.com/getodk/pyxform-http) for converting forms from XLSForm. It generally shouldn't be needed in development but can be run locally.
-* Central relies on [Enketo](https://github.com/enketo/enketo-express) for web form functionality. Neither the Backend nor the Frontend are configured to work with Enketo in development. Instead, you can drive local development that integrates with Enketo using tests and then try new functionality in a [production environment](https://docs.getodk.org/central-install-digital-ocean/) by [checking out a commit](https://docs.getodk.org/central-upgrade/) from your fork. Be sure to follow the upgrade instructions exactly. In particular, do not run `docker-compose down` because this will recreate new volumes instead of using existing ones.
+* Central relies on [Enketo](https://github.com/enketo/enketo-express) for web form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following these [instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
 
 Operations
 ==========
