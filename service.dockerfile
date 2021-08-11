@@ -11,9 +11,11 @@ COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
 RUN npm install --production
+RUN npm install pm2 -g
 
 COPY server/ ./
 COPY files/service/scripts/ ./
+COPY files/service/pm2.config.js ./
 
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/odk-cmd /usr/bin/
