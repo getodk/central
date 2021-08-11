@@ -1,4 +1,4 @@
-FROM node:12.6.0
+FROM node:14.17.4
 
 WORKDIR /usr/odk
 
