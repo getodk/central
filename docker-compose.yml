@@ -35,6 +35,8 @@ services:
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
+    logging:
+      driver: local
   nginx:
     build:
       context: .
@@ -52,6 +54,10 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
     restart: always
+    logging:
+      driver: local
+      options:
+        max-file: "30"
   pyxform:
     image: 'ghcr.io/getodk/pyxform-http:v1.6.0'
     restart: always
