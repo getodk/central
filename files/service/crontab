@@ -1,2 +1,3 @@
+0 3 * * * root /usr/odk/run-analytics.sh
 0 2 * * * root /usr/odk/run-backup.sh
 0 1 * * 0 root /usr/odk/reap-sessions.sh
