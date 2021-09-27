@@ -49,6 +49,13 @@ server {
 
   location / {
     root /usr/share/nginx/html;
+
+    location /version.txt {
+      add_header Cache-Control no-cache;
+    }
+    location /index.html {
+      add_header Cache-Control no-cache;
+    }
   }
 }
 
