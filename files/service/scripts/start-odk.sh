@@ -18,6 +18,5 @@ fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
 echo "starting server."
-mkdir -p /var/log/odk
-node node_modules/naught/lib/main.js start --remove-old-ipc true --worker-count $WORKER_COUNT --daemon-mode false --log /var/log/odk/naught.log --stdout /proc/1/fd/1 --stderr /proc/1/fd/2 lib/bin/run-server.js
+pm2-runtime ./pm2.config.js --instances $WORKER_COUNT
 

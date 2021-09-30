@@ -1,11 +1,11 @@
-FROM node:12.6.0 as intermediate
+FROM node:14.17.6 as intermediate
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
 
-FROM staticfloat/nginx-certbot@sha256:113300163d871119a261738964d7d8f24a478a605d56888a82e9f45fb353698d
+FROM jonasal/nginx-certbot:2.4
 
 EXPOSE 80
 EXPOSE 443

@@ -10,7 +10,7 @@ services:
       POSTGRES_DATABASE: odk
     restart: always
   mail:
-    image: "itsissa/namshi-smtp:4.89-2.deb9u5"
+    image: "itsissa/namshi-smtp:4.92-8.deb10u6"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
@@ -35,6 +35,8 @@ services:
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
+    logging:
+      driver: local
   nginx:
     build:
       context: .
@@ -52,8 +54,12 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
     restart: always
+    logging:
+      driver: local
+      options:
+        max-file: "30"
   pyxform:
-    image: 'getodk/pyxform-http:v1.5.1'
+    image: 'ghcr.io/getodk/pyxform-http:v1.6.0'
     restart: always
   secrets:
     volumes:
