@@ -1,5 +1,7 @@
 server {
   listen 443 ssl;
+  server_name ${CNAME};
+
   ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
   ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
   ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
