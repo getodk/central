@@ -1,4 +1,4 @@
 #!/bin/sh
 
-{ echo "versions:"; git rev-parse HEAD; git submodule; } > /tmp/version.txt
+{ echo "versions:"; echo "$(git rev-parse HEAD) ($(git describe --tags))"; git submodule; } > /tmp/version.txt
 
