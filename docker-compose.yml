@@ -3,7 +3,7 @@ services:
   postgres:
     image: "postgres:9.6"
     volumes:
-      - /var/lib/postgresql/data
+      - ./volumes/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
@@ -18,9 +18,7 @@ services:
       - MAILNAME=${DOMAIN}
     restart: always
   service:
-    build:
-      context: .
-      dockerfile: service.dockerfile
+    image: ghcr.io/mattelacchiato/service:latest
     depends_on:
       - secrets
       - postgres
@@ -28,19 +26,19 @@ services:
       - pyxform
       - enketo
     volumes:
-      - secrets:/etc/secrets
+      - ./volumes/secrets:/etc/secrets
       - /data/transfer:/data/transfer
+      - ./files/service/config.json.template:/usr/share/odk/config.json.template
     environment:
-      - DOMAIN=${DOMAIN}
-      - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
+      - DOMAIN
+      - SYSADMIN_EMAIL
+      - ENKETO_API_KEY
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
   nginx:
-    build:
-      context: .
-      dockerfile: nginx.dockerfile
+    image: ghcr.io/mattelacchiato/nginx:latest
     depends_on:
       - service
       - enketo
@@ -62,31 +60,27 @@ services:
     image: 'ghcr.io/getodk/pyxform-http:v1.7.0'
     restart: always
   secrets:
+    image: ghcr.io/mattelacchiato/secrets:latest
     volumes:
-      - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: secrets.dockerfile
+      - ./volumes/secrets:/etc/secrets
     command: './generate-secrets.sh'
   enketo:
+    image: ghcr.io/mattelacchiato/enketo:latest
     volumes:
-      - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: enketo.dockerfile
+      - ./volumes/secrets:/etc/secrets
     restart: always
     depends_on:
       - secrets
       - enketo_redis_main
       - enketo_redis_cache
     environment:
-      - DOMAIN=${DOMAIN}
+      - DOMAIN
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
   enketo_redis_main:
     image: redis:5
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
-      - enketo_redis_main:/data
+      - ./volumes/redis/main:/data
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
@@ -95,13 +89,8 @@ services:
     image: redis:5
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
-      - enketo_redis_cache:/data
+      - ./volumes/redis/cache:/data
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
     restart: always
-volumes:
-  transfer:
-  enketo_redis_main:
-  enketo_redis_cache:
-  secrets:
