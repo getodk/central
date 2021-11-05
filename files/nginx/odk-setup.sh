@@ -24,16 +24,20 @@ CNAME=$([ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
 if [ "$SSL_TYPE" = "letsencrypt" ]
 then
   echo "starting nginx with certbot.."
+  cp /usr/share/nginx/certbot.conf /etc/nginx/conf.d/certbot.conf
+  cp /usr/share/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
   /bin/bash /scripts/start_nginx_certbot.sh
 elif [ "$SSL_TYPE" = "upstream" ]
 then
+  echo "starting nginx without local SSL to allow for upstream SSL.."
   perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
   perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
   rm -f /etc/nginx/conf.d/certbot.conf
-  echo "starting nginx without local SSL to allow for upstream SSL.."
+  rm -f /etc/nginx/conf.d/redirector.conf
   nginx -g "daemon off;"
 else
   echo "starting nginx without certbot.."
+  rm -f /etc/nginx/conf.d/certbot.conf
+  rm -f /etc/nginx/conf.d/redirector.conf
   nginx -g "daemon off;"
 fi
-
