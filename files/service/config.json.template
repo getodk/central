@@ -23,7 +23,7 @@
       "apiKey": "${ENKETO_API_KEY}"
     },
     "env": {
-      "domain": "https://${DOMAIN}",
+      "domain": "https://${DOMAIN}:${HTTPS_PORT}",
       "sysadminAccount": "${SYSADMIN_EMAIL}"
     },
     "external": {
