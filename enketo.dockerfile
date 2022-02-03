@@ -16,10 +16,6 @@ COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
 
 RUN apt-get update; apt-get install gettext-base
 
-RUN npm install
-RUN grunt
-RUN npm prune --production
-
 EXPOSE 8005
 
 CMD ./start-enketo.sh
