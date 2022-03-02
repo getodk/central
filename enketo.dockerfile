@@ -1,4 +1,4 @@
-FROM ghcr.io/enketo/enketo-express:3.0.4
+FROM ghcr.io/enketo/enketo-express:3.1.0
 
 ENV ENKETO_SRC_DIR=/srv/src/enketo_express
 WORKDIR ${ENKETO_SRC_DIR}
@@ -15,10 +15,6 @@ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
 COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
 
 RUN apt-get update; apt-get install gettext-base
-
-RUN npm install
-RUN grunt
-RUN npm prune --production
 
 EXPOSE 8005
 
