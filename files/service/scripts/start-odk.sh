@@ -5,6 +5,14 @@ echo "generating local service configuration.."
 echo "running migrations.."
 node -e 'const { withDatabase, migrate } = require("./lib/model/migrate"); withDatabase(require("config").get("default.database"))(migrate);'
 
+echo "checking migration success.."
+node -e 'const { withDatabase, checkMigrations } = require("./lib/model/migrate"); withDatabase(require("config").get("default.database"))(checkMigrations);'
+
+if [ $? -eq 1 ]; then
+  echo "migration error: there are still pending migrations... central will not run until fixed"
+  exit 1
+fi
+
 echo "starting cron.."
 cron -f &
 
