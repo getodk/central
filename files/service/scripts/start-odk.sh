@@ -9,7 +9,8 @@ echo "checking migration success.."
 node -e 'const { withDatabase, checkMigrations } = require("./lib/model/migrate"); withDatabase(require("config").get("default.database"))(checkMigrations);'
 
 if [ $? -eq 1 ]; then
-  echo "migration error: there are still pending migrations... central will not run until fixed"
+  echo "*** Error starting ODK! ***"
+  echo "After attempting to automatically migrate the database, we have detected unapplied migrations, which suggests a problem with the database migration step. Please look in the console above this message for any errors and post what you find in the forum: https://forum.getodk.org/"
   exit 1
 fi
 
