@@ -32,6 +32,7 @@ services:
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
+      - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
     command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
     restart: always
@@ -82,6 +83,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN}
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
+      - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
     image: redis:5
     volumes:
