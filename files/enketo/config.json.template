@@ -8,7 +8,7 @@
         "api key": "${API_KEY}",
         "authentication": {
             "type": "cookie",
-            "url": "https://${DOMAIN}/#/login?next={RETURNURL}"
+            "url": "https://${DOMAIN}:${HTTPS_PORT}/#/login?next={RETURNURL}"
         },
         "name": "ODK Central",
         "server url": ""
