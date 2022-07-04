@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: mail
+  name: mail
+  namespace: odk  
+spec:
+  ports:
+    - name: "25"
+      port: 25
+      targetPort: 25
+  selector:
+    odk.service: mail

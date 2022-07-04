@@ -1,0 +1,13 @@
+apiVersion: {{ .Values.persistentvolumeclaim.apiversion }}
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    odk.service: postgres-claim0
+  name: postgres-claim0
+  namespace: odk  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

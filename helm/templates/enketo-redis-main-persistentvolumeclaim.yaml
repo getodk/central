@@ -1,0 +1,13 @@
+apiVersion: {{ .Values.persistentvolumeclaim.apiversion }}
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    odk.service: enketo-redis-main
+  name: enketo-redis-main
+  namespace: odk  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

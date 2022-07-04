@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: enketo-redis-cache
+  name: enketo-redis-cache
+  namespace: odk  
+spec:
+  ports:
+    - name: "6380"
+      port: 6380
+      targetPort: 6380
+  selector:
+    odk.service: enketo-redis-cache

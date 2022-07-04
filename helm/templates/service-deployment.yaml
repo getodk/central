@@ -1,0 +1,54 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: service
+  name: service
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        odk.service: service
+    spec: 
+      containers:
+        - args:
+            - ./wait-for-it.sh
+            - postgres:5432
+            - --
+            - ./start-odk.sh
+          env:
+            - name: DOMAIN
+              value: "PASTE-NEW-VALUE-FROM-COPIED-LOADBALANCER-URL-HERE"
+            - name: SYSADMIN_EMAIL
+              value: "ntando@fynarfin.io"
+          image: ntando/odk-central-service:latest
+          name: service
+          ports:
+            - containerPort: 8383          
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "512m"
+            limits:
+              memory: "256Mi"
+              cpu: "512m"           
+          volumeMounts:
+            - mountPath: /etc/secrets
+              name: secrets-configmap
+            - mountPath: /data/transfer
+              name: service-claim1
+      restartPolicy: Always
+      volumes:
+        - name: secrets-configmap
+          configMap:
+            name: secrets-configmap
+        - name: service-claim1
+          persistentVolumeClaim:
+            claimName: service-claim1

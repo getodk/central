@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: pyxform
+  name: pyxform
+  namespace: odk  
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    odk.service: pyxform

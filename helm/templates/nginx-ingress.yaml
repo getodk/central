@@ -1,0 +1,25 @@
+# apiVersion: {{ .Values.ingress.apiversion }}
+# kind: Ingress
+# metadata:
+#   name: odk-ingress
+#   namespace: odk
+# status:
+#   loadBalancer:
+#     ingress:
+#       - hostname: 9252a268-us-east.lb.appdomain.cloud
+# spec:
+#   ingressClassName: public-iks-k8s-nginx
+#   tls:
+#     - hosts:
+#         - '*.ibank.financial'
+#   rules:
+#     - host: testing-odk-nginx.ibank.financial
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: nginx
+#                 port:
+#                   number: 80

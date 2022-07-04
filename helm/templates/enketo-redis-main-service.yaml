@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: enketo-redis-main
+  name: enketo-redis-main
+  namespace: odk  
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  selector:
+    odk.service: enketo-redis-main

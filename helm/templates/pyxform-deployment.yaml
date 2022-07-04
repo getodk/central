@@ -1,0 +1,31 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: pyxform
+  name: pyxform
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: pyxform
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        odk.service: pyxform
+    spec:
+      containers:
+        - image: ghcr.io/getodk/pyxform-http:v1.9.0
+          name: pyxform
+          ports:
+            - containerPort: 80          
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "512m"
+            limits:
+              memory: "512Mi"
+              cpu: "512m"            
+      restartPolicy: Always

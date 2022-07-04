@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    odk.service: mail
+  name: mail
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: mail
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        odk.service: mail
+    spec:
+      containers:
+        - env:
+            - name: RELAY_NETWORKS
+              value: ":192.168.0.0/24:10.0.0.0/8:172.0.0.0/8"
+            - name: GMAIL_USER
+              value: "email@address.here"
+            - name: GMAIL_PASSWORD
+              value: "password_goes_here"
+          image: namshi/smtp:latest
+          name: mail
+          resources: {}
+          ports:
+            - containerPort: 25              
+      restartPolicy: Always

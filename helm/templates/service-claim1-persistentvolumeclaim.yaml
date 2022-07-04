@@ -1,0 +1,13 @@
+apiVersion: {{ .Values.persistentvolumeclaim.apiversion }}
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    odk.service: service-claim1
+  name: service-claim1
+  namespace: odk  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

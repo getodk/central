@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: enketo
+  name: enketo
+  namespace: odk  
+spec:
+  ports:
+    - name: "8005"
+      port: 8005
+      targetPort: 8005
+  selector:
+    odk.service: enketo

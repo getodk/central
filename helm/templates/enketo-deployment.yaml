@@ -1,0 +1,44 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: enketo
+  name: enketo
+  namespace: odk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: enketo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        odk.service: enketo
+    spec:
+      containers:
+        - env:
+            - name: DOMAIN
+              value: "3ca97ecf-us-east.lb.appdomain.cloud"
+            - name: SUPPORT_EMAIL
+              value: "ntando@fynarfin.io"
+          image: ntando/odk-central-enketo:latest
+          name: enketo
+          resources: 
+            requests:
+              memory: "512Mi"
+              cpu: "1024m"
+            limits:
+              memory: "512Mi"
+              cpu: "1024m"
+          volumeMounts:
+            - mountPath: /etc/secrets
+              name: secrets-configmap
+          ports:
+            - containerPort: 8005                          
+      restartPolicy: Always
+      volumes:
+        - name: secrets-configmap
+          configMap:
+            name: secrets-configmap

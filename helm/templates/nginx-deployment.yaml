@@ -1,0 +1,43 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: nginx
+  name: nginx
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: nginx
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        odk.service: nginx
+    spec:   
+      containers:
+        - env:
+            - name: CERTBOT_EMAIL
+              value: "ntando@fynarfin.io"
+            - name: DOMAIN            
+              value: "3ca97ecf-us-east.lb.appdomain.cloud"
+            - name: SSL_TYPE
+              value: letsencrypt
+          image: ntando/odk-central-nginx:latest
+          livenessProbe:
+            exec:
+              command:
+                - nc -z localhost 80 || exit 1
+          name: nginx
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "256m"
+            limits:
+              memory: "128Mi"
+              cpu: "256m"          
+      restartPolicy: Always

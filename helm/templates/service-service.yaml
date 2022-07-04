@@ -1,0 +1,14 @@
+apiVersion: {{ .Values.service.apiversion }}
+kind: Service
+metadata:
+  labels:
+    odk.service: service
+  name: service
+  namespace: odk  
+spec:
+  ports:
+    - name: "8383"
+      port: 8383
+      targetPort: 8383
+  selector:
+    odk.service: service

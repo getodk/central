@@ -1,0 +1,47 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: enketo-redis-cache
+  name: enketo-redis-cache
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: enketo-redis-cache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        odk.service: enketo-redis-cache
+    spec:
+      containers:
+        - args:
+            - redis-server
+            - /usr/local/etc/redis/redis.conf
+          image: redis:5
+          name: enketo-redis-cache
+          ports:
+            - containerPort: 6380          
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "256m"
+            limits:
+              memory: "128Mi"
+              cpu: "256m"        
+          volumeMounts:
+            - mountPath: /usr/local/etc/redis/
+              name: enketo-redis-cache-configmap           
+            - mountPath: /data
+              name: enketo-redis-cache
+      restartPolicy: Always
+      volumes:
+        - name: enketo-redis-cache
+          persistentVolumeClaim:
+            claimName: enketo-redis-cache
+        - name: enketo-redis-cache-configmap
+          configMap:
+            name: enketo-redis-cache-configmap

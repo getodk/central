@@ -1,0 +1,47 @@
+apiVersion: {{ .Values.deployment.apiversion }}
+kind: Deployment
+metadata:
+  labels:
+    odk.service: postgres
+  name: postgres
+  namespace: odk  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      odk.service: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        odk.service: postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DATABASE
+              value: odk
+            - name: POSTGRES_PASSWORD
+              value: odk
+            - name: POSTGRES_USER
+              value: odk
+          image: postgres:9.6
+          name: postgres
+          ports:
+            - containerPort: 5432          
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "256m"
+            limits:
+              memory: "128Mi"
+              cpu: "256m"           
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-claim0
+              subPath: postgres
+      restartPolicy: Always
+      volumes:
+        - name: postgres-claim0
+          persistentVolumeClaim:
+            claimName: postgres-claim0
