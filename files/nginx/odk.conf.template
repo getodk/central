@@ -14,7 +14,7 @@ server {
 
   server_tokens off;
 
-  include ./common-headers.nginx.conf;
+  include /usr/share/nginx/common-headers.nginx.conf;
 
   client_max_body_size 100m;
 
@@ -50,11 +50,11 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
-      include ./common-headers.nginx.conf;
+      include /usr/share/nginx/common-headers.nginx.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
-      include ./common-headers.nginx.conf;
+      include /usr/share/nginx/common-headers.nginx.conf;
       add_header Cache-Control no-cache;
     }
   }
