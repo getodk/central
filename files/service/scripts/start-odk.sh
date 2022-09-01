@@ -26,6 +26,8 @@ else
 fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
+export SENTRY_RELEASE="$(cat odk-central-backend-version)"
+
 echo "starting server."
 pm2-runtime ./pm2.config.js --instances $WORKER_COUNT
 

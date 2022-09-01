@@ -1,3 +1,9 @@
+FROM node:14.19.3 as intermediate
+
+COPY . .
+WORKDIR server
+RUN git describe --tags --dirty > /tmp/odk-central-backend-version
+
 FROM node:14.19.3
 
 WORKDIR /usr/odk
@@ -10,6 +16,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee 
 COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
+COPY --from=intermediate /tmp/odk-central-backend-version ./
 RUN npm install --production
 RUN npm install pm2 -g
 
