@@ -11,7 +11,7 @@
             "url": "https://${DOMAIN}:${HTTPS_PORT}/#/login?next={RETURNURL}"
         },
         "name": "ODK Central",
-        "server url": ""
+        "server url": "${DOMAIN}"
     },
     "logo": {
         "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
