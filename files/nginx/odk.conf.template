@@ -13,10 +13,8 @@ server {
   ssl_dhparam /etc/dh/nginx.pem;
 
   server_tokens off;
-  add_header Strict-Transport-Security "max-age=63072000" always;
 
-  add_header X-Frame-Options "SAMEORIGIN";
-  add_header X-Content-Type-Options nosniff;
+  include /usr/share/nginx/common-headers.nginx.conf;
 
   client_max_body_size 100m;
 
@@ -52,9 +50,11 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
+      include /usr/share/nginx/common-headers.nginx.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
+      include /usr/share/nginx/common-headers.nginx.conf;
       add_header Cache-Control no-cache;
     }
   }
