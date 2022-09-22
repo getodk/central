@@ -3,10 +3,10 @@ echo "generating local service configuration.."
 /bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
 
 echo "running migrations.."
-node -e 'const { withDatabase, migrate } = require("./lib/model/migrate"); withDatabase(require("config").get("default.database"))(migrate);'
+node ./lib/bin/run-migrations
 
 echo "checking migration success.."
-node -e 'const { withDatabase, checkMigrations } = require("./lib/model/migrate"); withDatabase(require("config").get("default.database"))(checkMigrations);'
+node ./lib/bin/check-migrations
 
 if [ $? -eq 1 ]; then
   echo "*** Error starting ODK! ***"
