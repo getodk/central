@@ -36,7 +36,10 @@ a:focus {
 }
 
 .news-item {
+  overflow: hidden;
   position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .item-date {
