@@ -11,7 +11,10 @@ module.exports = {
     error_file: '/proc/1/fd/2',
 
     // per Unitech/pm2#2045 this resolves a conflict w node-config:
-    instance_var: 'INSTANCE_ID'
+    instance_var: 'INSTANCE_ID',
+
+    // --instances option from cli is not working in pm2 v5.2. Ref: Unitech/pm2/issues/5450
+    instances: process.env.WORKER_COUNT
   }]
 };
 

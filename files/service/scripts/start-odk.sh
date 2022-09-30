@@ -27,5 +27,5 @@ fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
 echo "starting server."
-pm2-runtime ./pm2.config.js --instances $WORKER_COUNT
+pm2-runtime ./pm2.config.js
 
