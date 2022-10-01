@@ -1,8 +1,12 @@
 FROM node:16.17.0 as intermediate
 
 COPY . .
+RUN mkdir /tmp/sentry-versions
+RUN git describe --tags --dirty > /tmp/sentry-versions/central
 WORKDIR server
-RUN git describe --tags --dirty > /tmp/odk-central-backend-version
+RUN git describe --tags --dirty > /tmp/sentry-versions/server
+WORKDIR ../client
+RUN git describe --tags --dirty > /tmp/sentry-versions/client
 
 FROM node:16.17.0
 
@@ -16,7 +20,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee 
 COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
-COPY --from=intermediate /tmp/odk-central-backend-version ./
+COPY --from=intermediate /tmp/sentry-versions/ ./
 RUN npm install --production
 RUN npm install pm2 -g
 
