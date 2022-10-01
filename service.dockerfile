@@ -1,10 +1,10 @@
-FROM node:14.19.3 as intermediate
+FROM node:16.17.0 as intermediate
 
 COPY . .
 WORKDIR server
 RUN git describe --tags --dirty > /tmp/odk-central-backend-version
 
-FROM node:14.19.3
+FROM node:16.17.0
 
 WORKDIR /usr/odk
 
