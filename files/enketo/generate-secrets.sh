@@ -1,3 +1,4 @@
+#!/bin/sh
 
 if [ ! -f /etc/secrets/enketo-secret ]; then
   LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c64 > /etc/secrets/enketo-secret
