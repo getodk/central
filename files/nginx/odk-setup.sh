@@ -1,3 +1,5 @@
+#!/bin/bash
+
 DHPATH=/etc/dh/nginx.pem
 if [ ! -e "$DHPATH" ] && [ "$SSL_TYPE" != "upstream" ]
 then
