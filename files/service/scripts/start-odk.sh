@@ -2,6 +2,9 @@ CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
 /bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
 
+export SENTRY_RELEASE="$(cat sentry-versions/server)"
+export SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
+
 echo "running migrations.."
 node ./lib/bin/run-migrations
 
@@ -25,9 +28,6 @@ else
   WORKER_COUNT=1
 fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
-
-export SENTRY_RELEASE="$(cat sentry-versions/server)"
-export SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
 
 echo "starting server."
 pm2-runtime ./pm2.config.js --instances $WORKER_COUNT
