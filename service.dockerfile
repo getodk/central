@@ -20,7 +20,6 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee 
 COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
-COPY --from=intermediate /tmp/sentry-versions/ ./
 RUN npm install --production --legacy-peer-deps
 RUN npm install pm2 -g
 
@@ -30,6 +29,8 @@ COPY files/service/pm2.config.js ./
 
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/odk-cmd /usr/bin/
+
+COPY --from=intermediate /tmp/sentry-versions/ ./
 
 EXPOSE 8383
 
