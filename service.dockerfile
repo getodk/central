@@ -21,7 +21,7 @@ COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
 COPY --from=intermediate /tmp/sentry-versions/ ./
-RUN npm install --production
+RUN npm install --production --legacy-peer-deps
 RUN npm install pm2 -g
 
 COPY server/ ./

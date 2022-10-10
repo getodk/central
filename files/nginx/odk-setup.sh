@@ -1,15 +1,17 @@
+#!/bin/bash
+
 DHPATH=/etc/dh/nginx.pem
-if [ ! -e "$DHPATH" ] && [ "$SSL_TYPE" != "upstream" ]
+if [ ! -s "$DHPATH" ] && [ "$SSL_TYPE" != "upstream" ]
 then
   echo "diffie hellman private key does not exist; creating.."
   openssl dhparam -out "$DHPATH" 2048
 fi
 
 SELFSIGN_BASEPATH=/etc/selfsign/live/$DOMAIN
-if [ "$SSL_TYPE" = "selfsign" ] && [ ! -e "$SELFSIGN_BASEPATH/privkey.pem" ]
+if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_BASEPATH/privkey.pem" ]
 then
   echo "self-signed cert requested but does not exist; creating.. (this could take a while)"
-  mkdir -p $SELFSIGN_BASEPATH
+  mkdir -p "$SELFSIGN_BASEPATH"
   openssl req -x509 -newkey rsa:4086 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_BASEPATH/privkey.pem" \
