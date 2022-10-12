@@ -30,7 +30,7 @@ COPY files/service/pm2.config.js ./
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/odk-cmd /usr/bin/
 
-COPY --from=intermediate /tmp/sentry-versions/ ./
+COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
 
 EXPOSE 8383
 
