@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
 /bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
