@@ -20,8 +20,9 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee 
 COPY files/service/crontab /etc/cron.d/odk
 
 COPY server/package*.json ./
+
 RUN npm clean-install --production --legacy-peer-deps
-RUN npm install pm2 -g
+RUN npm install pm2@5.2.0 -g
 
 COPY server/ ./
 COPY files/service/scripts/ ./
