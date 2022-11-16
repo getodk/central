@@ -13,7 +13,8 @@ EXPOSE 443
 VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
 ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 
-RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
+RUN apt-get update && \
+    apt-get install -y openssl netcat nginx-extras lua-zlib
 
 RUN mkdir -p /etc/selfsign/live/local/
 COPY files/nginx/odk-setup.sh /scripts/
