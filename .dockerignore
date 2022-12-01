@@ -1,2 +1,22 @@
-node_modules
-npm-debug.log
+# Ignore everything
+*
+
+# Re-include the things we actually want
+
+# .git dirs: required to generate version files in service container
+!/.git/
+!/server/.git
+!/client/.git
+
+!/files/
+
+!/server/package.json
+!/server/package-lock.json
+!/server/config/
+!/server/lib/
+
+!/client/package.json
+!/client/package-lock.json
+!/client/vue.config.js
+!/client/public/
+!/client/src/
