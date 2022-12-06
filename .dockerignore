@@ -15,6 +15,7 @@
 !/server/config/
 !/server/lib/
 
+!/client/.browserslistrc
 !/client/package.json
 !/client/package-lock.json
 !/client/vue.config.js
