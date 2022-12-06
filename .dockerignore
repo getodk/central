@@ -3,7 +3,7 @@
 
 # Re-include the things we actually want
 
-# .git dirs: required to generate version files in service container
+# .git dirs required to generate version files in service & nginx containers
 !/.git/
 !/server/.git
 !/client/.git
