@@ -3,7 +3,7 @@ services:
   postgres:
     image: "postgres:9.6"
     volumes:
-      - /var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
@@ -107,3 +107,4 @@ volumes:
   enketo_redis_main:
   enketo_redis_cache:
   secrets:
+  db:
