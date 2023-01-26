@@ -8,9 +8,11 @@ log() {
   echo "$(TZ=GMT date) [$logPrefix] $*"
 }
 
-log "Waiting for upgrade to complete..."
-while ! [[ -f "$flag_upgradeCompletedOk" ]]; do sleep 1; done
-log "Upgrade complete."
+if ! [[ -f "$flag_upgradeCompletedOk" ]]; then
+  log "Waiting for upgrade to complete..."
+  while ! [[ -f "$flag_upgradeCompletedOk" ]]; do sleep 1; done
+  log "Upgrade complete."
+fi
 
 log "Starting postgres..."
 # call ENTRYPOINT + CMD from parent Docker image
