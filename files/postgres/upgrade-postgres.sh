@@ -127,4 +127,4 @@ else
   touch "/postgres14-upgrade/upgrade-completed-ok"
 fi
 
-log "Shutting down."
+log "Complete."
