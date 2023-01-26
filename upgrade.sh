@@ -10,7 +10,7 @@ git submodule update -i
 log "Code updated."
 
 log "Checking disk space is sufficient..."
-sudo ./check-available-space
+sudo ./files/check-available-space
 
 if ! [[ -f ./allow-postgres14-upgrade ]]; then
 	log "!!!"
