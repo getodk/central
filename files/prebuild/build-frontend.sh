@@ -1,4 +1,4 @@
-#!/bin/sh
-
-cd client && npm install && npm run build
-
+#!/bin/bash -eu
+cd client
+npm install --no-audit --fund=false --update-notifier=false
+npm run build
