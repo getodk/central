@@ -3,7 +3,7 @@ set -o pipefail
 
 flag_upgradeCompletedOk="$PGDATA/../.postgres14-upgrade-completed-ok"
 
-logPrefix="$(basename $0)"
+logPrefix="$(basename "$0")"
 log() {
   echo "$(TZ=GMT date) [$logPrefix] $*"
 }
