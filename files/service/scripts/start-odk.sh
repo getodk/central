@@ -4,8 +4,12 @@ CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
 /bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
 
-export SENTRY_RELEASE="$(cat sentry-versions/server)"
-export SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
+SENTRY_RELEASE="$(cat sentry-versions/server)"
+export SENTRY_RELEASE
+# shellcheck disable=SC2089
+SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
+# shellcheck disable=SC2090
+export SENTRY_TAGS
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
