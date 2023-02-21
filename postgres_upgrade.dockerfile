@@ -5,7 +5,7 @@ FROM tianon/postgres-upgrade:9.6-to-14
 # It's expected it will be provided by the sysadmin performing the upgrade.
 # Docker build will fail if this file is missing.
 # TODO this file may stick around for a while; maybe we should call this simply `use-postgres14`?
-COPY allow-postgres14-upgrade .
+COPY ./files/postgres14/upgrade/allow-upgrade .
 
 COPY files/postgres/upgrade-postgres.sh /usr/local/bin/
 

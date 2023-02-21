@@ -17,7 +17,7 @@ jobs:
           DOMAIN=local
           SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
-      - run: touch allow-postgres14-upgrade
+      - run: touch ./files/postgres14/upgrade/allow-upgrade
 
       - run: docker-compose build
 

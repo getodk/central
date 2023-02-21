@@ -21,7 +21,7 @@ services:
       - /var/lib/postgresql/data
       - postgres14:/var/lib/postgresql/14
       # TODO this can potentially run out of space too!!
-      - ./postgres14-upgrade:/postgres14-upgrade
+      - ./files/postgres14/upgrade:/postgres14-upgrade
     environment:
       PGUSER: odk
       POSTGRES_INITDB_ARGS: -U odk
