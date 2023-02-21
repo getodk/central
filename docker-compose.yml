@@ -20,7 +20,6 @@ services:
     volumes:
       - /var/lib/postgresql/data
       - postgres14:/var/lib/postgresql/14
-      # TODO this can potentially run out of space too!!
       - ./files/postgres14/upgrade:/postgres14-upgrade
     environment:
       PGUSER: odk
