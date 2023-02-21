@@ -18,7 +18,6 @@ if [[ -f "$flag_upgradeCompletedOk" ]]; then
   log "Upgrade has been run previously."
 
   if [[ -f "$flag_deleteOldData_internal" ]]; then
-    # FIXME see if we can easily do a data sanity check of old vs new db, e.g. count the number of submissions, blobs, projects and check that new numbers are >= old numbers
     log "Deleting old data..."
     rm "$flag_deleteOldData_internal"
     # We cannot run ./delete_old_cluster.sh here, as it will try to:
