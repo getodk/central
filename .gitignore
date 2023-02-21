@@ -3,3 +3,7 @@
 *.swo
 /.env
 /version.txt
+
+/files/postgres/allow-postgres14-upgrade
+/files/postgres14/upgrade/*
+!/files/postgres14/upgrade/check-available-space
