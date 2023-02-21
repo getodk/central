@@ -15,7 +15,7 @@ WORKDIR /usr/odk
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODENAME=\K\w+' /etc/os-release)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list; \
   curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg; \
   apt-get update; \
-  apt-get install -y cron gettext postgresql-client-9.6
+  apt-get install -y cron gettext postgresql-client-14
 
 COPY files/service/crontab /etc/cron.d/odk
 
