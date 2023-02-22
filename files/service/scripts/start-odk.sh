@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-HTTPS_PORT="${HTTPS_PORT:-443}"
-CENTRAL_DB_HOST="${CENTRAL_DB_HOST:-postgres}"
-CENTRAL_DB_USER="${CENTRAL_DB_USER:-odk}"
-CENTRAL_DB_PASSWORD="${CENTRAL_DB_PASSWORD:-odk}"
-CENTRAL_DB_NAME="${CENTRAL_DB_NAME:-odk}"
+export HTTPS_PORT="${HTTPS_PORT:-443}"
+export CENTRAL_DB_HOST="${CENTRAL_DB_HOST:-postgres}"
+export CENTRAL_DB_USER="${CENTRAL_DB_USER:-odk}"
+export CENTRAL_DB_PASSWORD="${CENTRAL_DB_PASSWORD:-odk}"
+export CENTRAL_DB_NAME="${CENTRAL_DB_NAME:-odk}"
 
 CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
-/bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
+/bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY:\$CENTRAL_DB_HOST:\$CENTRAL_DB_USER:\$CENTRAL_DB_PASSWORD:\$CENTRAL_DB_NAME' < /usr/share/odk/config.json.template > $CONFIG_PATH"
 
 SENTRY_RELEASE="$(cat sentry-versions/server)"
 export SENTRY_RELEASE

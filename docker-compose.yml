@@ -7,9 +7,9 @@ services:
     volumes:
       - postgres14:/odk/postgresql/14
     environment:
-      POSTGRES_USER: odk
-      POSTGRES_PASSWORD: odk
-      POSTGRES_DATABASE: odk
+      POSTGRES_USER: "${CENTRAL_DB_USER:-odk}"
+      POSTGRES_PASSWORD: "${CENTRAL_DB_PASSWORD:-odk}"
+      POSTGRES_DATABASE: "${CENTRAL_DB_NAME:-odk}"
     restart: always
   postgres:
     # This service upgrades from postgres 9.6 to 14.
