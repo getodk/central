@@ -1,10 +1,10 @@
 {
   "default": {
     "database": {
-      "host": "postgres14",
-      "user": "odk",
-      "password": "odk",
-      "database": "odk"
+      "host": "${CENTRAL_DB_HOST}",
+      "user": "${CENTRAL_DB_USER}",
+      "password": "${CENTRAL_DB_PASSWORD}",
+      "database": "${CENTRAL_DB_NAME}",
     },
     "email": {
       "serviceAccount": "no-reply@${DOMAIN}",
