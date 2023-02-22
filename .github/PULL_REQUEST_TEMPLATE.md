@@ -10,4 +10,4 @@ Closes #
 
 #### Before submitting this PR, please make sure you have:
 
-- [ ] verified that any code or assets from external sources are properly credited in comments.
+- [ ] verified that any code or assets from external sources are properly credited in comments or that everything is internally sourced
