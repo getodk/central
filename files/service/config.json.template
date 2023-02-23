@@ -1,10 +1,10 @@
 {
   "default": {
     "database": {
-      "host": "${CENTRAL_DB_HOST}",
-      "user": "${CENTRAL_DB_USER}",
-      "password": "${CENTRAL_DB_PASSWORD}",
-      "database": "${CENTRAL_DB_NAME}"
+      "host": "${DB_HOST}",
+      "user": "${DB_USER}",
+      "password": "${DB_PASSWORD}",
+      "database": "${DB_NAME}"
     },
     "email": {
       "serviceAccount": "no-reply@${DOMAIN}",
