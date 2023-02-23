@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export HTTPS_PORT="${HTTPS_PORT:-443}"
-export DB_HOST="${DB_HOST:-postgres}"
+export DB_HOST="${DB_HOST:-postgres14}"
 export DB_USER="${DB_USER:-odk}"
 export DB_PASSWORD="${DB_PASSWORD:-odk}"
 export DB_NAME="${DB_NAME:-odk}"

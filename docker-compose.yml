@@ -51,7 +51,7 @@ services:
       - DOMAIN=${DOMAIN}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
-    command: [ "./wait-for-it.sh", "${DB_HOST:-postgres}:5432", "--", "./start-odk.sh" ]
+    command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
