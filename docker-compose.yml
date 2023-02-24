@@ -7,9 +7,9 @@ services:
     volumes:
       - postgres14:/odk/postgresql/14
     environment:
-      POSTGRES_USER: "${DB_USER:-odk}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD:-odk}"
-      POSTGRES_DATABASE: "${DB_NAME:-odk}"
+      POSTGRES_USER: odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DATABASE: odk
     restart: always
   postgres:
     # This service upgrades from postgres 9.6 to 14.
@@ -51,6 +51,10 @@ services:
       - DOMAIN=${DOMAIN}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
+      - DB_HOST=${DB_HOST:-postgres14}
+      - DB_USER=${DB_USER:-odk}
+      - DB_PASSWORD=${DB_PASSWORD:-odk}
+      - DB_NAME=${DB_NAME:-odk}
     command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:

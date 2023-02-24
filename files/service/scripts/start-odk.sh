@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-export HTTPS_PORT="${HTTPS_PORT:-443}"
-export DB_HOST="${DB_HOST:-postgres14}"
-export DB_USER="${DB_USER:-odk}"
-export DB_PASSWORD="${DB_PASSWORD:-odk}"
-export DB_NAME="${DB_NAME:-odk}"
-
 CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
 /bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY:\$DB_HOST:\$DB_USER:\$DB_PASSWORD:\$DB_NAME' < /usr/share/odk/config.json.template > $CONFIG_PATH"
