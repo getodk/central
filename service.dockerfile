@@ -22,7 +22,7 @@ COPY files/service/crontab /etc/cron.d/odk
 COPY server/package*.json ./
 
 RUN npm clean-install --omit=dev --legacy-peer-deps --no-audit --fund=false --update-notifier=false
-RUN npm install pm2@5.2.0 -g
+RUN npm install pm2@5.2.2 -g
 
 COPY server/ ./
 COPY files/service/scripts/ ./
