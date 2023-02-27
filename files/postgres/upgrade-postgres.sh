@@ -2,11 +2,10 @@
 
 set -o pipefail
 
-flag_upgradeCompletedOk="$PGDATANEW/../.postgres14-upgrade-completed-ok"
-flag_deleteOldData_name="delete-old-data-on-next-restart"
+flag_upgradeCompletedOk="$PGDATANEW/../.postgres14-upgrade-successful"
+flag_deleteOldData_name="delete-old-data"
 flag_deleteOldData_internal="/postgres14-upgrade/$flag_deleteOldData_name"
-flag_deleteOldData_forUsers="./files/postgres14/upgrade/$flag_deleteOldData_name"
-flag_oldDataDeleted="/postgres14-upgrade/data-deleted"
+flag_oldDataDeleted="/postgres14-upgrade/old-data-deleted"
 
 logPrefix="$(basename "$0")"
 log() {
@@ -49,9 +48,7 @@ if [[ -f "$flag_upgradeCompletedOk" ]]; then
     log "!!!"
     log "!!! This is taking up disk space: $(du -hs "$PGDATAOLD" 2>/dev/null | cut -f1)B"
     log "!!!"
-    log "!!! If you would like to remove this data, please run:"
-    log "!!!"
-    log "!!!   touch $flag_deleteOldData_forUsers && docker-compose up --abort-on-container-exit postgres"
+    log "!!! Continue with the instructions at https://docs.getodk.org/central-upgrade/"
     log "!!!"
   fi
 else
@@ -61,7 +58,7 @@ else
     log "!!!"
     log "!!! Please remove file and restart container to continue:"
     log "!!!"
-    log "!!!   rm $flag_deleteOldData_forUsers && docker-compose up -d"
+    log "!!! Please email support@getodk.org for assistance.  "
     log "!!!"
     exit 1
   fi
@@ -123,7 +120,7 @@ else
   ) > >(tee --append "/postgres14-upgrade/upgrade-postgres.log" >&2) 2>&1
   fi
   touch "$flag_upgradeCompletedOk"
-  touch "/postgres14-upgrade/upgrade-completed-ok"
+  touch "/postgres14-upgrade/upgrade-successful"
 fi
 
 log "Complete."

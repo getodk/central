@@ -41,7 +41,7 @@ log
 if [[ "$used" -lt "$free" ]]; then
   log "You have enough space to upgrade."
   log
-  log "Please follow instructions at https://docs.getodk.org/central-upgrade/"
+  log "Continue with the instructions at https://docs.getodk.org/central-upgrade/"
   log
 else
   log "!!!"
