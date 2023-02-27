@@ -16,7 +16,7 @@ services:
     # The legacy name must be maintained to allow access to the anonymous volume.
     build:
       context: .
-      dockerfile: postgres_upgrade.dockerfile
+      dockerfile: postgres-upgrade.dockerfile
     volumes:
       - /var/lib/postgresql/data
       - postgres14:/var/lib/postgresql/14
