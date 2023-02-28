@@ -27,7 +27,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
-    image: "itsissa/namshi-smtp:4.92-8.deb10u6"
+    image: "ixdotai/smtp:v0.2.0"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
