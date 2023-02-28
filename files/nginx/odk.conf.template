@@ -14,7 +14,7 @@ server {
 
   server_tokens off;
 
-  include /usr/share/nginx/common-headers.nginx.conf;
+  include /usr/share/nginx/common-headers.conf;
 
   client_max_body_size 100m;
 
@@ -36,7 +36,7 @@ server {
     # Rules set to 'none' here would fallback to default-src if excluded.
     # They are included here to ease interpretation of violation reports.
     #
-    # Other security headers are identical to those in common-headers.nginx.conf;
+    # Other security headers are identical to those in common-headers.conf;
     # We can't just include that file here though, as it will set two Content-Security-Policy* headers
     add_header Referrer-Policy same-origin;
     add_header Strict-Transport-Security "max-age=63072000" always;
@@ -59,11 +59,11 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
-      include /usr/share/nginx/common-headers.nginx.conf;
+      include /usr/share/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
-      include /usr/share/nginx/common-headers.nginx.conf;
+      include /usr/share/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
   }
