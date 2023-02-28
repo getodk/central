@@ -49,11 +49,6 @@ server {
     proxy_pass http://service:8383;
     proxy_redirect off;
 
-    # set up request-body gzip decompression:
-    set $max_chunk_size 16384;    # ~16KB
-    set $max_body_size 134217728; # ~128MB
-    rewrite_by_lua_file inflate_body.lua;
-
     # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
     proxy_buffering off;

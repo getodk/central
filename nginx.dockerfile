@@ -14,15 +14,13 @@ VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
 ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 
 RUN apt-get update && \
-    apt-get install -y openssl netcat nginx-extras lua-zlib
+    apt-get install -y openssl netcat
 
 RUN mkdir -p /etc/selfsign/live/local/
 COPY files/nginx/odk-setup.sh /scripts/
 
 COPY files/local/customssl/*.pem /etc/customssl/live/local/
 
-COPY files/nginx/default /etc/nginx/sites-enabled/
-COPY files/nginx/inflate_body.lua /usr/share/nginx/
 COPY files/nginx/odk.conf.template /usr/share/nginx/
 COPY files/nginx/common-headers.nginx.conf /usr/share/nginx/
 COPY files/nginx/certbot.conf /usr/share/nginx/
