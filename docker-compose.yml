@@ -56,6 +56,9 @@ services:
     logging:
       driver: local
   nginx:
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - nginx:/etc/odk/nginx
     build:
       context: .
       dockerfile: nginx.dockerfile
@@ -120,8 +123,10 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
 volumes:
+  secrets:
   transfer:
+  postgres14:
   enketo_redis_main:
   enketo_redis_cache:
-  secrets:
-  postgres14:
+  nginx:
+  letsencrypt:

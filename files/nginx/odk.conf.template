@@ -2,19 +2,19 @@ server {
   listen 443 ssl;
   server_name ${CNAME};
 
-  ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
-  ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
-  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
+  ssl_certificate /etc/letsencrypt/live/${CNAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CNAME}/privkey.pem;
+  ssl_trusted_certificate /etc/letsencrypt/live/${CNAME}/fullchain.pem;
 
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
   ssl_prefer_server_ciphers off;
 
-  ssl_dhparam /etc/dh/nginx.pem;
+  ssl_dhparam /etc/odk/nginx/ssl_dhparam.pem;
 
   server_tokens off;
 
-  include /usr/share/nginx/common-headers.conf;
+  include /etc/odk/nginx/conf/common-headers.conf;
 
   client_max_body_size 100m;
 
@@ -59,11 +59,11 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
-      include /usr/share/nginx/common-headers.conf;
+      include /etc/odk/nginx/conf/common-headers.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
-      include /usr/share/nginx/common-headers.conf;
+      include /etc/odk/nginx/conf/common-headers.conf;
       add_header Cache-Control no-cache;
     }
   }
@@ -72,4 +72,3 @@ server {
     proxy_pass https://o130137.ingest.sentry.io/api/1298632/security/?sentry_key=3cf75f54983e473da6bd07daddf0d2ee;
   }
 }
-

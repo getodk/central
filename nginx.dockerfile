@@ -11,18 +11,20 @@ FROM jonasal/nginx-certbot:4.2.0
 EXPOSE 80
 EXPOSE 443
 
-VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
 ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
-RUN mkdir -p /etc/selfsign/live/local/
+# use bash for expansion
+RUN bash -c 'mkdir -p /etc/odk/nginx/{selfsign,customssl,conf}'
+
+# remove old configs to prevent upgrade conflicts
+RUN rm -rf /etc/odk/nginx/conf/*
+RUN rm -rf /etc/nginx/conf.d/*
+
 COPY files/nginx/odk-setup.sh /scripts/
+COPY files/local/customssl/*.pem /etc/odk/nginx/customssl/
+COPY files/nginx/*.conf* /etc/odk/nginx/conf/
 
-COPY files/local/customssl/*.pem /etc/customssl/live/local/
-
-COPY files/nginx/odk.conf.template /usr/share/nginx/
-COPY files/nginx/common-headers.conf /usr/share/nginx/
-COPY files/nginx/redirector.conf /usr/share/nginx/
-COPY --from=intermediate client/dist/ /usr/share/nginx/html/
-COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html/
+COPY --from=intermediate client/dist/ /usr/share/nginx/html
+COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
