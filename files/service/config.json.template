@@ -7,12 +7,17 @@
       "database": "${DB_NAME}"
     },
     "email": {
-      "serviceAccount": "no-reply@${DOMAIN}",
+      "serviceAccount": "${EMAIL_NO_REPLY}",
       "transport": "smtp",
       "transportOpts": {
-        "host": "mail",
-        "port": 25,
-        "ignoreTLS": true
+        "host": "${EMAIL_HOST}",
+        "port": ${EMAIL_PORT},
+        "secure": ${EMAIL_SECURE},
+        "ignoreTLS": ${EMAIL_IGNORE_TLS},
+        "auth": {
+          "user": "${EMAIL_USER}",
+          "pass": "${EMAIL_PASSWORD}"
+        }
       }
     },
     "xlsform": {

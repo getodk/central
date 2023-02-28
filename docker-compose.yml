@@ -55,6 +55,13 @@ services:
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
+      - EMAIL_NO_REPLY=${EMAIL_NO_REPLY:-no-reply@${DOMAIN}}
+      - EMAIL_HOST=${EMAIL_HOST:-mail}
+      - EMAIL_PORT=${EMAIL_PORT:-25}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
+      - EMAIL_USER=${EMAIL_USER:-''}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
     command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
