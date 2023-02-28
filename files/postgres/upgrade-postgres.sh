@@ -5,7 +5,6 @@ set -o pipefail
 flag_upgradeCompletedOk="$PGDATANEW/../.postgres14-upgrade-successful"
 flag_deleteOldData_name="delete-old-data"
 flag_deleteOldData_internal="/postgres14-upgrade/$flag_deleteOldData_name"
-flag_deleteOldData_forUsers="./files/postgres14/upgrade/$flag_deleteOldData_name"
 flag_oldDataDeleted="/postgres14-upgrade/old-data-deleted"
 
 logPrefix="$(basename "$0")"
