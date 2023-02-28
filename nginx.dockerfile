@@ -15,8 +15,10 @@ ENTRYPOINT [ "/bin/bash", "/scripts/setup-odk.sh" ]
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
-# use bash for expansion
-RUN bash -c 'mkdir -p /etc/odk/nginx/{selfsign,customssl,conf}'
+# letsencrypt certs are managed by nginx-certbot in /etc/letsencrypt
+RUN mkdir -p /etc/odk/nginx/selfsign
+RUN mkdir -p /etc/odk/nginx/customssl
+RUN mkdir -p /etc/odk/nginx/conf
 
 # remove old configs to prevent upgrade conflicts
 RUN rm -rf /etc/odk/nginx/conf/*
