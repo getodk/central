@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: postgres14.dockerfile
     volumes:
-      - postgres14:/odk/postgresql/14
+      - postgres14:/var/lib/odk/postgresql/14
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
