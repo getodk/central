@@ -11,7 +11,8 @@
       "transport": "smtp",
       "transportOpts": {
         "host": "mail",
-        "port": 25
+        "port": 25,
+        "ignoreTLS": true
       }
     },
     "xlsform": {
