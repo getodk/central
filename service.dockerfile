@@ -1,4 +1,4 @@
-FROM node:16.17.0 as intermediate
+FROM node:16.19.1 as intermediate
 
 COPY . .
 RUN mkdir /tmp/sentry-versions
