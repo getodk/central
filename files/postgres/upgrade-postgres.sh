@@ -56,9 +56,7 @@ else
     log "!!!"
     log "!!! ERROR: Deletion request file created, but upgrade has not yet run!"
     log "!!!"
-    log "!!! Please remove file and restart container to continue:"
-    log "!!!"
-    log "!!! Please email support@getodk.org for assistance.  "
+    log "!!! Please email support@getodk.org for assistance."
     log "!!!"
     exit 1
   fi
