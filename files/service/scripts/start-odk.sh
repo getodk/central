@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
-/bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY:\$DB_HOST:\$DB_USER:\$DB_PASSWORD:\$DB_NAME' < /usr/share/odk/config.json.template > $CONFIG_PATH"
+ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
+envsubst '$DOMAIN:$HTTPS_PORT:$SYSADMIN_EMAIL:$ENKETO_API_KEY:$DB_HOST:$DB_USER:$DB_PASSWORD:$DB_NAME' \
+    < /usr/share/odk/config.json.template \
+    > /usr/odk/config/local.json
 
 SENTRY_RELEASE="$(cat sentry-versions/server)"
 export SENTRY_RELEASE
