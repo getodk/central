@@ -20,7 +20,9 @@ fi
 echo "writing fresh nginx templates..."
 cp /etc/odk/nginx/conf/redirector.conf /etc/nginx/conf.d/redirector.conf
 CNAME=$({ [ "$SSL_TYPE" = "customssl" ] || [ "$SSL_TYPE" = "selfsign" ]; } && echo "local" || echo "$DOMAIN") \
-/bin/bash -c "envsubst '\$CNAME' < /etc/odk/nginx/conf/odk.conf.template > /etc/nginx/conf.d/odk.conf"
+envsubst '$CNAME' \
+    < /etc/odk/nginx/conf/odk.conf.template \
+    > /etc/nginx/conf.d/odk.conf
 
 if [ "$SSL_TYPE" = "letsencrypt" ]; then
   echo "starting nginx with certbot..."
