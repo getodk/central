@@ -37,3 +37,4 @@ jobs:
               appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects \
               | tee /dev/tty \
               | grep -q '\[\]'
+            docker-compose exec -T service pm2 list | grep -c "online" | grep -q 4 || exit 1

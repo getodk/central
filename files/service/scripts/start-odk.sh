@@ -29,9 +29,9 @@ cron -f &
 MEMTOT=$(vmstat -s | grep 'total memory' | awk '{ print $1 }')
 if [ "$MEMTOT" -gt "1100000" ]
 then
-  WORKER_COUNT=4
+  export WORKER_COUNT=4
 else
-  WORKER_COUNT=1
+  export WORKER_COUNT=1
 fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
