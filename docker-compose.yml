@@ -62,6 +62,9 @@ services:
       - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
       - EMAIL_USER=${EMAIL_USER:-''}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
     command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:

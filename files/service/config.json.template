@@ -34,9 +34,9 @@
     },
     "external": {
       "sentry": {
-        "orgSubdomain": "o130137",
-        "key": "3cf75f54983e473da6bd07daddf0d2ee",
-        "project": "1298632"
+        "orgSubdomain": "${SENTRY_ORG_SUBDOMAIN}",
+        "key": "${SENTRY_KEY}",
+        "project": "${SENTRY_PROJECT}"
       }
     }
   }
