@@ -48,6 +48,7 @@ services:
       - secrets:/etc/secrets
       - /data/transfer:/data/transfer
     environment:
+      - NODE_OPTIONS=${NODE_OPTIONS:-''}
       - DOMAIN=${DOMAIN}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
