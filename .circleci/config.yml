@@ -14,7 +14,7 @@ jobs:
           DOMAIN=local
           SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
-      - run: docker-compose build
+      - run: docker compose build
 
       - run:
           # we allow a long retry period for the first check because the first-run
@@ -22,8 +22,8 @@ jobs:
           name: Verify frontend and backend load
           command: |
             set -x
-            docker-compose up -d
-            CONTAINER_NAME=$(docker inspect -f '{{.Name}}' $(docker-compose ps -q nginx) | cut -c2-)
+            docker compose up -d
+            CONTAINER_NAME=$(docker inspect -f '{{.Name}}' $(docker compose ps -q nginx) | cut -c2-)
             docker run --network container:$CONTAINER_NAME \
               appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ \
               | tee /dev/tty \
