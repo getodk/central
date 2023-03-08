@@ -15,18 +15,13 @@ ENTRYPOINT [ "/bin/bash", "/scripts/setup-odk.sh" ]
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
-# letsencrypt certs are managed by nginx-certbot in /etc/letsencrypt
-RUN mkdir -p /etc/odk/nginx/selfsign
-RUN mkdir -p /etc/odk/nginx/customssl
-RUN mkdir -p /etc/odk/nginx/conf
-
-# remove old configs to prevent upgrade conflicts
-RUN rm -rf /etc/odk/nginx/conf/*
-RUN rm -rf /etc/nginx/conf.d/*
+# letsencrypt and selfsigned certs are managed in setup-odk.sh
+RUN mkdir -p /usr/share/odk/nginx/customssl
+RUN mkdir -p /usr/share/odk/nginx/conf
 
 COPY files/nginx/setup-odk.sh /scripts/
-COPY files/local/customssl/*.pem /etc/odk/nginx/customssl/
-COPY files/nginx/*.conf* /etc/odk/nginx/conf/
+COPY files/local/customssl/*.pem /usr/share/odk/nginx/customssl/
+COPY files/nginx/*.conf* /usr/share/odk/nginx/conf/
 
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
