@@ -14,7 +14,7 @@ server {
 
   server_tokens off;
 
-  include /etc/odk/nginx/conf/common-headers.conf;
+  include /usr/share/odk/nginx/conf/common-headers.conf;
 
   client_max_body_size 100m;
 
@@ -59,11 +59,11 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
-      include /etc/odk/nginx/conf/common-headers.conf;
+      include /usr/share/odk/nginx/conf/common-headers.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
-      include /etc/odk/nginx/conf/common-headers.conf;
+      include /usr/share/odk/nginx/conf/common-headers.conf;
       add_header Cache-Control no-cache;
     }
   }

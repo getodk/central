@@ -61,8 +61,8 @@ services:
       driver: local
   nginx:
     volumes:
-      - letsencrypt:/etc/letsencrypt
       - nginx:/etc/odk/nginx
+      - nginx_letsencrypt:/etc/letsencrypt
     build:
       context: .
       dockerfile: nginx.dockerfile
@@ -133,4 +133,4 @@ volumes:
   enketo_redis_main:
   enketo_redis_cache:
   nginx:
-  letsencrypt:
+  nginx_letsencrypt:
