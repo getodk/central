@@ -60,9 +60,6 @@ services:
     logging:
       driver: local
   nginx:
-    volumes:
-      - nginx:/etc/odk/nginx
-      - nginx_letsencrypt:/etc/letsencrypt
     build:
       context: .
       dockerfile: nginx.dockerfile
@@ -132,5 +129,3 @@ volumes:
   postgres14:
   enketo_redis_main:
   enketo_redis_cache:
-  nginx:
-  nginx_letsencrypt:
