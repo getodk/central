@@ -49,12 +49,23 @@ services:
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
-      - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
+      - HTTPS_PORT=${HTTPS_PORT:-443}
+      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-''}
       - DB_HOST=${DB_HOST:-postgres14}
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
+      - EMAIL_NO_REPLY=${EMAIL_NO_REPLY:-no-reply@${DOMAIN}}
+      - EMAIL_HOST=${EMAIL_HOST:-mail}
+      - EMAIL_PORT=${EMAIL_PORT:-25}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
+      - EMAIL_USER=${EMAIL_USER:-''}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
     command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
@@ -67,9 +78,12 @@ services:
       - service
       - enketo
     environment:
-      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
+      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
