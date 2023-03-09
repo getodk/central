@@ -7,12 +7,17 @@ jobs:
     steps:
       - checkout
 
+      - run: sudo apt install shellcheck
+      - run: cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u | grep -v '/wait-for-it.sh$' | xargs shellcheck --exclude=SC2016
+
       - run: git submodule update -i
 
       - run: |
           echo 'SSL_TYPE=selfsign
           DOMAIN=local
           SYSADMIN_EMAIL=no-reply@getodk.org' > .env
+
+      - run: touch ./files/allow-postgres14-upgrade
 
       - run: docker compose build
 
@@ -32,3 +37,4 @@ jobs:
               appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects \
               | tee /dev/tty \
               | grep -q '\[\]'
+            docker-compose exec -T service pm2 list | grep -c "online" | grep -q 4 || exit 1

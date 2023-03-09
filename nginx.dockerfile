@@ -1,30 +1,26 @@
-FROM node:16.17.0 as intermediate
+FROM node:16.19.1 as intermediate
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
-# make sure you have updated *.conf files when upgrading this
-FROM jonasal/nginx-certbot:2.4.1
+# when upgrading, look for upstream changes to redirector.conf
+# also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
+FROM jonasal/nginx-certbot:4.2.0
 
 EXPOSE 80
 EXPOSE 443
 
 VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
-ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
+ENTRYPOINT [ "/bin/bash", "/scripts/setup-odk.sh" ]
 
-RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
+RUN apt-get update && apt-get install -y netcat-openbsd
 
-RUN mkdir -p /etc/selfsign/live/local/
-COPY files/nginx/odk-setup.sh /scripts/
+RUN mkdir -p /usr/share/odk/nginx/
 
+COPY files/nginx/setup-odk.sh /scripts/
 COPY files/local/customssl/*.pem /etc/customssl/live/local/
+COPY files/nginx/*.conf* /usr/share/odk/nginx/
 
-COPY files/nginx/default /etc/nginx/sites-enabled/
-COPY files/nginx/inflate_body.lua /usr/share/nginx/
-COPY files/nginx/odk.conf.template /usr/share/nginx/
-COPY files/nginx/common-headers.nginx.conf /usr/share/nginx/
-COPY files/nginx/certbot.conf /usr/share/nginx/
-COPY files/nginx/redirector.conf /usr/share/nginx/
-COPY --from=intermediate client/dist/ /usr/share/nginx/html/
-COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html/
+COPY --from=intermediate client/dist/ /usr/share/nginx/html
+COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html

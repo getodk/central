@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
-CONFIG_PATH=/usr/odk/config/local.json
 echo "generating local service configuration.."
-/bin/bash -c "ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) envsubst '\$DOMAIN:\$HTTPS_PORT:\$SYSADMIN_EMAIL:\$ENKETO_API_KEY' < /usr/share/odk/config.json.template > $CONFIG_PATH"
 
-export SENTRY_RELEASE="$(cat sentry-versions/server)"
-export SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
+ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
+BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https://"${DOMAIN}":"${HTTPS_PORT}" ) \
+envsubst '$BASE_URL $SYSADMIN_EMAIL $ENKETO_API_KEY $DB_HOST $DB_USER $DB_PASSWORD $DB_NAME $EMAIL_NO_REPLY $EMAIL_HOST $EMAIL_PORT $EMAIL_SECURE $EMAIL_IGNORE_TLS $EMAIL_USER $EMAIL_PASSWORD $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+    < /usr/share/odk/config.json.template \
+    > /usr/odk/config/local.json
+
+SENTRY_RELEASE="$(cat sentry-versions/server)"
+export SENTRY_RELEASE
+# shellcheck disable=SC2089
+SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
+# shellcheck disable=SC2090
+export SENTRY_TAGS
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
@@ -25,9 +33,9 @@ cron -f &
 MEMTOT=$(vmstat -s | grep 'total memory' | awk '{ print $1 }')
 if [ "$MEMTOT" -gt "1100000" ]
 then
-  WORKER_COUNT=4
+  export WORKER_COUNT=4
 else
-  WORKER_COUNT=1
+  export WORKER_COUNT=1
 fi
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
