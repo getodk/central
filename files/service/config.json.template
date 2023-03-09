@@ -7,7 +7,7 @@
       "database": "${DB_NAME}"
     },
     "email": {
-      "serviceAccount": "${EMAIL_NO_REPLY}",
+      "serviceAccount": "${EMAIL_FROM}",
       "transport": "smtp",
       "transportOpts": {
         "host": "${EMAIL_HOST}",

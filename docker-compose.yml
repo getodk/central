@@ -56,7 +56,7 @@ services:
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
-      - EMAIL_NO_REPLY=${EMAIL_NO_REPLY:-no-reply@${DOMAIN}}
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@${DOMAIN}}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
       - EMAIL_PORT=${EMAIL_PORT:-25}
       - EMAIL_SECURE=${EMAIL_SECURE:-false}
