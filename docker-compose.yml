@@ -51,7 +51,7 @@ services:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
-      - NODE_OPTIONS=${NODE_OPTIONS:-''}
+      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-''}
       - DB_HOST=${DB_HOST:-postgres14}
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
