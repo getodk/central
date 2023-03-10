@@ -1,7 +1,7 @@
 ODK Central
 ===========
 
-Central is the [ODK](https://getodk.org/) server. It manages user accounts and permissions, stores form definitions, and allows data collection clients like ODK Collect to connect to it for form download and submission upload.
+Central is the [ODK](https://getodk.org/) server. It manages user accounts and permissions, stores Form definitions, and allows data collection clients like ODK Collect to connect to it for Form download and Submission upload.
 
 Our goal with Central is to create a modern server that is easy to install, easy to use, and extensible with new features and functionality both directly in the software and with the use of our REST, OpenRosa, and OData programmatic APIs.
 
@@ -19,8 +19,8 @@ We would love your contributions to Central. If you have thoughts or suggestions
 
 In addition to the Backend and the Frontend, Central deploys services:
 
-* Central relies on [pyxform-http](https://github.com/getodk/pyxform-http) for converting forms from XLSForm. It generally shouldn't be needed in development but can be run locally.
-* Central relies on [Enketo](https://github.com/enketo/enketo-express) for web form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following these [instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
+* Central relies on [pyxform-http](https://github.com/getodk/pyxform-http) for converting Forms from XLSForm. It generally shouldn't be needed in development but can be run locally.
+* Central relies on [Enketo](https://github.com/enketo/enketo-express) for Web Form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following these [instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
 
 Operations
 ----------
