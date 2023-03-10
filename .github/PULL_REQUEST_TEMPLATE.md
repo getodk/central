@@ -1,5 +1,7 @@
 Closes #
 
+<!-- Please branch off and target the next branch unless you are only changing documentation like the readme. The master branch is a stable branch deployed in production. -->
+
 #### What has been done to verify that this works as intended?
 
 #### Why is this the best possible solution? Were any other approaches considered?
