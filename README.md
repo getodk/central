@@ -13,7 +13,7 @@ This repository serves as an umbrella for the Central project as a whole:
 If you are looking for help, please take a look at the [Documentation Website](https://docs.getodk.org/central-intro/). If that doesn't solve your problem, please head over to the [ODK Forum](https://forum.getodk.org) and do a search to see if anybody else has had the same problem. If you've identified a new problem or have a feature request, please post on the forum. We prefer forum posts to GitHub issues because more of the community is on the forum.
 
 Contributing
-============
+------------
 
 We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Features board](https://forum.getodk.org/c/features) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/CONTRIBUTING.md)), or both. To set up a development environment, first follow the [Backend instructions](https://github.com/getodk/central-backend#setting-up-a-development-environment) and then optionally the [Frontend instructions](https://github.com/getodk/central-frontend#setting-up-your-development-environment).
 
@@ -23,13 +23,13 @@ In addition to the Backend and the Frontend, Central deploys services:
 * Central relies on [Enketo](https://github.com/enketo/enketo-express) for web form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following these [instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
 
 Operations
-==========
+----------
 
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
 
 To learn how to run such a stack in production, please take a look at [our DigitalOcean installation guide](https://docs.getodk.org/central-install-digital-ocean/).
 
 License
-=======
+-------
 
 All of ODK Central is licensed under the [Apache 2.0](https://raw.githubusercontent.com/getodk/central/master/LICENSE) License.
