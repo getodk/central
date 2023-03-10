@@ -1,16 +1,33 @@
 version: "3"
 services:
-  postgres:
-    image: "postgres:9.6"
+  postgres14:
+    build:
+      context: .
+      dockerfile: postgres14.dockerfile
     volumes:
-      - /var/lib/postgresql/data
+      - postgres14:/var/lib/odk/postgresql/14
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
     restart: always
+  postgres:
+    # This service upgrades from postgres 9.6 to 14.
+    # The legacy name must be maintained to allow access to the anonymous volume.
+    build:
+      context: .
+      dockerfile: postgres-upgrade.dockerfile
+    volumes:
+      - /var/lib/postgresql/data
+      - postgres14:/var/lib/postgresql/14
+      - ./files/postgres14/upgrade:/postgres14-upgrade
+    environment:
+      PGUSER: odk
+      POSTGRES_INITDB_ARGS: -U odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DATABASE: odk
   mail:
-    image: "itsissa/namshi-smtp:4.92-8.deb10u6"
+    image: "ixdotai/smtp:v0.2.0"
     volumes:
       - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
       - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
@@ -23,7 +40,7 @@ services:
       dockerfile: service.dockerfile
     depends_on:
       - secrets
-      - postgres
+      - postgres14
       - mail
       - pyxform
       - enketo
@@ -32,9 +49,25 @@ services:
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
-      - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
-    command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+      - HTTPS_PORT=${HTTPS_PORT:-443}
+      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-''}
+      - DB_HOST=${DB_HOST:-postgres14}
+      - DB_USER=${DB_USER:-odk}
+      - DB_PASSWORD=${DB_PASSWORD:-odk}
+      - DB_NAME=${DB_NAME:-odk}
+      - DB_SSL=${DB_SSL:-null}
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@${DOMAIN}}
+      - EMAIL_HOST=${EMAIL_HOST:-mail}
+      - EMAIL_PORT=${EMAIL_PORT:-25}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
+      - EMAIL_USER=${EMAIL_USER:-''}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
+    command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
@@ -46,9 +79,12 @@ services:
       - service
       - enketo
     environment:
-      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
+      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
@@ -85,7 +121,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:5
+    image: redis:7.0.8
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -94,7 +130,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:5
+    image: redis:7.0.8
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data
@@ -103,7 +139,8 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
 volumes:
+  secrets:
   transfer:
+  postgres14:
   enketo_redis_main:
   enketo_redis_cache:
-  secrets:
