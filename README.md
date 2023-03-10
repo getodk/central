@@ -20,7 +20,7 @@ We would love your contributions to Central. If you have thoughts or suggestions
 In addition to the Backend and the Frontend, Central deploys services:
 
 * Central relies on [pyxform-http](https://github.com/getodk/pyxform-http) for converting Forms from XLSForm. It generally shouldn't be needed in development but can be run locally.
-* Central relies on [Enketo](https://github.com/enketo/enketo-express) for Web Form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following these [instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
+* Central relies on [Enketo](https://github.com/enketo/enketo-express) for Web Form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following [these instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
 
 Operations
 ----------
