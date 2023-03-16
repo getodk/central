@@ -8,7 +8,7 @@ RUN git describe --tags --dirty > /tmp/sentry-versions/server
 WORKDIR ../client
 RUN git describe --tags --dirty > /tmp/sentry-versions/client
 
-FROM node:16.17.0
+FROM node:16.19.1
 
 WORKDIR /usr/odk
 
