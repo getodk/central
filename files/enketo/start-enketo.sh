@@ -12,4 +12,4 @@ envsubst '$DOMAIN $BASE_URL $SECRET $LESS_SECRET $API_KEY $SUPPORT_EMAIL' \
     > "$CONFIG_PATH"
 
 echo "starting pm2/enketo.."
-pm2 start --no-daemon app.js -n enketo
+exec pm2-runtime app.js -n enketo
