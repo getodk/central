@@ -40,5 +40,5 @@ else
     perl -i -ne 'print if $. < 7 || $. > 14' /etc/nginx/conf.d/redirector.conf
     echo "starting nginx for custom ssl and self-signed certs..."
   fi
-  nginx -g "daemon off;"
+  exec nginx -g "daemon off;"
 fi

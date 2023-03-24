@@ -19,4 +19,4 @@ RUN apt-get update && \
 
 EXPOSE 8005
 
-CMD ./start-enketo.sh
+CMD ["./start-enketo.sh"]
