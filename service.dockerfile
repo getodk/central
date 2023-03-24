@@ -1,4 +1,5 @@
-FROM node:16.19.1 as intermediate
+ARG node_version=16.19.1
+FROM node:${node_version} as intermediate
 
 COPY . .
 RUN mkdir /tmp/sentry-versions
@@ -8,7 +9,7 @@ RUN git describe --tags --dirty > /tmp/sentry-versions/server
 WORKDIR ../client
 RUN git describe --tags --dirty > /tmp/sentry-versions/client
 
-FROM node:16.17.0
+FROM node:${node_version}
 
 WORKDIR /usr/odk
 
