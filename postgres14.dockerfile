@@ -1,4 +1,4 @@
-FROM postgres:14
+FROM postgres:14.8
 
 COPY files/postgres14/start-postgres.sh /usr/local/bin/
 
