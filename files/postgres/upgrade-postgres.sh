@@ -19,26 +19,6 @@ if [[ -f "$flag_upgradeCompletedOk" ]]; then
   if [[ -f "$flag_deleteOldData_internal" ]]; then
     log "Deleting old data..."
     rm "$flag_deleteOldData_internal"
-    # We cannot run ./delete_old_cluster.sh here, as it will try to:
-    #
-    #   rm -rf '/var/lib/postgresql/data'
-    #
-    # This will fail with:
-    #
-    #   rm: cannot remove '/var/lib/postgresql/data': Device or resource busy
-    #
-    # This is because that is the root of a docker volume.  Instead,
-    # we must do our own manual equivalent:
-    if ! [[ -f ./delete_old_cluster.sh ]]; then
-      log "!!!"
-      log "!!! ERROR: file missing: delete_old_cluster.sh"
-      log "!!!"
-      log "!!! Upgrade may not have completed successfully."
-      log "!!!"
-      log "!!! Old data will not be deleted."
-      log "!!!"
-      exit 1
-    fi
     rm -rf /var/lib/postgresql/data/*
     touch "$flag_oldDataDeleted"
     log "Old data deleted."
