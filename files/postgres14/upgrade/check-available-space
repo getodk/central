@@ -31,7 +31,7 @@ if [[ "$volume" = "" ]]; then
   exit 1
 fi
 mountpoint="$(docker volume inspect --format='{{.Mountpoint}}' "$volume")"
-used="$(du -s "$mountpoint" | cut -f1)"
+used="$(( $(du -s "$mountpoint" | cut -f1) + 5000000 ))" # add 5G of buffer
 
 log
 log "    Free space: $(numfmt --to=si "$((free*1000))")B"
