@@ -1,4 +1,4 @@
-ARG node_version=16.19.1
+ARG node_version=16.20
 FROM node:${node_version} as intermediate
 
 COPY . .
@@ -23,11 +23,9 @@ COPY files/service/crontab /etc/cron.d/odk
 COPY server/package*.json ./
 
 RUN npm clean-install --omit=dev --legacy-peer-deps --no-audit --fund=false --update-notifier=false
-RUN npm install pm2@5.2.2 -g
 
 COPY server/ ./
 COPY files/service/scripts/ ./
-COPY files/service/pm2.config.js ./
 
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/odk-cmd /usr/bin/

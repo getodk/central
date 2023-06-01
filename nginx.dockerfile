@@ -1,4 +1,4 @@
-FROM node:16.19.1 as intermediate
+FROM node:16.20 as intermediate
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh

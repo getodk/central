@@ -2,6 +2,7 @@
 *.swp
 *.swo
 /.env
+/docker-compose.override.yml
 /version.txt
 
 /files/allow-postgres14-upgrade
