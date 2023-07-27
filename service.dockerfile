@@ -1,4 +1,4 @@
-ARG node_version=16.20
+ARG node_version=18.17
 FROM node:${node_version} as intermediate
 
 COPY . .

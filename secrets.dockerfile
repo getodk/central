@@ -1,2 +1,2 @@
-FROM node:16.20
+FROM node:18.17
 COPY files/enketo/generate-secrets.sh ./
