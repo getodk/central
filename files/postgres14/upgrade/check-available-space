@@ -15,7 +15,14 @@ fi
 dockerRootDir="$(docker info --format '{{print .DockerRootDir}}')"
 free="$(df --output=avail "$dockerRootDir/volumes" | tail -n+2)"
 
-containerName="central_postgres_1"
+# Support both Docker Compose v1 & v2 container names.
+# See: https://docs.docker.com/compose/migrate/#service-container-names
+if ! docker compose version >/dev/null 2>/dev/null; then
+  containerName="central_postgres_1"
+else
+  containerName="central-postgres-1"
+fi
+
 # The --format argument is a Go template.  Adding spaces between the
 # curlies seems to affect the output.  For more info on this
 # wonderful language, see:
