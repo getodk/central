@@ -33,6 +33,12 @@
       "domain": "${BASE_URL}",
       "sysadminAccount": "${SYSADMIN_EMAIL}"
     },
+    "oidc": {
+      "enabled": ${OIDC_ENABLED},
+      "discoveryUrl": "${OIDC_DISCOVERY_URL}",
+      "clientId": "${OIDC_CLIENT_ID}",
+      "clientSecret": "${OIDC_CLIENT_SECRET}"
+    },
     "external": {
       "sentry": {
         "orgSubdomain": "${SENTRY_ORG_SUBDOMAIN}",
