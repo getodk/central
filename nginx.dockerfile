@@ -1,9 +1,12 @@
-ARG OIDC_ENABLED
 FROM node:18.17 as intermediate
+ARG OIDC_DISCOVERY_URL
+ARG OIDC_CLIENT_ID
+ARG OIDC_CLIENT_SECRET
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
-RUN OIDC_ENABLED="$OIDC_ENABLED" files/prebuild/build-frontend.sh
+RUN OIDC_DISCOVERY_URL="$OIDC_DISCOVERY_URL" OIDC_CLIENT_ID="$OIDC_CLIENT_ID" OIDC_CLIENT_SECRET="$OIDC_CLIENT_SECRET" \
+  files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location

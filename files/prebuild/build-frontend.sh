@@ -1,4 +1,7 @@
 #!/bin/bash -eu
 cd client
 npm clean-install --no-audit --fund=false --update-notifier=false
-VUE_APP_OIDC_ENABLED="$OIDC_ENABLED" npm run build
+if [[ -n $OIDC_DISCOVERY_URL && -n $OIDC_CLIENT_ID && -n $OIDC_CLIENT_SECRET ]]; then
+  export VUE_APP_OIDC_ENABLED=true
+fi
+npm run build
