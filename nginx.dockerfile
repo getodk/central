@@ -5,7 +5,6 @@ ARG OIDC_CLIENT_SECRET
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
-RUN echo "\$OIDC_DISCOVERY_URL in the Dockerfile: [${OIDC_DISCOVERY_URL:-blank}]"
 RUN OIDC_DISCOVERY_URL="$OIDC_DISCOVERY_URL" OIDC_CLIENT_ID="$OIDC_CLIENT_ID" OIDC_CLIENT_SECRET="$OIDC_CLIENT_SECRET" \
   files/prebuild/build-frontend.sh
 
