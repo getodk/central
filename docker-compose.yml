@@ -77,6 +77,10 @@ services:
   nginx:
     build:
       context: .
+      args:
+        - OIDC_DISCOVERY_URL=foobar
+        - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-''}
+        - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-''}
       dockerfile: nginx.dockerfile
     depends_on:
       - service
@@ -88,9 +92,6 @@ services:
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
-      - OIDC_DISCOVERY_URL=foobar
-      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-''}
-      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-''}
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
