@@ -79,8 +79,6 @@ services:
       context: .
       args:
         - OIDC_DISCOVERY_URL=${OIDC_DISCOVERY_URL:-''}
-        - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-''}
-        - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-''}
       dockerfile: nginx.dockerfile
     depends_on:
       - service
