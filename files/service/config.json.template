@@ -35,7 +35,7 @@
     },
     "oidc": {
       "enabled": ${OIDC_ENABLED},
-      "discoveryUrl": "${OIDC_DISCOVERY_URL}",
+      "issuerUrl": "${OIDC_ISSUER_URL}",
       "clientId": "${OIDC_CLIENT_ID}",
       "clientSecret": "${OIDC_CLIENT_SECRET}"
     },
