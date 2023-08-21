@@ -1,8 +1,8 @@
 FROM node:18.17 as intermediate
-ARG OIDC_DISCOVERY_URL
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
+ARG OIDC_DISCOVERY_URL
 RUN OIDC_DISCOVERY_URL="$OIDC_DISCOVERY_URL" files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
