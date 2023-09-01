@@ -64,6 +64,10 @@ services:
       - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
       - EMAIL_USER=${EMAIL_USER:-''}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-''}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-''}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-''}
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
@@ -74,6 +78,8 @@ services:
   nginx:
     build:
       context: .
+      args:
+        - OIDC_ENABLED=${OIDC_ENABLED:-false}
       dockerfile: nginx.dockerfile
     depends_on:
       - service
