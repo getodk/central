@@ -10,3 +10,8 @@
 !/files/postgres14/upgrade/check-available-space
 
 /files/local/customssl/*.pem
+
+/files/mail/rsa.private
+/files/mail/rsa.public
+
+/files/dkim/*
