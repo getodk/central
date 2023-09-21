@@ -27,12 +27,12 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
-    image: "ixdotai/smtp:v0.2.0"
+    image: "ixdotai/smtp:v0.5.1"
     volumes:
-      - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
-      - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
+      - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
       - MAILNAME=${DOMAIN}
+      - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
     build:
