@@ -27,12 +27,12 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DATABASE: odk
   mail:
-    image: "ixdotai/smtp:v0.2.0"
+    image: "ixdotai/smtp:v0.5.1"
     volumes:
-      - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
-      - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
+      - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
       - MAILNAME=${DOMAIN}
+      - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
     build:
@@ -51,29 +51,35 @@ services:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
-      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-''}
+      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-}
       - DB_HOST=${DB_HOST:-postgres14}
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
       - DB_SSL=${DB_SSL:-null}
-      - EMAIL_FROM=${EMAIL_FROM:-no-reply@${DOMAIN}}
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
       - EMAIL_PORT=${EMAIL_PORT:-25}
       - EMAIL_SECURE=${EMAIL_SECURE:-false}
       - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
-      - EMAIL_USER=${EMAIL_USER:-''}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-''}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-}
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
-    command: [ "./wait-for-it.sh", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
+    command: [ "wait-for-it", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
   nginx:
     build:
       context: .
+      args:
+        - OIDC_ENABLED=${OIDC_ENABLED:-false}
       dockerfile: nginx.dockerfile
     depends_on:
       - service
@@ -96,7 +102,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v1.12.1'
+    image: 'ghcr.io/getodk/pyxform-http:v1.12.2'
     restart: always
   secrets:
     volumes:
@@ -121,7 +127,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:7.0
+    image: redis:7.2
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -130,7 +136,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:7.0
+    image: redis:7.2
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data
