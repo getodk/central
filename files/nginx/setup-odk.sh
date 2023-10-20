@@ -15,12 +15,17 @@ if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_PATH/privkey.pem" ]; then
     -days 3650 -nodes -sha256
 fi
 
+TEMPLATE_PATH=/usr/share/odk/nginx/odk.conf.template
+if [ "$ENV" = "DEV" ]; then
+    TEMPLATE_PATH=/usr/share/odk/nginx/odk.conf.dev.template
+fi
+
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
 cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
 CNAME=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
 envsubst '$SSL_TYPE $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
-  < /usr/share/odk/nginx/odk.conf.template \
+  < $TEMPLATE_PATH \
   > /etc/nginx/conf.d/odk.conf
 
 if [ "$SSL_TYPE" = "letsencrypt" ]; then
@@ -38,6 +43,11 @@ else
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection
     perl -i -ne 'print if $. < 7 || $. > 14' /etc/nginx/conf.d/redirector.conf
+
+    if [ "$ENV" = "DEV" ]; then
+        rm -f /etc/nginx/conf.d/redirector.conf
+    fi
+
     echo "starting nginx for custom ssl and self-signed certs..."
   fi
   exec nginx -g "daemon off;"
