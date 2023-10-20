@@ -11,5 +11,9 @@ envsubst '$DOMAIN $BASE_URL $SECRET $LESS_SECRET $API_KEY $SUPPORT_EMAIL' \
     < "$CONFIG_PATH.template" \
     > "$CONFIG_PATH"
 
+if [ "$ENV" = "DEV" ]; then
+    cp "$CONFIG_PATH.dev.template" "$CONFIG_PATH"
+fi
+
 echo "starting enketo..."
 exec yarn workspace enketo-express start

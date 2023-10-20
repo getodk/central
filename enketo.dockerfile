@@ -12,6 +12,7 @@ WORKDIR ${ENKETO_SRC_DIR}
 
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.template
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
+COPY files/enketo/config.json.dev.template ${ENKETO_SRC_DIR}/config/config.json.dev.template
 COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
 
 RUN apt-get update && \
