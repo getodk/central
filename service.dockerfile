@@ -42,6 +42,7 @@ LABEL org.getodk.central.app-name="central" \
 
 WORKDIR /usr/odk
 
+COPY server/package*.json ./
 COPY --from=pgdg /etc/apt/sources.list.d/pgdg.list \
     /etc/apt/sources.list.d/pgdg.list
 COPY --from=pgdg /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg \
@@ -55,19 +56,15 @@ RUN apt-get update \
         procps \
         postgresql-client-14 \
         netcat-traditional \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY files/service/crontab /etc/cron.d/odk
-
-COPY server/package*.json ./
-
-RUN npm clean-install --omit=dev --legacy-peer-deps --no-audit \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm clean-install --omit=dev --legacy-peer-deps --no-audit \
         --fund=false --update-notifier=false
 
 COPY server/ ./
 COPY files/service/scripts/ ./
 
 COPY files/service/config.json.template /usr/share/odk/
+COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
 
 COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
