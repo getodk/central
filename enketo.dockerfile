@@ -1,6 +1,6 @@
-FROM ghcr.io/enketo/enketo-express:6.2.2
+FROM ghcr.io/enketo/enketo:7.0.0
 
-ENV ENKETO_SRC_DIR=/srv/src/enketo_express
+ENV ENKETO_SRC_DIR=/srv/src/enketo/packages/enketo-express
 WORKDIR ${ENKETO_SRC_DIR}
 
 # we copy the config template twice. eventually we do want to actually template
