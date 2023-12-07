@@ -37,7 +37,7 @@ FROM node:${node_version}-slim
 ARG node_version
 LABEL org.getodk.central.app-name="central" \
       org.getodk.central.node-tag="${node_version}" \
-      org.getodk.central.maintainer="admin@hotosm.org" \
+      org.getodk.central.maintainer="support@getodk.org" \
       org.getodk.central.port="8383"
 
 WORKDIR /usr/odk
@@ -68,6 +68,3 @@ COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
 
 COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
-
-HEALTHCHECK --start-period=10s --interval=5s --retries=10 \
-    CMD nc -z localhost 8383 || exit 1
