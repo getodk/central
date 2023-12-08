@@ -35,10 +35,9 @@ RUN git describe --tags --dirty > /tmp/sentry-versions/client
 FROM node:${node_version}-slim
 
 ARG node_version
-LABEL org.getodk.central.app-name="central" \
-      org.getodk.central.node-tag="${node_version}" \
-      org.getodk.central.maintainer="support@getodk.org" \
-      org.getodk.central.port="8383"
+LABEL org.opencontainers.image.title="ODK Central backend" \
+      org.opencontainers.image.vendor="ODK" \
+      org.opencontainers.image.source="https://github.com/getodk/central"
 
 WORKDIR /usr/odk
 
@@ -68,3 +67,5 @@ COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
 
 COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
+
+EXPOSE 8383
