@@ -1,4 +1,4 @@
-FROM postgres:14.9
+FROM postgres:14.10
 
 COPY files/postgres14/start-postgres.sh /usr/local/bin/
 
@@ -14,4 +14,4 @@ COPY files/postgres14/start-postgres.sh /usr/local/bin/
 ENV PGDATA /var/lib/odk/postgresql/14/data
 
 ENTRYPOINT []
-CMD start-postgres.sh
+CMD ["start-postgres.sh"]

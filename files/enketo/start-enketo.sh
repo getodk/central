@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONFIG_PATH=${ENKETO_SRC_DIR}/config/config.json
-echo "generating enketo configuration.."
+echo "generating enketo configuration..."
 
 BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https://"${DOMAIN}":"${HTTPS_PORT}" ) \
 SECRET=$(cat /etc/secrets/enketo-secret) \
@@ -11,5 +11,5 @@ envsubst '$DOMAIN $BASE_URL $SECRET $LESS_SECRET $API_KEY $SUPPORT_EMAIL' \
     < "$CONFIG_PATH.template" \
     > "$CONFIG_PATH"
 
-echo "starting pm2/enketo.."
-exec pm2-runtime app.js -n enketo
+echo "starting enketo..."
+exec yarn workspace enketo-express start
