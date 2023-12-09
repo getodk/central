@@ -35,9 +35,7 @@ RUN git describe --tags --dirty > /tmp/sentry-versions/client
 FROM node:${node_version}-slim
 
 ARG node_version
-LABEL org.opencontainers.image.title="ODK Central backend" \
-      org.opencontainers.image.vendor="ODK" \
-      org.opencontainers.image.source="https://github.com/getodk/central"
+LABEL org.opencontainers.image.source="https://github.com/getodk/central"
 
 WORKDIR /usr/odk
 
