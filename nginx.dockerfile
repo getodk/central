@@ -1,9 +1,16 @@
-FROM node:20.10 as intermediate
+FROM node:20.10-slim as intermediate
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
 ARG OIDC_ENABLED
 RUN OIDC_ENABLED="$OIDC_ENABLED" files/prebuild/build-frontend.sh
+
+
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
