@@ -27,7 +27,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
   mail:
-    image: "ixdotai/smtp:v0.5.1"
+    image: "ixdotai/smtp:v0.5.2"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
