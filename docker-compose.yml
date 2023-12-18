@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
-      POSTGRES_DATABASE: odk
+      POSTGRES_DB: odk
     restart: always
   postgres:
     # This service upgrades from postgres 9.6 to 14.
@@ -25,9 +25,9 @@ services:
       PGUSER: odk
       POSTGRES_INITDB_ARGS: -U odk
       POSTGRES_PASSWORD: odk
-      POSTGRES_DATABASE: odk
+      POSTGRES_DB: odk
   mail:
-    image: "ixdotai/smtp:v0.5.1"
+    image: "ixdotai/smtp:v0.5.2"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
@@ -102,7 +102,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v1.12.2'
+    image: 'ghcr.io/getodk/pyxform-http:v2.0.0'
     restart: always
   secrets:
     volumes:
