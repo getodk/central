@@ -16,4 +16,4 @@ fi
 
 log "Starting postgres..."
 # call ENTRYPOINT + CMD from parent Docker image
-docker-entrypoint.sh postgres
+exec docker-entrypoint.sh postgres
