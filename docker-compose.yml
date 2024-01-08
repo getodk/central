@@ -126,6 +126,10 @@ services:
       - DOMAIN=${DOMAIN}
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
+      - REDIS_MAIN_HOST=enketo_redis_main
+      - REDIS_MAIN_PORT=6379
+      - REDIS_CACHE_HOST=enketo_redis_cache
+      - REDIS_CACHE_PORT=6380
   enketo_redis_main:
     image: redis:7.2
     volumes:

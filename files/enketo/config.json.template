@@ -23,12 +23,12 @@
     "query parameter to pass to submission": "st",
     "redis": {
         "main": {
-            "host": "enketo_redis_main",
-            "port": "6379"
+            "host": "${REDIS_MAIN_HOST}",
+            "port": "${REDIS_MAIN_PORT}"
         },
         "cache": {
-            "host": "enketo_redis_cache",
-            "port": "6380"
+            "host": "${REDIS_CACHE_HOST}",
+            "port": "${REDIS_CACHE_PORT}"
         }
     },
     "support": {
