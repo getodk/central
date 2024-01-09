@@ -25,7 +25,7 @@ server {
   gzip_types text/plain text/css application/json application/x-javascript text/xml text/csv;
 
   location /- {
-    proxy_pass http://enketo:8005;
+    proxy_pass ${ENKETO_URL};
     proxy_redirect off;
     proxy_set_header Host $host;
 
@@ -46,7 +46,7 @@ server {
 
   location ~ ^/v\d {
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://service:8383;
+    proxy_pass ${SERVICE_URL};
     proxy_redirect off;
 
     # buffer requests, but not responses, so streaming out works.

@@ -86,6 +86,8 @@ services:
       - enketo
     environment:
       - DOMAIN=${DOMAIN}
+      - ENKETO_URL=${ENKETO_URL:-http://enketo:8005}
+      - SERVICE_URL=${SERVICE_URL:-http://service:8383}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
       - SSL_TYPE=${SSL_TYPE:-letsencrypt}
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
