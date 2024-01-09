@@ -22,11 +22,11 @@
       }
     },
     "xlsform": {
-      "host": "pyxform",
-      "port": 80
+      "host": "${PYXFORM_HOST}",
+      "port": ${PYXFORM_PORT}
     },
     "enketo": {
-      "url": "http://enketo:8005/-",
+      "url": "${ENKETO_URL}",
       "apiKey": "${ENKETO_API_KEY}"
     },
     "env": {
