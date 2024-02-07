@@ -15,3 +15,5 @@
 /files/mail/rsa.public
 
 /files/dkim/*
+
+/data/transfer/*
