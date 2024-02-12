@@ -16,9 +16,6 @@ if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_PATH/privkey.pem" ]; then
 fi
 
 TEMPLATE_PATH=/usr/share/odk/nginx/odk.conf.template
-if [ "$ENV" = "DEV" ]; then
-    TEMPLATE_PATH=/usr/share/odk/nginx/odk.conf.dev.template
-fi
 
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
@@ -35,19 +32,23 @@ else
   if [ "$SSL_TYPE" = "upstream" ]; then
     # no need for letsencrypt challenge reply or 80 to 443 redirection
     rm -f /etc/nginx/conf.d/redirector.conf
-    # strip out all ssl_* directives
-    perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
-    # force https because we expect SSL upstream
-    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
+
+    # in DEV we run Central on http
+    if [ "$ENV" = "DEV" ]; then
+      perl -i -ne 's/listen 443.*/listen 8989;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
+      perl -i -pe 's/enketo:8005;/localhost:8005;/;' /etc/nginx/conf.d/odk.conf
+      perl -i -pe 's/service:8383;/localhost:8383;/;' /etc/nginx/conf.d/odk.conf
+    else
+      # strip out all ssl_* directives
+      perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
+      # force https because we expect SSL upstream
+      perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
+    fi
+    
     echo "starting nginx for upstream ssl..."
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection
     perl -i -ne 'print if $. < 7 || $. > 14' /etc/nginx/conf.d/redirector.conf
-
-    if [ "$ENV" = "DEV" ]; then
-        rm -f /etc/nginx/conf.d/redirector.conf
-    fi
-
     echo "starting nginx for custom ssl and self-signed certs..."
   fi
   exec nginx -g "daemon off;"

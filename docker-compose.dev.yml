@@ -24,11 +24,14 @@ services:
   service:
     profiles:
       - enketo
-    depends_on: !reset []
+    depends_on: !override [secrets]
     network_mode: host
     environment:
       - DB_HOST=localhost
       - ENV=DEV
+      - XLSFORM_HOST=127.0.0.1
+      - XLSFORM_PORT=5001
+      - ENKETO_URL=http://localhost:8005/-
   nginx:
     profiles:
       - enketo
@@ -45,7 +48,10 @@ services:
     network_mode: host
   secrets:
     profiles:
-      - none
+      - central
+      - enketo
+    environment:
+      - ENV=DEV
   enketo:
     profiles:
       - central    
