@@ -24,7 +24,7 @@ services:
   service:
     profiles:
       - enketo
-    depends_on: !override [secrets]
+    depends_on: !reset []
     network_mode: host
     environment:
       - DB_HOST=localhost
@@ -48,8 +48,7 @@ services:
     network_mode: host
   secrets:
     profiles:
-      - central
-      - enketo
+      - secrets
     environment:
       - ENV=DEV
   enketo:
