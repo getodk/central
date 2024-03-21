@@ -14,7 +14,7 @@ RUN OIDC_ENABLED="$OIDC_ENABLED" files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
-FROM jonasal/nginx-certbot:5.0.1-nginx1.25.4
+FROM jonasal/nginx-certbot:5.0.1
 
 EXPOSE 80
 EXPOSE 443
