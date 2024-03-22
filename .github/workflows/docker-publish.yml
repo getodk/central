@@ -1,0 +1,68 @@
+name: Docker
+
+on:
+  push:
+    branches: [master]
+    # Publish semver tags as releases.
+    tags: ["v*.*.*"]
+
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_WITH_PATH: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build-push-image:
+    strategy:
+      matrix:
+        image: [secrets, nginx, service, enketo]
+        # Empty flavor and build_args are required so that GitHub finds the 'include' below
+        flavor: [""]
+        build_args: [""]
+        include:
+          # Build additional OIDC flavor for nginx (tags will be suffixed with -oidc)
+          - image: nginx
+            flavor: |
+              latest=true
+              suffix=-oidc,onlatest=true
+            build_args: |
+              OIDC_ENABLED=true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_WITH_PATH }}/central-${{ matrix.image }}
+          flavor: ${{ matrix.flavor }}
+          # Generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}.{{hotfix}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - name: Build and push ${{ matrix.image }} Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: ${{ matrix.image }}.dockerfile
+          context: .
+          build-args: ${{ matrix.build_args }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
