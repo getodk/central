@@ -3,6 +3,12 @@
 CONFIG_PATH=${ENKETO_SRC_DIR}/config/config.json
 echo "generating enketo configuration..."
 
+if [ "$ENV" = "DEV" ]; then
+    sed -i 's/enketo_redis_main/localhost/g' "$CONFIG_PATH.template"
+    sed -i 's/enketo_redis_cache/localhost/g' "$CONFIG_PATH.template"
+    sed -i 's/6380/6379/g' "$CONFIG_PATH.template"
+fi
+
 BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https://"${DOMAIN}":"${HTTPS_PORT}" ) \
 SECRET=$(cat /etc/secrets/enketo-secret) \
 LESS_SECRET=$(cat /etc/secrets/enketo-less-secret) \
