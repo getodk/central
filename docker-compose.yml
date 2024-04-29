@@ -1,4 +1,3 @@
-version: "3"
 services:
   postgres14:
     build:
@@ -102,7 +101,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v2.0.2'
+    image: 'ghcr.io/getodk/pyxform-http:v2.0.3'
     restart: always
   secrets:
     volumes:
