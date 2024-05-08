@@ -8,9 +8,9 @@ RUN apt-get update \
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
-ARG OIDC_ENABLED
-RUN envsubst < files/nginx/client-config.json.template > /tmp/client-config.json
 RUN files/prebuild/build-frontend.sh
+ARG OIDC_ENABLED
+RUN files/prebuild/write-client-config.sh
 
 
 
