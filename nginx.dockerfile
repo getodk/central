@@ -3,12 +3,14 @@ FROM node:20.12.2-slim as intermediate
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
+        gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
+RUN files/prebuild/build-frontend.sh
 ARG OIDC_ENABLED
-RUN OIDC_ENABLED="$OIDC_ENABLED" files/prebuild/build-frontend.sh
+RUN files/prebuild/write-client-config.sh
 
 
 
@@ -32,3 +34,4 @@ COPY files/nginx/*.conf* /usr/share/odk/nginx/
 
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
+COPY --from=intermediate /tmp/client-config.json /usr/share/nginx/html

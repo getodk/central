@@ -1,0 +1,3 @@
+{
+  "oidcEnabled": $OIDC_ENABLED
+}
