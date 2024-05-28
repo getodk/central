@@ -17,7 +17,7 @@ free="$(df --output=avail "$dockerRootDir/volumes" | tail -n+2)"
 
 # Support both Docker Compose v1 & v2 container names.
 # See: https://docs.docker.com/compose/migrate/#service-container-names
-if ! docker compose version >/dev/null 2>/dev/null; then
+if docker ps -a --format '{{.Names}}' | grep -q "central_postgres_1"; then
   containerName="central_postgres_1"
 else
   containerName="central-postgres-1"

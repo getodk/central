@@ -1,4 +1,4 @@
-FROM node:20.10-slim as intermediate
+FROM node:20.12.2-slim as intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -14,7 +14,7 @@ RUN OIDC_ENABLED="$OIDC_ENABLED" files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
-FROM jonasal/nginx-certbot:5.0.0
+FROM jonasal/nginx-certbot:5.0.1
 
 EXPOSE 80
 EXPOSE 443
