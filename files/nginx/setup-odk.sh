@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+echo "writing client config..."
+if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
+  echo 'OIDC_ENABLED must be either true or false'
+  exit 1
+fi
+
+envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
+
+
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
   openssl dhparam -out "$DH_PATH" 2048
@@ -17,7 +27,6 @@ fi
 
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
-cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
 CNAME=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
 envsubst '$SSL_TYPE $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
   < /usr/share/odk/nginx/odk.conf.template \

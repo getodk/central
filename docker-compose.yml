@@ -77,8 +77,6 @@ services:
   nginx:
     build:
       context: .
-      args:
-        - OIDC_ENABLED=${OIDC_ENABLED:-false}
       dockerfile: nginx.dockerfile
     depends_on:
       - service
@@ -90,6 +88,13 @@ services:
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+    volumes:
+      - ./files/local/customssl/:/etc/customssl/live/local/
+      - ./files/nginx/redirector.conf:/etc/nginx/conf.d/redirector.conf
+      - ./files/nginx/common-headers.conf:/usr/share/odk/nginx/common-headers.conf
+      - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template
+      - ./files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
