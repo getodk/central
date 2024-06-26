@@ -91,8 +91,6 @@ services:
       - OIDC_ENABLED=${OIDC_ENABLED:-false}
     volumes:
       - ./files/local/customssl/:/etc/customssl/live/local/:ro
-      - ./files/nginx/redirector.conf:/etc/nginx/conf.d/redirector.conf:ro
-      - ./files/nginx/common-headers.conf:/usr/share/odk/nginx/common-headers.conf:ro
       - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
       - ./files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
     ports:
