@@ -90,11 +90,11 @@ services:
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
       - OIDC_ENABLED=${OIDC_ENABLED:-false}
     volumes:
-      - ./files/local/customssl/:/etc/customssl/live/local/
-      - ./files/nginx/redirector.conf:/etc/nginx/conf.d/redirector.conf
-      - ./files/nginx/common-headers.conf:/usr/share/odk/nginx/common-headers.conf
-      - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template
-      - ./files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template
+      - ./files/local/customssl/:/etc/customssl/live/local/:ro
+      - ./files/nginx/redirector.conf:/etc/nginx/conf.d/redirector.conf:ro
+      - ./files/nginx/common-headers.conf:/usr/share/odk/nginx/common-headers.conf:ro
+      - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
+      - ./files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
