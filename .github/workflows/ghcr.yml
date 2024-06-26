@@ -1,6 +1,10 @@
 name: GHCR
 
-on: push
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    tags: ["v*.*.*"]
 
 env:
   REGISTRY: ghcr.io
@@ -40,7 +44,7 @@ jobs:
       - name: Set up QEMU emulator for multi-arch images
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push ${{ matrix.image }} Docker image
