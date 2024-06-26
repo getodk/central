@@ -19,7 +19,8 @@ FROM jonasal/nginx-certbot:5.0.1
 EXPOSE 80
 EXPOSE 443
 
-VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
+# Persist Diffie-Hellman parameters and/or selfsign key
+VOLUME [ "/etc/dh", "/etc/selfsign" ]
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
@@ -30,4 +31,4 @@ COPY files/nginx/setup-odk.sh /scripts/
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
 
-CMD [ "/bin/bash", "/scripts/setup-odk.sh" ]
+ENTRYPOINT [ "/scripts/setup-odk.sh" ]
