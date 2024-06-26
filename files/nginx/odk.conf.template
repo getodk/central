@@ -67,6 +67,10 @@ server {
       include /usr/share/odk/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
+    location /client-config.json {
+      include /usr/share/odk/nginx/common-headers.conf;
+      add_header Cache-Control no-cache;
+    }
     location /index.html {
       include /usr/share/odk/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
