@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 RUN mkdir -p /usr/share/odk/nginx/
 
 COPY files/nginx/setup-odk.sh /scripts/
+RUN chmod +x /scripts/setup-odk.sh
 
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
