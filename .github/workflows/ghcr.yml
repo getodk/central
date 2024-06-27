@@ -3,8 +3,11 @@ name: GHCR
 on:
   workflow_dispatch:
   push:
-    branches: [master]
-    tags: ["v*.*.*"]
+    branches:
+      - next
+      - use-images
+    tags:
+      - v*.*.*
 
 env:
   REGISTRY: ghcr.io
