@@ -56,6 +56,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
       - DB_SSL=${DB_SSL:-null}
+      - XLSFORM_HOST=${XLSFORM_HOST:-pyxform}
+      - XLSFORM_PORT=${XLSFORM_PORT:-80}
+      - ENKETO_URL=${ENKETO_URL:-http://enketo:8005/-}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
       - EMAIL_PORT=${EMAIL_PORT:-25}
