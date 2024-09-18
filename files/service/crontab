@@ -1,5 +1,5 @@
 0 5 * * * root /usr/odk/upload-blobs.sh
-0 4 * * * root /usr/odk/purge-forms.sh
+0 4 * * * root /usr/odk/purge.sh
 0 3 * * * root /usr/odk/run-analytics.sh
 0 2 * * * root /usr/odk/process-backlog.sh
 0 1 * * 0 root /usr/odk/reap-sessions.sh
