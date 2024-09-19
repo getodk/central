@@ -104,6 +104,26 @@ describe('nginx config', () => {
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
   });
+
+  it('should transparently follow backend 307 redirects', async () => {
+    // when
+    const res = await fetchHttps('/v1/blob/some-bucket/some-id');
+
+    // then
+    assert.isTrue(res.ok);
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'blob:some-bucket/some-id');
+  });
+
+  it('should not modify enketo 307 redirects', async () => {
+    // when
+    const res = await fetchHttps('/-/blob/some-bucket/some-id');
+
+    // then
+    assert.isFalse(res.ok);
+    assert.equal(res.status, 307);
+    assert.equal(await res.headers.get('location'), 'http://mock_s3:33333/blob-server/some-bucket/some-id');
+  });
 });
 
 function fetchHttp(path, options) {

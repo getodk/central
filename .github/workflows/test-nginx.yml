@@ -22,3 +22,5 @@ jobs:
       run: docker logs test-service-1
     - if: always()
       run: docker logs test-enketo-1
+    - if: always()
+      run: docker logs test-mock_s3-1

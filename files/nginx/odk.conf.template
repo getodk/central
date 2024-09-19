@@ -58,6 +58,22 @@ server {
     proxy_request_buffering on;
     proxy_buffering off;
     proxy_read_timeout 2m;
+
+    # transparently follow 307 redirects
+    # See: https://serverfault.com/a/792035
+    proxy_intercept_errors on;
+    error_page 307 = @follow_redirect_transparently;
+  }
+
+  location @follow_redirect_transparently {
+    # TODO 127.0.0.11 is docker DNS, and may not be required in production
+    # TODO 8.8.8.8 is google DNS, and may not be palatable to some users
+    # TODO resolver config will need testing IRL
+    # See: https://nginx.org/en/docs/http/ngx_http_core_module.html#resolver
+    # See: https://stackoverflow.com/a/40331256
+    resolver 127.0.0.11 8.8.8.8;
+    set $hdr_location '$upstream_http_location';
+    proxy_pass '$hdr_location';
   }
 
   location / {

@@ -14,6 +14,15 @@ app.get('/reset',       withStdLogging((req, res) => {
   res.json('OK');
 }));
 
+app.get('/blob-server/*', withStdLogging((req, res) => {
+  res.send(`blob:${req.path.replace('/blob-server/', '')}`);
+}));
+
+app.get('/*blob/*', withStdLogging((req, res) => {
+  // NOTE this may require tweaking when reality of using real nginx server is understood.
+  res.redirect(307, 'http://mock_s3:33333/blob-server/' + req.path.replace(/.*blob\//, ''));
+}));
+
 app.get('/*', ok('GET'));
 app.post('/*', ok('POST'));
 // TODO add more methods as required
