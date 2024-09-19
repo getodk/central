@@ -1,0 +1,10 @@
+{
+  "name": "odk-central-tests",
+  "scripts": {
+    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test-nginx.js"
+  },
+  "dependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.7.3"
+  }
+}
