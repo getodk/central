@@ -3,7 +3,7 @@
 #
 # It is ESPECIALLY IMPORTANT to keep IDENTICAL BASE IMAGES.
 #
-FROM jonasal/nginx-certbot:5.0.4
+FROM jonasal/nginx-certbot:5.4.0
 
 EXPOSE 80
 EXPOSE 443

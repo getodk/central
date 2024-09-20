@@ -14,7 +14,7 @@ RUN files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
-FROM jonasal/nginx-certbot:5.0.4
+FROM jonasal/nginx-certbot:5.4.0
 
 EXPOSE 80
 EXPOSE 443
