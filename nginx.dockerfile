@@ -1,4 +1,4 @@
-FROM node:20.17.0-slim as intermediate
+FROM node:20.17.0-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
