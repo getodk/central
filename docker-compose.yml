@@ -26,7 +26,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
   mail:
-    image: "ixdotai/smtp:v0.5.2"
+    image: "ixdotai/smtp:v0.5.4"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
@@ -108,7 +108,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v2.0.3'
+    image: 'ghcr.io/getodk/pyxform-http:v2.1.0'
     restart: always
   secrets:
     volumes:
