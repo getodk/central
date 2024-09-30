@@ -1,8 +1,8 @@
-ARG node_version=20.12.2
+ARG node_version=20.17.0
 
 
 
-FROM node:${node_version}-slim as pgdg
+FROM node:${node_version}-slim AS pgdg
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -17,7 +17,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODEN
 
 
 
-FROM node:${node_version}-slim as intermediate
+FROM node:${node_version}-slim AS intermediate
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \

@@ -1,0 +1,24 @@
+name: Test nginx config
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+    - run: cd test && npm i
+    - run: cd test && ./run-tests.sh
+
+    - if: always()
+      run: docker logs test-nginx-1
+    - if: always()
+      run: docker logs test-service-1
+    - if: always()
+      run: docker logs test-enketo-1
