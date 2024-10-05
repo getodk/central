@@ -1,5 +1,8 @@
 **
 
+# .git directories required for generating version.txt
+
+!/.git/
 !/docs/
 !/files/
 !/test/files/
@@ -7,6 +10,7 @@
 !/client/.browserslistrc
 !/client/.eslintrc.js
 !/client/.tx/config
+!/client/.git/
 !/client/icomoon.json
 !/client/jsconfig.json
 !/client/package.json
@@ -19,6 +23,7 @@
 !/client/transifex/
 
 !/server/.npmrc
+!/server/.git/
 !/server/package.json
 !/server/package-lock.json
 !/server/Makefile
