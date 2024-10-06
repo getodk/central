@@ -10,8 +10,6 @@ COPY ./ ./
 RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
-
-
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
 FROM jonasal/nginx-certbot:5.4.0
@@ -29,8 +27,10 @@ RUN mkdir -p /usr/share/odk/nginx/
 COPY files/nginx/setup-odk.sh /scripts/
 RUN chmod +x /scripts/setup-odk.sh
 
-COPY files/nginx/redirector.conf /usr/share/odk/nginx/
+COPY files/nginx/client-config.json.template /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
+COPY files/nginx/odk.conf.template /usr/share/odk/nginx/
+COPY files/nginx/redirector.conf /usr/share/odk/nginx/
 
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
