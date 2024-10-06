@@ -104,6 +104,38 @@ describe('nginx config', () => {
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
   });
+
+  it('should set x-forwarded-proto header to "https"', async () => {
+    // when
+    const res = await fetch(`https://localhost:9001/v1/reflect-headers`);
+
+    // then
+    assert.equal(res.status, 200);
+
+    // when
+    const body = await res.json();
+    // then
+    console.log('body:', body);
+    assert.equal(body['x-forwarded-proto'], 'https');
+  });
+
+  it('should override supplied x-forwarded-proto header', async () => {
+    // when
+    const res = await fetch(`https://localhost:9001/v1/reflect-headers`, {
+      headers: {
+        'x-forwarded-proto': 'http',
+      },
+    });
+
+    // then
+    assert.equal(res.status, 200);
+
+    // when
+    const body = await res.json();
+    // then
+    console.log('body:', body);
+    assert.equal(body['x-forwarded-proto'], 'https');
+  });
 });
 
 function fetchHttp(path, options) {
