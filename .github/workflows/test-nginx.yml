@@ -17,8 +17,8 @@ jobs:
     - run: cd test && ./run-tests.sh
 
     - if: always()
-      run: docker logs test-nginx-1
+      run: docker logs test-nginx-1 || true
     - if: always()
-      run: docker logs test-service-1
+      run: docker logs test-service-1 || true
     - if: always()
-      run: docker logs test-enketo-1
+      run: docker logs test-enketo-1 || true
