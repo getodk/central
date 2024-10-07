@@ -107,7 +107,6 @@ describe('nginx config', () => {
     // when
     const body = await res.json();
     // then
-    console.log('body:', body);
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 
@@ -125,7 +124,6 @@ describe('nginx config', () => {
     // when
     const body = await res.json();
     // then
-    console.log('body:', body);
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 });
