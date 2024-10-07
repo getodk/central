@@ -100,7 +100,6 @@ describe('nginx config', () => {
   it('should set x-forwarded-proto header to "https"', async () => {
     // when
     const res = await fetch(`https://localhost:9001/v1/reflect-headers`);
-
     // then
     assert.equal(res.status, 200);
 
@@ -117,7 +116,6 @@ describe('nginx config', () => {
         'x-forwarded-proto': 'http',
       },
     });
-
     // then
     assert.equal(res.status, 200);
 
