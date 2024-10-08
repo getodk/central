@@ -34,9 +34,7 @@ services:
       - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
-    build:
-      context: .
-      dockerfile: service.dockerfile
+    image: 'ghcr.io/getodk/central-service:use-images'
     depends_on:
       - secrets
       - postgres14
@@ -79,9 +77,7 @@ services:
     logging:
       driver: local
   nginx:
-    build:
-      context: .
-      dockerfile: nginx.dockerfile
+    image: 'ghcr.io/getodk/central-nginx:use-images'
     depends_on:
       - service
       - enketo
