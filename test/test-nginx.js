@@ -1,3 +1,4 @@
+const { Readable } = require('stream');
 const { assert } = require('chai');
 
 describe('nginx config', () => {
@@ -12,7 +13,7 @@ describe('nginx config', () => {
 
     // then
     assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://localhost:9000/.well-known/acme-challenge');
+    assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/.well-known/acme-challenge');
   });
 
   it('well-known should serve from HTTPS', async () => {
@@ -29,7 +30,7 @@ describe('nginx config', () => {
 
     // then
     assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://localhost:9000/');
+    assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
   });
 
   it('should serve generated client-config.json', async () => {
@@ -124,16 +125,24 @@ describe('nginx config', () => {
     // then
     assert.equal(body['x-forwarded-proto'], 'https');
   });
+
+  it('should reject HTTPS requests with incorrect host header supplied', async () => {
+    // when
+    const res = await fetchHttps('/.well-known/acme-challenge', { headers:{ host:'bad.example.com' } });
+
+    // then
+    assert.equal(res.status, 421);
+  });
 });
 
 function fetchHttp(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return fetch(`http://localhost:9000${path}`, { redirect:'manual', ...options });
+  return fetch(`http://localhost:9000${path}`, options);
 }
 
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return fetch(`https://localhost:9001${path}`, { redirect:'manual', ...options });
+  return fetch(`https://localhost:9001${path}`, options);
 }
 
 function assertEnketoReceived(...expectedRequests) {
@@ -161,4 +170,59 @@ function resetBackendMock() {
 async function resetMock(port) {
   const res = await fetch(`http://localhost:${port}/reset`);
   assert.isTrue(res.ok);
+}
+
+// Similar to fetch() but:
+//
+// 1. do not follow redirects
+// 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
+function fetch(url, { body, ...options }={}) {
+  if(!options.headers) options.headers = {};
+  if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
+
+  return new Promise((resolve, reject) => {
+    try {
+      const req = getProtocolImplFrom(url).request(url, options, res => {
+        res.on('error', reject);
+
+        const body = new Readable({ _read: () => {} });
+        res.on('error', err => body.destroy(err));
+        res.on('data', data => body.push(data));
+        res.on('end', () => body.push(null));
+
+        const text = () => new Promise((resolve, reject) => {
+          const chunks = [];
+          body.on('error', reject);
+          body.on('data', data => chunks.push(data))
+          body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        });
+
+        const status = res.statusCode;
+
+        resolve({
+          status,
+          ok: status >= 200 && status < 300,
+          statusText: res.statusText,
+          body,
+          text,
+          json: async () => JSON.parse(await text()),
+          headers: new Headers(res.headers),
+        });
+      });
+      req.on('error', reject);
+      if(body !== undefined) req.write(body);
+      req.end();
+    } catch(err) {
+      reject(err);
+    }
+  });
+}
+
+function getProtocolImplFrom(url) {
+  const { protocol } = new URL(url);
+  switch(protocol) {
+    case 'http:':  return require('node:http');
+    case 'https:': return require('node:https');
+    default: throw new Error(`Unsupported protocol: ${protocol}`);
+  }
 }
