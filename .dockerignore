@@ -8,19 +8,12 @@
 !/test/files/
 
 !/client/.browserslistrc
-!/client/.eslintrc.js
-!/client/.tx/config
 !/client/.git/
-!/client/icomoon.json
-!/client/jsconfig.json
 !/client/package.json
 !/client/package-lock.json
 !/client/vue.config.js
-!/client/bin/
-!/client/docs/
 !/client/public/
 !/client/src/
-!/client/transifex/
 
 !/server/.npmrc
 !/server/.git/
