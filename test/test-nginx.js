@@ -126,6 +126,16 @@ describe('nginx config', () => {
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 
+  it('should reject HTTP requests with incorrect host header supplied', async () => {
+    // when
+    const res = await fetchHttp('/', { headers:{ host:'bad.example.com' } });
+
+    console.log('res.location:', res.headers.get('location'));
+
+    // then
+    assert.equal(res.status, 421);
+  });
+
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
     // when
     const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
