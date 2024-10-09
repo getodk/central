@@ -128,7 +128,7 @@ describe('nginx config', () => {
 
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
     // when
-    const res = await fetchHttps('/.well-known/acme-challenge', { headers:{ host:'bad.example.com' } });
+    const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
 
     // then
     assert.equal(res.status, 421);
