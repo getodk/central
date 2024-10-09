@@ -14,7 +14,7 @@ jobs:
 
       - run: |
           echo 'SSL_TYPE=selfsign
-          DOMAIN=local
+          DOMAIN=localhost
           SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
       - run: touch ./files/allow-postgres14-upgrade
