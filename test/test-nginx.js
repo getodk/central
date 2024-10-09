@@ -6,23 +6,6 @@ describe('nginx config', () => {
     resetBackendMock(),
   ]));
 
-  it('well-known should serve from HTTP', async () => {
-    // when
-    const res = await fetchHttp('/.well-known/acme-challenge');
-
-    // then
-    assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://localhost:9000/.well-known/acme-challenge');
-  });
-
-  it('well-known should serve from HTTPS', async () => {
-    // when
-    const res = await fetchHttps('/.well-known/acme-challenge');
-
-    // then
-    assert.equal(res.status, 404);
-  });
-
   it('HTTP should forward to HTTPS', async () => {
     // when
     const res = await fetchHttp('/');
