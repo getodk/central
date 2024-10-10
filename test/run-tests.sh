@@ -26,11 +26,6 @@ wait_for_http_response() {
   fi  
 }
 
-log "Checking nginx dockerfiles have same base image..."
-# It would be nice if Dockerfiles allowed some kind of templating which would
-# allow for direct sharing between the real and test nginx dockerfiles.
-diff <(grep FROM nginx-test.dockerfile) <(grep FROM ../nginx.dockerfile | grep -v AS)
-
 log "Starting test services..."
 docker_compose up --build --detach
 

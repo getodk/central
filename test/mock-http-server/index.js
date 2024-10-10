@@ -14,6 +14,8 @@ app.get('/reset',       withStdLogging((req, res) => {
   res.json('OK');
 }));
 
+app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
+
 app.get('/*', ok('GET'));
 app.post('/*', ok('POST'));
 // TODO add more methods as required
