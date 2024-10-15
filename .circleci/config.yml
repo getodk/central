@@ -30,11 +30,11 @@ jobs:
             docker compose up -d
             CONTAINER_NAME=$(docker inspect -f '{{.Name}}' $(docker compose ps -q nginx) | cut -c2-)
             docker run --network container:$CONTAINER_NAME \
-              appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ \
+              appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ -H 'Host: local' \
               | tee /dev/tty \
               | grep -q 'ODK Central'
             docker run --network container:$CONTAINER_NAME \
-              appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects \
+              appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects -H 'Host: local' \
               | tee /dev/tty \
               | grep -q '\[\]'
       - run:
