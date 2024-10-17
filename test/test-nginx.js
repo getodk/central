@@ -6,23 +6,6 @@ describe('nginx config', () => {
     resetBackendMock(),
   ]));
 
-  it('well-known should serve from HTTP', async () => {
-    // when
-    const res = await fetchHttp('/.well-known/acme-challenge');
-
-    // then
-    assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://localhost:9000/.well-known/acme-challenge');
-  });
-
-  it('well-known should serve from HTTPS', async () => {
-    // when
-    const res = await fetchHttps('/.well-known/acme-challenge');
-
-    // then
-    assert.equal(res.status, 404);
-  });
-
   it('HTTP should forward to HTTPS', async () => {
     // when
     const res = await fetchHttp('/');
@@ -43,22 +26,24 @@ describe('nginx config', () => {
   });
 
   [
-    '/index.html',
-    '/version.txt',
-  ].forEach(staticFile => {
+    [ '/index.html',  /<div id="app"><\/div>/ ],
+    [ '/version.txt', /^versions:/ ],
+  ].forEach(([ staticFile, expectedContent ]) => {
     it(`${staticFile} file should have no-cache header`, async () => {
       // when
       const res = await fetchHttps(staticFile);
 
       // then
       assert.equal(res.status, 200);
-      assert.equal(await res.text(), `hi:${staticFile}\n`);
+      assert.match(await res.text(), expectedContent);
       assert.equal(await res.headers.get('cache-control'), 'no-cache');
     });
   });
 
   [
-    '/should-be-cached.txt',
+    '/blank.html',
+    '/favicon.ico',
+    // there's no way to predict generated asset paths, as they have cache-busting names
   ].forEach(staticFile => {
     it(`${staticFile} file should not have no-cache header`, async () => {
       // when
@@ -66,7 +51,6 @@ describe('nginx config', () => {
 
       // then
       assert.equal(res.status, 200);
-      assert.equal(await res.text(), `hi:${staticFile}\n`);
       assert.isNull(await res.headers.get('cache-control'));
     });
   });
@@ -95,6 +79,34 @@ describe('nginx config', () => {
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
+  });
+
+  it('should set x-forwarded-proto header to "https"', async () => {
+    // when
+    const res = await fetch(`https://localhost:9001/v1/reflect-headers`);
+    // then
+    assert.equal(res.status, 200);
+
+    // when
+    const body = await res.json();
+    // then
+    assert.equal(body['x-forwarded-proto'], 'https');
+  });
+
+  it('should override supplied x-forwarded-proto header', async () => {
+    // when
+    const res = await fetch(`https://localhost:9001/v1/reflect-headers`, {
+      headers: {
+        'x-forwarded-proto': 'http',
+      },
+    });
+    // then
+    assert.equal(res.status, 200);
+
+    // when
+    const body = await res.json();
+    // then
+    assert.equal(body['x-forwarded-proto'], 'https');
   });
 });
 

@@ -16,7 +16,7 @@ services:
   nginx:
     build:
       context: ..
-      dockerfile: ./test/nginx-test.dockerfile
+      dockerfile: nginx.dockerfile
     depends_on:
       - service
       - enketo
