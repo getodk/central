@@ -1,0 +1,51 @@
+# Assumption: This file will be merged by `docker compose`
+#
+# What it does:
+# Sets profiles for each service depending on whether that 
+# service is required for development of that particular application
+# For Central be/fe development, we need postgres14, pyxform, enketo, redis_main
+# For Enketo development, we need postgres14, service, nginx, redis_main
+# 'none' profile is set for services that are not need for either
+#  
+# depends_on of some services are reset using !reset custom yml tag
+# nb: can't replace depends_on so we have removed all the values, ok for dev
+services:
+  postgres14:
+    profiles:
+      - central
+    network_mode: host
+  postgres:
+    profiles:
+      - none
+  mail:
+    profiles:
+      - none
+  service:
+    profiles:
+      - none
+  nginx:
+    profiles:
+      - none
+  pyxform:
+    profiles:
+      - central
+    # changing port here - can't use `ports` mapping with host networking
+    command: ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "5", "--timeout", "600", "--max-requests", "1", "--max-requests-jitter", "3", "main:app()"]
+    network_mode: host
+  secrets:
+    profiles:
+      - none
+  enketo:
+    profiles:
+      - central    
+    depends_on: !reset []
+    environment:
+      - ENV=DEV
+    network_mode: host
+  enketo_redis_main:
+    profiles:
+      - central
+    network_mode: host
+  enketo_redis_cache:
+    profiles:
+      - none
