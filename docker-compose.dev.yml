@@ -2,10 +2,7 @@
 #
 # What it does:
 # Sets profiles for each service depending on whether that 
-# service is required for development of that particular application
-# For Central be/fe development, we need postgres14, pyxform, enketo, redis_main
-# For Enketo development, we need postgres14, service, nginx, redis_main
-# 'none' profile is set for services that are not need for either
+# service is required for Central development or not.
 #  
 # depends_on of some services are reset using !reset custom yml tag
 # nb: can't replace depends_on so we have removed all the values, ok for dev
