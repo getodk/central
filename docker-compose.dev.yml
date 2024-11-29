@@ -31,11 +31,19 @@ services:
     network_mode: host
   secrets:
     profiles:
-      - none
+      - central
+    volumes:
+      - dev_secrets:/etc/secrets
+    working_dir: /etc/secrets
+    command: /bin/sh -c 'echo "s0m3v3rys3cr3tk3y" > enketo-secret && echo "this $3cr3t key is crackable" > enketo-less-secret && echo "enketorules" > enketo-api-key'
   enketo:
     profiles:
-      - central    
-    depends_on: !reset []
+      - central
+    volumes:
+      - dev_secrets:/etc/secrets
+    depends_on: !override
+      - secrets
+      - enketo_redis_main
     environment:
       - ENV=DEV
     network_mode: host
@@ -46,3 +54,5 @@ services:
   enketo_redis_cache:
     profiles:
       - none
+volumes:
+  dev_secrets:
