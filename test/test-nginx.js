@@ -114,9 +114,6 @@ describe('nginx config', () => {
     // when
     const res = await fetchHttp('/', { headers:{ host:'bad.example.com' } });
 
-    console.log('res.headers:', res.headers);
-    console.log('res.body:',    res.body);
-
     // then
     assert.equal(res.status, 421);
   });
@@ -124,9 +121,6 @@ describe('nginx config', () => {
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
     // when
     const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
-
-    console.log('res.headers:', res.headers);
-    console.log('res.body:',    res.body);
 
     // then
     assert.equal(res.status, 421);
