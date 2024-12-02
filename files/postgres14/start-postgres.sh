@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 set -o pipefail
 
-flag_upgradeCompletedOk=$(readlink -f -m "$PGDATA/../.postgres14-upgrade-successful")
+flag_upgradeCompletedOk="$PGDATA/../.postgres14-upgrade-successful"
 
 logPrefix="$(basename "$0")"
 log() {

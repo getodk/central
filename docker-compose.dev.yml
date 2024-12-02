@@ -13,7 +13,9 @@ services:
     network_mode: host
   postgres:
     profiles:
-      - none
+      - central
+    image: debian:bullseye
+    command: /bin/sh -c 'mkdir -p /var/lib/postgresql/14/data && touch /var/lib/postgresql/14/.postgres14-upgrade-successful'
   mail:
     profiles:
       - none
@@ -53,6 +55,7 @@ services:
     network_mode: host
   enketo_redis_cache:
     profiles:
-      - none
+      - central
+    network_mode: host
 volumes:
   dev_secrets:
