@@ -9,6 +9,12 @@ fi
 
 envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
 
+# Generate self-signed keys for incorrect (catch-all) HTTP listeners
+mkdir -p /etc/nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -subj "/" \
+    -keyout /etc/nginx/ssl/nginx.default.key \
+    -out    /etc/nginx/ssl/nginx.default.crt
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
@@ -28,12 +34,14 @@ fi
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
 # redirector.conf gets deleted if using upstream SSL so copy it back
-cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
+envsubst '$DOMAIN' \
+  <   /usr/share/odk/nginx/redirector.conf |
+  tee /etc/nginx/conf.d/redirector.conf
 
 CNAME=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
-envsubst '$SSL_TYPE $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
-  < /usr/share/odk/nginx/odk.conf.template \
-  > /etc/nginx/conf.d/odk.conf
+envsubst '$SSL_TYPE $DOMAIN $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+  <   /usr/share/odk/nginx/odk.conf.template |
+  tee /etc/nginx/conf.d/odk.conf
 
 if [ "$SSL_TYPE" = "letsencrypt" ]; then
   echo "starting nginx for letsencrypt..."
@@ -49,7 +57,7 @@ else
     echo "starting nginx for upstream ssl..."
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection
-    perl -i -ne 'print if $. < 7 || $. > 14' /etc/nginx/conf.d/redirector.conf
+    perl -i -ne 'print if $. < 8 || $. > 15' /etc/nginx/conf.d/redirector.conf
     echo "starting nginx for custom ssl and self-signed certs..."
   fi
   exec nginx -g "daemon off;"

@@ -114,18 +114,22 @@ describe('nginx config', () => {
     // when
     const res = await fetchHttp('/', { headers:{ host:'bad.example.com' } });
 
-    console.log('res.location:', res.headers.get('location'));
+    console.log('res.headers:', res.headers);
+    console.log('res.body:',    res.body);
 
     // then
-    assert.equal(res.status, 421);
+    assert.equal(res.status, 420);
   });
 
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
     // when
     const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
 
+    console.log('res.headers:', res.headers);
+    console.log('res.body:',    res.body);
+
     // then
-    assert.equal(res.status, 421);
+    assert.equal(res.status, 422);
   });
 });
 
@@ -173,6 +177,8 @@ async function resetMock(port) {
 function fetch(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
+
+  console.log('fetch()', url, 'headers:', options.headers);
 
   return new Promise((resolve, reject) => {
     try {

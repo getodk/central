@@ -1,14 +1,6 @@
 FROM node:20.17.0-slim AS intermediate
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        git \
-        gettext-base \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY ./ ./
-RUN files/prebuild/write-version.sh
-RUN files/prebuild/build-frontend.sh
+RUN mkdir -p client/dist && echo 'SNAPSHOT' > /tmp/version.txt
 
 
 

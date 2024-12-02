@@ -1,6 +1,14 @@
 server {
+  listen 443 default_server ssl;
+  server_name _;
+
+  ssl_certificate /etc/nginx/ssl/nginx.default.crt;
+  ssl_certificate_key /etc/nginx/ssl/nginx.default.key;
+}
+
+server {
   listen 443 ssl;
-  server_name ${CNAME};
+  server_name ${DOMAIN};
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
   ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
