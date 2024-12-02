@@ -118,7 +118,7 @@ describe('nginx config', () => {
     console.log('res.body:',    res.body);
 
     // then
-    assert.equal(res.status, 420);
+    assert.equal(res.status, 421);
   });
 
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
@@ -129,7 +129,7 @@ describe('nginx config', () => {
     console.log('res.body:',    res.body);
 
     // then
-    assert.equal(res.status, 422);
+    assert.equal(res.status, 421);
   });
 });
 
