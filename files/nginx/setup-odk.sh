@@ -13,7 +13,7 @@ envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/h
 # should never be seen by legitimate users, so it's not a big deal that it's
 # self-signed.
 mkdir -p /etc/nginx/ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+openssl req -x509 -nodes -newkey rsa:2048 \
     -subj "/" \
     -keyout /etc/nginx/ssl/nginx.default.key \
     -out    /etc/nginx/ssl/nginx.default.crt
