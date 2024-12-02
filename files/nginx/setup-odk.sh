@@ -9,7 +9,9 @@ fi
 
 envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
 
-# Generate self-signed keys for incorrect (catch-all) HTTP listeners
+# Generate self-signed keys for incorrect (catch-all) HTTP listeners.  This cert
+# should never be seen by legitimate users, so it's not a big deal that it's
+# self-signed.
 mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -subj "/" \
