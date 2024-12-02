@@ -2,10 +2,6 @@ server {
   listen 443 ssl;
   server_name ${CNAME};
 
-  if ($http_host != ${CNAME}) {
-    return 421;
-  }
-
   ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
   ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
   ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
