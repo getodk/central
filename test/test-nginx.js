@@ -1,3 +1,4 @@
+const TLS = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
 
@@ -126,18 +127,25 @@ describe('nginx config', () => {
     assert.equal(res.status, 421);
   });
 
-  it('should serve long-lived certificate to HTTPS requests with incorrect host header', async () => {
-    // when
-    const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
+  it('should serve long-lived certificate to HTTPS requests with incorrect host header', () => new Promise((resolve, reject) => {
+    const socket = TLS.connect(9001, { host:'localhost', servername:'bad.example.com', rejectUnauthorized:false }, () => {
+      try {
+        const certificate = socket.getPeerCertificate();
+        const validUntilRaw = certificate.valid_to;
 
-    // then
-    const validUntilRaw = res.certificate.valid_to;
-    // Dates look like RFC-822 format - probably direct output of `openssl`.  NodeJS Date.parse()
-    // seems to support this format.
-    const validUntil = new Date(validUntilRaw);
-    assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
-    assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
-  });
+        // Dates look like RFC-822 format - probably direct output of `openssl`.  NodeJS Date.parse()
+        // seems to support this format.
+        const validUntil = new Date(validUntilRaw);
+        assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
+        assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
+        socket.end();
+      } catch(err) {
+        socket.destroy(err);
+      }
+    });
+    socket.on('end', resolve);
+    socket.on('error', reject);
+  }));
 });
 
 function fetchHttp(path, options) {
