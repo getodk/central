@@ -11,12 +11,13 @@ envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/h
 
 # Generate self-signed keys for incorrect (catch-all) HTTP listeners.  This cert
 # should never be seen by legitimate users, so it's not a big deal that it's
-# self-signed.
+# self-signed and won't expire for 1,000 years.
 mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -newkey rsa:2048 \
     -subj "/" \
     -keyout /etc/nginx/ssl/nginx.default.key \
-    -out    /etc/nginx/ssl/nginx.default.crt
+    -out    /etc/nginx/ssl/nginx.default.crt \
+    -days 365000
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
