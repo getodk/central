@@ -30,8 +30,8 @@ echo "writing fresh nginx templates..."
 # redirector.conf gets deleted if using upstream SSL so copy it back
 cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
 
-CNAME=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
-envsubst '$SSL_TYPE $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
+envsubst '$SSL_TYPE $CERT_DOMAIN $DOMAIN $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
 
