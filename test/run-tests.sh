@@ -26,6 +26,9 @@ wait_for_http_response() {
   fi  
 }
 
+log "Stopping any running test services..."
+docker_compose stop
+
 log "Starting test services..."
 docker_compose up --build --detach
 
