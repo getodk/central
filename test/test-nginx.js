@@ -223,7 +223,6 @@ function fetch(url, { body, ...options }={}) {
           text,
           json: async () => JSON.parse(await text()),
           headers: new Headers(res.headers),
-          certificate: res.socket.getPeerCertificate?.(),
         });
       });
       req.on('error', reject);
