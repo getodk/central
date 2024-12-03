@@ -125,6 +125,19 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 421);
   });
+
+  it('should serve long-lived certificate to HTTPS requests with incorrect host header', async () => {
+    // when
+    const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
+
+    // then
+    const validUntilRaw = res.certificate.valid_to;
+    // Dates look like RFC-822 format - probably direct output of `openssl`.  NodeJS Date.parse()
+    // seems to support this format.
+    const validUntil = new Date(validUntilRaw);
+    assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
+    assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
+  });
 });
 
 function fetchHttp(path, options) {
@@ -168,6 +181,7 @@ async function resetMock(port) {
 //
 // 1. do not follow redirects
 // 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
+// 3. allow access to server SSL certificate
 function fetch(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
@@ -201,6 +215,7 @@ function fetch(url, { body, ...options }={}) {
           text,
           json: async () => JSON.parse(await text()),
           headers: new Headers(res.headers),
+          certificate: res.socket.getPeerCertificate?.(),
         });
       });
       req.on('error', reject);
