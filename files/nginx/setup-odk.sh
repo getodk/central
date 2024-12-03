@@ -42,7 +42,7 @@ envsubst '$DOMAIN' \
   > /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
-envsubst '$SSL_TYPE $DOMAIN $CERT_DOMAIN $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+envsubst '$SSL_TYPE $CERT_DOMAIN $DOMAIN $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
 
