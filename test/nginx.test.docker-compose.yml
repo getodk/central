@@ -17,6 +17,8 @@ services:
     build:
       context: ..
       dockerfile: nginx.dockerfile
+      args:
+        SKIP_FRONTEND_BUILD: true
     depends_on:
       - service
       - enketo

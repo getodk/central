@@ -8,6 +8,8 @@ RUN apt-get update \
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
+
+ARG SKIP_FRONTEND_BUILD
 RUN files/prebuild/build-frontend.sh
 
 
