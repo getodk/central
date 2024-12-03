@@ -1,4 +1,4 @@
-const TLS = require('node:tls');
+const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
 
@@ -128,7 +128,7 @@ describe('nginx config', () => {
   });
 
   it('should serve long-lived certificate to HTTPS requests with incorrect host header', () => new Promise((resolve, reject) => {
-    const socket = TLS.connect(9001, { host:'localhost', servername:'bad.example.com', rejectUnauthorized:false }, () => {
+    const socket = tls.connect(9001, { host:'localhost', servername:'bad.example.com', rejectUnauthorized:false }, () => {
       try {
         const certificate = socket.getPeerCertificate();
         const validUntilRaw = certificate.valid_to;
