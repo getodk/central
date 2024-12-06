@@ -1,0 +1,19 @@
+name: Test docker context
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    timeout-minutes: 3
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        submodules: recursive
+    # Some reasonable boundaries; these may change in future.  Numbers outside
+    # these bounds indicate a misconfiguration, and should be investigated.
+    - run: ./test/check-docker-context.sh --min-size 30000 --max-size 50000 --min-count 500 --max-count 1000
