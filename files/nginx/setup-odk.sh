@@ -1,5 +1,12 @@
 #!/bin/bash
 
+nginx_envsubst() {
+  # Re-implementation of envsubst which is safe to call on nginx config files.
+  # This fn only substitutes variables in the form ${CAPS_AND_UNDERSCORES},
+  # allowing nginx variables like $host, $request_uri etc. through unmodified.
+  perl -pe 's/\$\{([A-Z_]*)\}/$ENV{$1}/g'
+}
+
 
 echo "writing client config..."
 if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
@@ -31,7 +38,7 @@ echo "writing fresh nginx templates..."
 cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
 
 CNAME=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
-envsubst '$SSL_TYPE $CNAME $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+nginx_envsubst \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
 
