@@ -85,7 +85,7 @@ describe('nginx config', () => {
 
   it('should set x-forwarded-proto header to "https"', async () => {
     // when
-    const res = await fetch(`https://localhost:9001/v1/reflect-headers`);
+    const res = await sfetch(`https://localhost:9001/v1/reflect-headers`);
     // then
     assert.equal(res.status, 200);
 
@@ -97,7 +97,7 @@ describe('nginx config', () => {
 
   it('should override supplied x-forwarded-proto header', async () => {
     // when
-    const res = await fetch(`https://localhost:9001/v1/reflect-headers`, {
+    const res = await sfetch(`https://localhost:9001/v1/reflect-headers`, {
       headers: {
         'x-forwarded-proto': 'http',
       },
@@ -150,12 +150,12 @@ describe('nginx config', () => {
 
 function fetchHttp(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return fetch(`http://localhost:9000${path}`, options);
+  return sfetch(`http://localhost:9000${path}`, options);
 }
 
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return fetch(`https://localhost:9001${path}`, options);
+  return sfetch(`https://localhost:9001${path}`, options);
 }
 
 function assertEnketoReceived(...expectedRequests) {
@@ -167,7 +167,7 @@ function assertBackendReceived(...expectedRequests) {
 }
 
 async function assertMockHttpReceived(port, expectedRequests) {
-  const res = await fetch(`http://localhost:${port}/request-log`);
+  const res = await sfetch(`http://localhost:${port}/request-log`);
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
 }
@@ -181,7 +181,7 @@ function resetBackendMock() {
 }
 
 async function resetMock(port) {
-  const res = await fetch(`http://localhost:${port}/reset`);
+  const res = await sfetch(`http://localhost:${port}/reset`);
   assert.isTrue(res.ok);
 }
 
@@ -190,11 +190,9 @@ async function resetMock(port) {
 // 1. do not follow redirects
 // 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
 // 3. allow access to server SSL certificate
-function fetch(url, { body, ...options }={}) {
+function sfetch(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
-
-  console.log('fetch()', url, 'headers:', options.headers);
 
   return new Promise((resolve, reject) => {
     try {
