@@ -185,22 +185,22 @@ describe('nginx config', () => {
 
 function fetchHttp(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`http://127.0.0.1:9000${path}`, options);
+  return request(`http://127.0.0.1:9000${path}`, options);
 }
 
 function fetchHttp6(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`http://[::1]:9000${path}`, options);
+  return request(`http://[::1]:9000${path}`, options);
 }
 
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`https://127.0.0.1:9001${path}`, options);
+  return request(`https://127.0.0.1:9001${path}`, options);
 }
 
 function fetchHttps6(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`https://[::1]:9001${path}`, options);
+  return request(`https://[::1]:9001${path}`, options);
 }
 
 function assertEnketoReceived(...expectedRequests) {
@@ -212,7 +212,7 @@ function assertBackendReceived(...expectedRequests) {
 }
 
 async function assertMockHttpReceived(port, expectedRequests) {
-  const res = await sfetch(`http://localhost:${port}/request-log`);
+  const res = await request(`http://localhost:${port}/request-log`);
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
 }
@@ -226,7 +226,7 @@ function resetBackendMock() {
 }
 
 async function resetMock(port) {
-  const res = await sfetch(`http://localhost:${port}/reset`);
+  const res = await request(`http://localhost:${port}/reset`);
   assert.isTrue(res.ok);
 }
 
@@ -235,7 +235,7 @@ async function resetMock(port) {
 // 1. do not follow redirects
 // 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
 // 3. allow access to server SSL certificate
-function sfetch(url, { body, ...options }={}) {
+function request(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
 
