@@ -1,3 +1,4 @@
+const http = require('node:http');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
@@ -11,6 +12,15 @@ describe('nginx config', () => {
   it('HTTP should forward to HTTPS', async () => {
     // when
     const res = await fetchHttp('/');
+
+    // then
+    assert.equal(res.status, 301);
+    assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
+  });
+
+  it('should forward HTTP to HTTPS (ipv6)', async () => {
+    // when
+    const res = await fetchHttp6('/');
 
     // then
     assert.equal(res.status, 301);
@@ -153,6 +163,14 @@ function fetchHttp(path, options) {
   return sfetch(`http://localhost:9000${path}`, options);
 }
 
+function fetchHttp6(path) {
+  if(!path.startsWith('/')) throw new Error('Invalid path.');
+  return request(http, {
+    host: `::1:9000`,
+    path,
+  });
+}
+
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
   return sfetch(`https://localhost:9001${path}`, options);
@@ -194,48 +212,57 @@ function sfetch(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
 
+  const protocolImpl = getProtocolImplFrom(url);
+  return request(protocolImpl, options, body, url);
+}
+
+function request(protocolImpl, options, body, url) {
   return new Promise((resolve, reject) => {
     try {
-      const req = getProtocolImplFrom(url).request(url, options, res => {
-        res.on('error', reject);
-
-        const body = new Readable({ _read: () => {} });
-        res.on('error', err => body.destroy(err));
-        res.on('data', data => body.push(data));
-        res.on('end', () => body.push(null));
-
-        const text = () => new Promise((resolve, reject) => {
-          const chunks = [];
-          body.on('error', reject);
-          body.on('data', data => chunks.push(data))
-          body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-        });
-
-        const status = res.statusCode;
-
-        resolve({
-          status,
-          ok: status >= 200 && status < 300,
-          statusText: res.statusText,
-          body,
-          text,
-          json: async () => JSON.parse(await text()),
-          headers: new Headers(res.headers),
-        });
-      });
+      const req = url === undefined ?
+          protocolImpl.request(options, processResult) :
+          protocolImpl.request(url, options, processResult);
       req.on('error', reject);
       if(body !== undefined) req.write(body);
       req.end();
     } catch(err) {
       reject(err);
     }
+
+    function processResult(res) {
+      res.on('error', reject);
+
+      const body = new Readable({ _read: () => {} });
+      res.on('error', err => body.destroy(err));
+      res.on('data', data => body.push(data));
+      res.on('end', () => body.push(null));
+
+      const text = () => new Promise((resolve, reject) => {
+        const chunks = [];
+        body.on('error', reject);
+        body.on('data', data => chunks.push(data))
+        body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+      });
+
+      const status = res.statusCode;
+
+      resolve({
+        status,
+        ok: status >= 200 && status < 300,
+        statusText: res.statusText,
+        body,
+        text,
+        json: async () => JSON.parse(await text()),
+        headers: new Headers(res.headers),
+      });
+    };
   });
 }
 
 function getProtocolImplFrom(url) {
   const { protocol } = new URL(url);
   switch(protocol) {
-    case 'http:':  return require('node:http');
+    case 'http:':  return http;
     case 'https:': return require('node:https');
     default: throw new Error(`Unsupported protocol: ${protocol}`);
   }
