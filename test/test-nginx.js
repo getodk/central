@@ -1,4 +1,3 @@
-const http = require('node:http');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
@@ -18,7 +17,7 @@ describe('nginx config', () => {
     assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
   });
 
-  it('should forward HTTP to HTTPS (ipv6)', async () => {
+  it('should forward HTTP to HTTPS (IPv6)', async () => {
     // when
     const res = await fetchHttp6('/');
 
@@ -30,6 +29,16 @@ describe('nginx config', () => {
   it('should serve generated client-config.json', async () => {
     // when
     const res = await fetchHttps('/client-config.json');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.deepEqual(await res.json(), { oidcEnabled: false });
+    assert.equal(await res.headers.get('cache-control'), 'no-cache');
+  });
+
+  it('should serve generated client-config.json (IPv6)', async () => {
+    // when
+    const res = await fetchHttps6('/client-config.json');
 
     // then
     assert.equal(res.status, 200);
@@ -95,7 +104,7 @@ describe('nginx config', () => {
 
   it('should set x-forwarded-proto header to "https"', async () => {
     // when
-    const res = await sfetch(`https://localhost:9001/v1/reflect-headers`);
+    const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
 
@@ -107,7 +116,7 @@ describe('nginx config', () => {
 
   it('should override supplied x-forwarded-proto header', async () => {
     // when
-    const res = await sfetch(`https://localhost:9001/v1/reflect-headers`, {
+    const res = await fetchHttps('/v1/reflect-headers', {
       headers: {
         'x-forwarded-proto': 'http',
       },
@@ -129,9 +138,25 @@ describe('nginx config', () => {
     assert.equal(res.status, 421);
   });
 
+  it('should reject HTTP requests with incorrect host header supplied (IPv6)', async () => {
+    // when
+    const res = await fetchHttp6('/', { headers:{ host:'bad.example.com' } });
+
+    // then
+    assert.equal(res.status, 421);
+  });
+
   it('should reject HTTPS requests with incorrect host header supplied', async () => {
     // when
     const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
+
+    // then
+    assert.equal(res.status, 421);
+  });
+
+  it('should reject HTTPS requests with incorrect host header supplied (IPv6)', async () => {
+    // when
+    const res = await fetchHttps6('/', { headers:{ host:'bad.example.com' } });
 
     // then
     assert.equal(res.status, 421);
@@ -160,20 +185,22 @@ describe('nginx config', () => {
 
 function fetchHttp(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`http://localhost:9000${path}`, options);
+  return sfetch(`http://127.0.0.1:9000${path}`, options);
 }
 
-function fetchHttp6(path) {
+function fetchHttp6(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return request(http, {
-    host: `::1:9000`,
-    path,
-  });
+  return sfetch(`http://[::1]:9000${path}`, options);
 }
 
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return sfetch(`https://localhost:9001${path}`, options);
+  return sfetch(`https://127.0.0.1:9001${path}`, options);
+}
+
+function fetchHttps6(path, options) {
+  if(!path.startsWith('/')) throw new Error('Invalid path.');
+  return sfetch(`https://[::1]:9001${path}`, options);
 }
 
 function assertEnketoReceived(...expectedRequests) {
@@ -212,57 +239,48 @@ function sfetch(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
 
-  const protocolImpl = getProtocolImplFrom(url);
-  return request(protocolImpl, options, body, url);
-}
-
-function request(protocolImpl, options, body, url) {
   return new Promise((resolve, reject) => {
     try {
-      const req = url === undefined ?
-          protocolImpl.request(options, processResult) :
-          protocolImpl.request(url, options, processResult);
+      const req = getProtocolImplFrom(url).request(url, options, res => {
+        res.on('error', reject);
+
+        const body = new Readable({ _read: () => {} });
+        res.on('error', err => body.destroy(err));
+        res.on('data', data => body.push(data));
+        res.on('end', () => body.push(null));
+
+        const text = () => new Promise((resolve, reject) => {
+          const chunks = [];
+          body.on('error', reject);
+          body.on('data', data => chunks.push(data))
+          body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        });
+
+        const status = res.statusCode;
+
+        resolve({
+          status,
+          ok: status >= 200 && status < 300,
+          statusText: res.statusText,
+          body,
+          text,
+          json: async () => JSON.parse(await text()),
+          headers: new Headers(res.headers),
+        });
+      });
       req.on('error', reject);
       if(body !== undefined) req.write(body);
       req.end();
     } catch(err) {
       reject(err);
     }
-
-    function processResult(res) {
-      res.on('error', reject);
-
-      const body = new Readable({ _read: () => {} });
-      res.on('error', err => body.destroy(err));
-      res.on('data', data => body.push(data));
-      res.on('end', () => body.push(null));
-
-      const text = () => new Promise((resolve, reject) => {
-        const chunks = [];
-        body.on('error', reject);
-        body.on('data', data => chunks.push(data))
-        body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-      });
-
-      const status = res.statusCode;
-
-      resolve({
-        status,
-        ok: status >= 200 && status < 300,
-        statusText: res.statusText,
-        body,
-        text,
-        json: async () => JSON.parse(await text()),
-        headers: new Headers(res.headers),
-      });
-    };
   });
 }
 
 function getProtocolImplFrom(url) {
   const { protocol } = new URL(url);
   switch(protocol) {
-    case 'http:':  return http;
+    case 'http:':  return require('node:http');
     case 'https:': return require('node:https');
     default: throw new Error(`Unsupported protocol: ${protocol}`);
   }
