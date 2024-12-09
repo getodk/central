@@ -1,13 +1,14 @@
 #!/bin/bash
 
-
 echo "writing client config..."
 if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
   echo 'OIDC_ENABLED must be either true or false'
   exit 1
 fi
 
-envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
+/scripts/envsub.awk \
+  < /usr/share/odk/nginx/client-config.json.template \
+  > /usr/share/nginx/html/client-config.json
 
 
 DH_PATH=/etc/dh/nginx.pem
@@ -31,7 +32,7 @@ echo "writing fresh nginx templates..."
 cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
-envsubst '$SSL_TYPE $CERT_DOMAIN $DOMAIN $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
+/scripts/envsub.awk \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
 
