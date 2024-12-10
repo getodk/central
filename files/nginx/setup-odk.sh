@@ -9,6 +9,15 @@ fi
 
 envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
 
+# Generate self-signed keys for the incorrect (catch-all) HTTPS listener.  This
+# cert should never be seen by legitimate users, so it's not a big deal that
+# it's self-signed and won't expire for 1,000 years.
+mkdir -p /etc/nginx/ssl
+openssl req -x509 -nodes -newkey rsa:2048 \
+    -subj "/" \
+    -keyout /etc/nginx/ssl/nginx.default.key \
+    -out    /etc/nginx/ssl/nginx.default.crt \
+    -days 365000
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
@@ -28,7 +37,9 @@ fi
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
 # redirector.conf gets deleted if using upstream SSL so copy it back
-cp /usr/share/odk/nginx/redirector.conf /etc/nginx/conf.d/redirector.conf
+envsubst '$DOMAIN' \
+  < /usr/share/odk/nginx/redirector.conf \
+  > /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
 envsubst '$SSL_TYPE $CERT_DOMAIN $DOMAIN $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT' \
