@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo "writing client config..."
 if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
   echo 'OIDC_ENABLED must be either true or false'
