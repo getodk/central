@@ -21,7 +21,7 @@ BEGIN {
     if(k in ENVIRON) {
       v = ENVIRON[k];
     } else {
-      print "ERR: var not defined on line " NR ": ${" k "}" > "/dev/fd/2";
+      print "ERR: var not defined on line " NR ": ${" k "}" > "/dev/stderr";
       ++errorCount;
       v = "!!!VALUE-MISSING: " k "!!!"
     }
@@ -32,8 +32,8 @@ BEGIN {
 
 END {
   if(errorCount > 0) {
-    print "" > "/dev/fd/2";
-    print errorCount " error(s) found." > "/dev/fd/2";
+    print "" > "/dev/stderr";
+    print errorCount " error(s) found." > "/dev/stderr";
     exit 1;
   }
 }
