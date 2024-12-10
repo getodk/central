@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>ODK Central</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- this page is rendered in an iframe of size 600x250 -->
+  <div class="outdated-version" style="display: none;">
+    <h1 class="heading"></h1>
+    <p>
+      <span class="sentence1"></span>
+      <span class="sentence2"></span>
+    </p>
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+      data-cf-beacon='{"token": "81f288331d6e4638be205e0e63388165"}'></script>
+  </div>
+
+  <script>
+    const i18n = {
+      "en": {
+        "heading": "You’re using a significantly outdated version of ODK Central",
+        "sentence1": "Upgrade now to protect your data and take advantage of the latest features.",
+        "sentence2": "If you don't want to maintain Central, try {OdkCloudLink}."
+      },
+      "fr": {
+        "heading": "Vous utilisez une version de ODK Central considérablement obsolète",
+        "sentence1": "Mettez à jour maintenant pour protéger vos données et profiter des dernières fonctionnalités.",
+        "sentence2": "Si vous ne voulez pas maintenir Central, essayez {OdkCloudLink}."
+      },
+      "es": {
+        "heading": "Estás usando una versión significativamente desactualizada de ODK Central",
+        "sentence1": "Actualiza ahora para proteger tus datos y aprovechar las últimas funciones.",
+        "sentence2": "Si no quieres mantener Central, prueba {OdkCloudLink}."
+      },
+      "cs": {
+        "heading": "Používáte výrazně zastaralou verzi ODK Central",
+        "sentence1": "Aktualizujte nyní, abyste ochránili svá data a využili nejnovější funkce.",
+        "sentence2": "Pokud nechcete spravovat Central, vyzkoušejte {OdkCloudLink}."
+      },
+      "de": {
+        "heading": "Sie verwenden eine deutlich veraltete Version von ODK Central",
+        "sentence1": "Aktualisieren Sie jetzt, um Ihre Daten zu schützen und die neuesten Funktionen zu nutzen.",
+        "sentence2": "Wenn Sie Central nicht warten möchten, probieren Sie {OdkCloudLink} aus."
+      },
+      "id": {
+        "heading": "Anda menggunakan versi ODK Central yang sangat usang",
+        "sentence1": "Perbarui sekarang untuk melindungi data Anda dan memanfaatkan fitur terbaru.",
+        "sentence2": "Jika Anda tidak ingin memelihara Central, coba {OdkCloudLink}."
+      },
+      "it": {
+        "heading": "Stai usando una versione di ODK Central significativamente obsoleta",
+        "sentence1": "Aggiorna ora per proteggere i tuoi dati e sfruttare le ultime funzionalità.",
+        "sentence2": "Se non vuoi mantenere Central, prova {OdkCloudLink}."
+      },
+      "ja": {
+        "heading": "ODK Central の大幅に古いバージョンを使用しています",
+        "sentence1": "データを保護し、最新の機能を利用するために今すぐアップグレードしてください。",
+        "sentence2": "Central を管理したくない場合は、{OdkCloudLink} を試してください。"
+      },
+      "sw": {
+        "heading": "Unatumia toleo la ODK Central ambalo limepitwa sana na wakati",
+        "sentence1": "Sasisha sasa ili kulinda data zako na kutumia vipengele vipya zaidi.",
+        "sentence2": "Kama hutaki kudumisha Central, jaribu {OdkCloudLink}."
+      },
+      "zh-Hant": {
+        "heading": "您正在使用一个明显过时的 ODK Central 版本",
+        "sentence1": "立即升级以保护您的数据并利用最新功能。",
+        "sentence2": "如果您不想维护 Central，请尝试 {OdkCloudLink}。"
+      }
+    };
+
+    const getTranslatedText = (key, lang) => {
+      if(i18n[lang] && i18n[lang][key])
+        return i18n[lang][key];
+      else
+        return i18n['en'][key];
+    };
+
+    const odkCloudLink = document.createElement('a');
+    odkCloudLink.href = "https://getodk.org/#success-stories";
+    odkCloudLink.target = "_blank";
+    odkCloudLink.textContent = "ODK Cloud";
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const queryParams = new URLSearchParams(location.search);
+      const lang = queryParams.get('lang');
+
+      document.querySelector('.heading').textContent = getTranslatedText('heading', lang);
+      document.querySelector('.sentence1').textContent = getTranslatedText('sentence1', lang);
+
+      // Safer method to place hyperlink instead of using innerHTML
+      const parts = getTranslatedText('sentence2', lang).split('{OdkCloudLink}');
+      document.querySelector('.sentence2').textContent = '';
+      document.querySelector('.sentence2').appendChild(document.createTextNode(parts[0]));
+      document.querySelector('.sentence2').appendChild(odkCloudLink);
+      document.querySelector('.sentence2').appendChild(document.createTextNode(parts[1]));
+
+      // default style of .outdated-version is display:none, following line makes it visible
+      document.querySelector('.outdated-version').style = 'display: flex;'
+    });
+  </script>
+</body>
+
+</html>
