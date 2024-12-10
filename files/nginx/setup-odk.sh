@@ -39,7 +39,7 @@ fi
 # start from fresh templates in case ssl type has changed
 echo "writing fresh nginx templates..."
 # redirector.conf gets deleted if using upstream SSL so copy it back
-envsubst '$DOMAIN' \
+/scripts/envsub.awk \
   < /usr/share/odk/nginx/redirector.conf \
   > /etc/nginx/conf.d/redirector.conf
 
