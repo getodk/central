@@ -234,7 +234,6 @@ async function resetMock(port) {
 //
 // 1. do not follow redirects
 // 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
-// 3. allow access to server SSL certificate
 function request(url, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
