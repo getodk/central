@@ -10,7 +10,8 @@ services:
   postgres14:
     profiles:
       - central
-    network_mode: host
+    ports:
+      - 5432:5432
   postgres:
     profiles:
       - central
@@ -28,9 +29,8 @@ services:
   pyxform:
     profiles:
       - central
-    # changing port here - can't use `ports` mapping with host networking
-    command: ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "5", "--timeout", "600", "--max-requests", "1", "--max-requests-jitter", "3", "main:app()"]
-    network_mode: host
+    ports:
+      - 5001:80
   secrets:
     profiles:
       - central
@@ -48,14 +48,15 @@ services:
       - enketo_redis_main
     environment:
       - ENV=DEV
-    network_mode: host
+    extra_hosts:
+    - "${DOMAIN}:host-gateway"
+    ports:
+      - 8005:8005
   enketo_redis_main:
     profiles:
       - central
-    network_mode: host
   enketo_redis_cache:
     profiles:
       - central
-    network_mode: host
 volumes:
   dev_secrets:
