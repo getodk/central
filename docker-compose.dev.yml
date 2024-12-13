@@ -1,0 +1,62 @@
+# Assumption: This file will be merged by `docker compose`
+#
+# What it does:
+# Sets profiles for each service depending on whether that 
+# service is required for Central development or not.
+#  
+# depends_on of some services are reset using !reset custom yml tag
+# nb: can't replace depends_on so we have removed all the values, ok for dev
+services:
+  postgres14:
+    profiles:
+      - central
+    ports:
+      - 5432:5432
+  postgres:
+    profiles:
+      - central
+    image: debian:bullseye
+    command: /bin/sh -c 'mkdir -p /var/lib/postgresql/14/data && touch /var/lib/postgresql/14/.postgres14-upgrade-successful'
+  mail:
+    profiles:
+      - none
+  service:
+    profiles:
+      - none
+  nginx:
+    profiles:
+      - none
+  pyxform:
+    profiles:
+      - central
+    ports:
+      - 5001:80
+  secrets:
+    profiles:
+      - central
+    volumes:
+      - dev_secrets:/etc/secrets
+    working_dir: /etc/secrets
+    command: /bin/sh -c 'echo "s0m3v3rys3cr3tk3y" > enketo-secret && echo "this $3cr3t key is crackable" > enketo-less-secret && echo "enketorules" > enketo-api-key'
+  enketo:
+    profiles:
+      - central
+    volumes:
+      - dev_secrets:/etc/secrets
+    depends_on: !override
+      - secrets
+      - enketo_redis_main
+    environment:
+      - ENV=DEV
+    extra_hosts:
+    - "${DOMAIN}:host-gateway"
+    ports:
+      - 8005:8005
+  enketo_redis_main:
+    profiles:
+      - central
+  enketo_redis_cache:
+    profiles:
+      - central
+volumes:
+  dev_secrets:
