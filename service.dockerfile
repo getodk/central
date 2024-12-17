@@ -1,4 +1,4 @@
-ARG node_version=20.17.0
+ARG node_version=22.12.0
 
 
 
@@ -54,7 +54,7 @@ RUN apt-get update \
         postgresql-client-14 \
         netcat-traditional \
     && rm -rf /var/lib/apt/lists/* \
-    && npm clean-install --omit=dev --legacy-peer-deps --no-audit \
+    && npm clean-install --omit=dev --no-audit \
         --fund=false --update-notifier=false
 
 COPY server/ ./
