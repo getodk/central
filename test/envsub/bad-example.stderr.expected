@@ -1,0 +1,5 @@
+ERR: var not defined on line 1: ${NOT_DEFINED_1}
+ERR: var not defined on line 1: ${NOT_DEFINED_2}
+ERR: var not defined on line 3: ${NOT_DEFINED_3}
+
+3 error(s) found.

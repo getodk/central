@@ -15,7 +15,7 @@ services:
       - PORT=8383
   nginx:
     build:
-      context: ..
+      context: ../..
       dockerfile: nginx.dockerfile
       args:
         SKIP_FRONTEND_BUILD: true
@@ -24,12 +24,15 @@ services:
       - enketo
     environment:
       - DOMAIN=odk-nginx.example.test
-      - SENTRY_ORG_SUBDOMAIN=example
+      - OIDC_ENABLED=
+      - SENTRY_KEY=example-sentry-key
+      - SENTRY_ORG_SUBDOMAIN=example-sentry-org-subdomain
+      - SENTRY_PROJECT=example-sentry-project
       - SSL_TYPE=selfsign
       - OIDC_ENABLED=false
     volumes:
-      - ../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
-      - ../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
+      - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
+      - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
     ports:
       - "9000:80"
       - "9001:443"

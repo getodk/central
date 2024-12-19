@@ -1,0 +1,20 @@
+# Alone:
+sv_simple
+
+# end of line
+Simple value: sv_simple
+
+# Missing curlies:
+Should not be substituted: $SIMPLE
+
+# Start of line:
+sv_simple and then more content.
+
+# This is not a sub variable:
+$simple
+
+# Two values on the same line:
+first: sub_val_one, second: sub_val_two!
+
+# Two values on the same line, both repeated:
+first: sub_val_one, sub_val_one, sub_val_one, second: sub_val_two sub_val_two!
