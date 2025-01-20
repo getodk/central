@@ -73,7 +73,8 @@ determine_worker_count() {
 }
 
 MEMTOT=$(get_memory_limit)
-export WORKER_COUNT=$(determine_worker_count "$MEMTOT")
+WORKER_COUNT=$(determine_worker_count "$MEMTOT")
+export WORKER_COUNT
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
 echo "starting server."
