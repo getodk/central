@@ -3,6 +3,24 @@ set -o pipefail
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
+check_path() {
+  local timeout="$1"
+  local requestPath="$2"
+  local expected="$3"
+
+  for i in 1.."$timeout"; do
+    if echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
+        docker run -i container:"$CONTAINER_NAME" \
+        openssl 2>&1 s_client -quiet -connect 127.0.0.1:443 |
+        grep -q "$expected"; then
+      return
+    fi
+  done
+
+  log "!!! Path $requestPath returned a non-OK HTTP status code: $status"
+  exit 1
+}
+
 echo 'SSL_TYPE=selfsign
 DOMAIN=local
 SYSADMIN_EMAIL=no-reply@getodk.org' > .env
@@ -15,16 +33,8 @@ docker compose build
 # nginx setup could take several minutes due to key generation.
 log "Verifying frontend and backend load..."
 docker compose up -d
-CONTAINER_NAME=$(docker inspect -f '{{.Name}}' "$(docker compose ps -q nginx)" | cut -c2-)
-docker run --network container:"$CONTAINER_NAME" \
-    appropriate/curl -4 --insecure --retry 30 --retry-delay 10 --retry-connrefused https://localhost/ -H 'Host: local' \
-| tee /dev/tty \
-| grep -q 'ODK Central'
-
-docker run --network container:"$CONTAINER_NAME" \
-    appropriate/curl -4 --insecure --retry 20 --retry-delay 2 --retry-connrefused https://localhost/v1/projects -H 'Host: local' \
-| tee /dev/tty \
-| grep -q '\[\]'
+check_path 30 / 'ODK Central'
+check_path 20 /v1/projects '[]'
 
 log "Verifying pm2..."
 docker compose exec -T service npx pm2 list \
