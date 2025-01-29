@@ -15,7 +15,7 @@ services:
       - PORT=8383
   nginx:
     build:
-      context: ..
+      context: ../..
       dockerfile: nginx.dockerfile
       args:
         SKIP_FRONTEND_BUILD: true
