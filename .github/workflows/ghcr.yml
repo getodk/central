@@ -1,16 +1,20 @@
 name: GHCR
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [master]
+  # See: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_run
+  workflow_run:
+    workflows: [Test]
+    types: [completed]
     tags: ["v*.*.*"]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
   build-push-image:
+    # Only run this job if tests pass.  See workflow_run definition above.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
