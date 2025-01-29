@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shellcheck:
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: sudo apt-get install shellcheck
+    - run: cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u | xargs shellcheck --exclude=SC2016
+  test-nginx:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        submodules: recursive
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22.12.0
+    - run: cd test/nginx && npm i
+    - run: cd test/nginx && ./run-tests.sh
+
+    - if: always()
+      run: docker logs test-nginx-1 || true
+    - if: always()
+      run: docker logs test-service-1 || true
+    - if: always()
+      run: docker logs test-enketo-1 || true
+  test-images:
+    needs:
+    - shellcheck
+    - test-nginx
+    runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        submodules: recursive
+    - run: ./test/test-images.sh
+    - if: always()
+      run: docker compose logs
