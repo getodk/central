@@ -37,7 +37,7 @@ jobs:
     #needs:
     #- shellcheck
     #- test-nginx
-    runs-on: ubuntu:latest # TODO matrix to run on all expected versions?
+    runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v4
       with:
