@@ -55,7 +55,7 @@ nginxContainer="$(docker compose ps -q nginx)"
 # nginx setup could take several minutes due to key generation.
 log "Verifying frontend and backend load..."
 check_path 30 / 'ODK Central'
-check_path 20 /v1/projects '[]'
+check_path 20 /v1/projects '\[\]'
 
 log "Verifying pm2..."
 docker compose exec -T service npx pm2 list \
