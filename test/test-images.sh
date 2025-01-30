@@ -1,7 +1,9 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 set -o pipefail
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
+
+tmp="$(mktemp)"
 
 check_path() {
   local retries="$1"
@@ -10,13 +12,12 @@ check_path() {
 
   for (( i=0; ; ++i )); do
     log "Checking response from $requestPath..."
-    res="$(
-      echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
-          docker compose exec --no-TTY nginx \
-              openssl s_client -quiet -connect 127.0.0.1:443 \
-          2>&1 || true
-    )"
-    if echo "$res" | grep --silent --fixed-strings "$expected"; then
+    echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
+        docker compose exec --no-TTY nginx \
+            openssl s_client -quiet -connect 127.0.0.1:443 \
+        >"$tmp" 2>&1 \
+        || true
+    if grep --silent --fixed-strings "$expected" "$tmp"; then
       log "  Request responded correctly."
       return
     fi
@@ -28,7 +29,7 @@ check_path() {
       log "!!! Retry count exceeded."
       log "!!! Final response:"
       echo
-      echo "$res"
+      cat "$tmp"
       echo
 
       exit 1
