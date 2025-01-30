@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 set -o pipefail
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
