@@ -14,8 +14,6 @@ on:
 env:
   REGISTRY: ghcr.io
 
-# TODO move matrix up here?
-
 jobs:
   check-images-are-used:
     # Only run this job if tests pass.  See workflow_run definition above.
