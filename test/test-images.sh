@@ -9,15 +9,18 @@ check_path() {
   local expected="$3"
 
   for (( i=0; i<"$timeout"; ++i )); do
-    if echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
+    res = echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker run -i container:"$CONTAINER_NAME" \
-        openssl 2>&1 s_client -quiet -connect 127.0.0.1:443 |
-        grep -q "$expected"; then
+        openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
+    if echo "$res" | grep -q "$expected"; then
       return
     fi
   done
 
-  log "!!! Path $requestPath returned a non-OK HTTP status code: $status"
+  log "!!! Path $requestPath returned unexpected result:"
+  echo
+  echo "$res"
+  echo
   exit 1
 }
 
