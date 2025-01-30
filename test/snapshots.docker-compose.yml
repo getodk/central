@@ -1,9 +1,9 @@
 services:
   service:
     build:
-      context: ..
+      context: .
       dockerfile: service.dockerfile
   nginx:
     build:
-      context: ..
+      context: .
       dockerfile: nginx.dockerfile
