@@ -12,10 +12,11 @@ check_path() {
     log "Checking response from $requestPath..."
     res="$(
       echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
-          docker exec -i "$nginxContainer" \
-          openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
+          docker compose exec --no-TTY nginx \
+              openssl s_client -quiet -connect 127.0.0.1:443 \
+          2>&1
     )"
-    if echo "$res" | grep -q "$expected"; then
+    if echo "$res" | grep --silent --fixed-strings "$expected"; then
       log "  Request responded correctly."
       return
     fi
@@ -55,12 +56,21 @@ nginxContainer="$(docker compose ps -q nginx)"
 # nginx setup could take several minutes due to key generation.
 log "Verifying frontend and backend load..."
 check_path 30 / 'ODK Central'
-check_path 20 /v1/projects '\[\]'
+check_path 20 /v1/projects '[]'
 
 log "Verifying pm2..."
-docker compose exec -T service npx pm2 list \
-| tee /dev/tty \
-| grep -c "online" \
-| grep -q 4
+processCount="$(
+    docker compose exec service npx pm2 list \
+    | tee /dev/tty \
+    | grep --count online
+)"
+
+if [[ "$processCount" != 4 ]]; then
+  log "!!! PM2 returned an unexpected count for online processes."
+  log "!!!"
+  log "!!! Expected 4, but got $processCount."
+
+  exit 1
+fi
 
 log "All OK."
