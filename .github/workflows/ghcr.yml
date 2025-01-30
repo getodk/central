@@ -43,13 +43,14 @@ jobs:
       - run: 'echo "- github.event_name: ${{ github.event_name }}"'
       - run: 'echo "- github.event_name: ${{ github.event_name }}"'
       - run: 'echo "- github.ref.type: ${{ github.ref.type }}"'
+      - run: 'echo "- github.ref_type: ${{ github.ref_type }}"'
       - run: 'echo "- GITHUB_REF:      <$GITHUB_REF>"'
       - run: 'echo "- GITHUB_REF_NAME: <$GITHUB_REF_NAME>"'
       - run: 'echo "- GITHUB_REF_TYPE: <$GITHUB_REF_TYPE>"'
 
       - name: "Checking release image is referenced in docker-compose.yml..."
         # TODO only run if tagged
-        if: ${{ github.ref.type == 'tag' }}
+        if: ${{ github.ref_type == 'tag' }}
         run: 'grep "${{ steps.meta.outputs.tags }}" docker-compose.yml'
 
   build-push-image:
