@@ -1,10 +1,19 @@
 server {
-  listen 443 ssl;
-  server_name ${CNAME};
+  listen 443 default_server ssl;
 
-  ssl_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
-  ssl_certificate_key /etc/${SSL_TYPE}/live/${CNAME}/privkey.pem;
-  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CNAME}/fullchain.pem;
+  ssl_certificate /etc/nginx/ssl/nginx.default.crt;
+  ssl_certificate_key /etc/nginx/ssl/nginx.default.key;
+
+  return 421;
+}
+
+server {
+  listen 443 ssl;
+  server_name ${DOMAIN};
+
+  ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
+  ssl_certificate_key /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/privkey.pem;
+  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
 
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
@@ -13,10 +22,8 @@ server {
   ssl_dhparam /etc/dh/nginx.pem;
 
   server_tokens off;
-  add_header Strict-Transport-Security "max-age=63072000" always;
 
-  add_header X-Frame-Options "SAMEORIGIN";
-  add_header X-Content-Type-Options nosniff;
+  include /usr/share/odk/nginx/common-headers.conf;
 
   client_max_body_size 100m;
 
@@ -24,23 +31,37 @@ server {
   gzip_vary on;
   gzip_min_length 1280;
   gzip_http_version 1.1;
-  gzip_types text/plain text/css application/json application/x-javascript text/xml text/csv;
+  gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
+
+  location = /robots.txt {
+    add_header Content-Type text/plain;
+    return 200 "User-agent: *\nDisallow: /\n";
+  }
 
   location /- {
-    proxy_pass http://enketo:8005/-;
+    proxy_pass http://enketo:8005;
     proxy_redirect off;
     proxy_set_header Host $host;
+
+    # More lax CSP for enketo-express:
+    # Google Maps API: https://developers.google.com/maps/documentation/javascript/content-security-policy
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+    #
+    # Rules set to 'none' here would fallback to default-src if excluded.
+    # They are included here to ease interpretation of violation reports.
+    #
+    # Other security headers are identical to those in common-headers.conf;
+    # We can't just include that file here though, as it will set two Content-Security-Policy* headers
+    add_header Referrer-Policy same-origin;
+    add_header Strict-Transport-Security "max-age=63072000" always;
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options nosniff;
   }
 
   location ~ ^/v\d {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://service:8383;
     proxy_redirect off;
-
-    # set up request-body gzip decompression:
-    set $max_chunk_size 16384;    # ~16KB
-    set $max_body_size 134217728; # ~128MB
-    rewrite_by_lua_file inflate_body.lua;
 
     # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
@@ -52,11 +73,20 @@ server {
     root /usr/share/nginx/html;
 
     location /version.txt {
+      include /usr/share/odk/nginx/common-headers.conf;
+      add_header Cache-Control no-cache;
+    }
+    location /client-config.json {
+      include /usr/share/odk/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
     location /index.html {
+      include /usr/share/odk/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
   }
-}
 
+  location /csp-report {
+    proxy_pass https://${SENTRY_ORG_SUBDOMAIN}.ingest.sentry.io/api/${SENTRY_PROJECT}/security/?sentry_key=${SENTRY_KEY};
+  }
+}

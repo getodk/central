@@ -1,29 +1,43 @@
-version: "3"
 services:
-  postgres:
-    image: "postgres:9.6"
+  postgres14:
+    build:
+      context: .
+      dockerfile: postgres14.dockerfile
     volumes:
-      - /var/lib/postgresql/data
+      - postgres14:/var/lib/odk/postgresql/14
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
-      POSTGRES_DATABASE: odk
+      POSTGRES_DB: odk
     restart: always
-  mail:
-    image: "itsissa/namshi-smtp:4.92-8.deb10u6"
-    volumes:
-      - ./files/dkim/config:/etc/exim4/_docker_additional_macros:ro
-      - ./files/dkim/rsa.private:/etc/exim4/domain.key:ro
-    environment:
-      - MAILNAME=${DOMAIN}
-    restart: always
-  service:
+  postgres:
+    # This service upgrades from postgres 9.6 to 14.
+    # The legacy name must be maintained to allow access to the anonymous volume.
     build:
       context: .
-      dockerfile: service.dockerfile
+      dockerfile: postgres-upgrade.dockerfile
+    volumes:
+      - /var/lib/postgresql/data
+      - postgres14:/var/lib/postgresql/14
+      - ./files/postgres14/upgrade:/postgres14-upgrade
+    environment:
+      PGUSER: odk
+      POSTGRES_INITDB_ARGS: -U odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DB: odk
+  mail:
+    image: "ixdotai/smtp:v0.5.4"
+    volumes:
+      - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
+    environment:
+      - MAILNAME=${DOMAIN}
+      - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
+    restart: always
+  service:
+    image: 'ghcr.io/getodk/central-service:2025.1'
     depends_on:
       - secrets
-      - postgres
+      - postgres14
       - mail
       - pyxform
       - enketo
@@ -32,23 +46,53 @@ services:
       - /data/transfer:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
-      - HTTPS_PORT=${HTTPS_PORT:-443}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
-    command: [ "./wait-for-it.sh", "postgres:5432", "--", "./start-odk.sh" ]
+      - HTTPS_PORT=${HTTPS_PORT:-443}
+      - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-}
+      - DB_HOST=${DB_HOST:-postgres14}
+      - DB_USER=${DB_USER:-odk}
+      - DB_PASSWORD=${DB_PASSWORD:-odk}
+      - DB_NAME=${DB_NAME:-odk}
+      - DB_SSL=${DB_SSL:-null}
+      - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
+      - EMAIL_HOST=${EMAIL_HOST:-mail}
+      - EMAIL_PORT=${EMAIL_PORT:-25}
+      - EMAIL_SECURE=${EMAIL_SECURE:-false}
+      - EMAIL_IGNORE_TLS=${EMAIL_IGNORE_TLS:-true}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
+      - S3_SERVER=${S3_SERVER:-}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-}
+      - S3_SECRET_KEY=${S3_SECRET_KEY:-}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
+    command: [ "wait-for-it", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
   nginx:
-    build:
-      context: .
-      dockerfile: nginx.dockerfile
+    image: 'ghcr.io/getodk/central-nginx:2025.1'
     depends_on:
       - service
       - enketo
     environment:
-      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
+      - SSL_TYPE=${SSL_TYPE:-letsencrypt}
+      - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
+      - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
+      - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+    volumes:
+      - ./files/local/customssl/:/etc/customssl/live/local/:ro
+      - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
+      - ./files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
@@ -60,7 +104,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v1.10.0'
+    image: 'ghcr.io/getodk/pyxform-http:v3.0.0'
     restart: always
   secrets:
     volumes:
@@ -85,7 +129,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:5
+    image: redis:7.2
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -94,7 +138,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:5
+    image: redis:7.2
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data
@@ -103,7 +147,8 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
 volumes:
+  secrets:
   transfer:
+  postgres14:
   enketo_redis_main:
   enketo_redis_cache:
-  secrets:

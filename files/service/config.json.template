@@ -1,17 +1,24 @@
 {
   "default": {
     "database": {
-      "host": "postgres",
-      "user": "odk",
-      "password": "odk",
-      "database": "odk"
+      "host": "${DB_HOST}",
+      "user": "${DB_USER}",
+      "password": "${DB_PASSWORD}",
+      "database": "${DB_NAME}",
+      "ssl": ${DB_SSL}
     },
     "email": {
-      "serviceAccount": "no-reply@${DOMAIN}",
+      "serviceAccount": "${EMAIL_FROM}",
       "transport": "smtp",
       "transportOpts": {
-        "host": "mail",
-        "port": 25
+        "host": "${EMAIL_HOST}",
+        "port": ${EMAIL_PORT},
+        "secure": ${EMAIL_SECURE},
+        "ignoreTLS": ${EMAIL_IGNORE_TLS},
+        "auth": {
+          "user": "${EMAIL_USER}",
+          "pass": "${EMAIL_PASSWORD}"
+        }
       }
     },
     "xlsform": {
@@ -23,13 +30,27 @@
       "apiKey": "${ENKETO_API_KEY}"
     },
     "env": {
-      "domain": "https://${DOMAIN}:${HTTPS_PORT}",
+      "domain": "${BASE_URL}",
       "sysadminAccount": "${SYSADMIN_EMAIL}"
+    },
+    "oidc": {
+      "enabled": ${OIDC_ENABLED},
+      "issuerUrl": "${OIDC_ISSUER_URL}",
+      "clientId": "${OIDC_CLIENT_ID}",
+      "clientSecret": "${OIDC_CLIENT_SECRET}"
     },
     "external": {
       "sentry": {
-        "key": "3cf75f54983e473da6bd07daddf0d2ee",
-        "project": "1298632"
+        "orgSubdomain": "${SENTRY_ORG_SUBDOMAIN}",
+        "key": "${SENTRY_KEY}",
+        "project": "${SENTRY_PROJECT}"
+      },
+      "s3blobStore": {
+        "server": "${S3_SERVER}",
+        "accessKey": "${S3_ACCESS_KEY}",
+        "secretKey": "${S3_SECRET_KEY}",
+        "bucketName": "${S3_BUCKET_NAME}",
+        "requestTimeout": 60000
       }
     }
   }

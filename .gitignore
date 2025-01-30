@@ -2,4 +2,16 @@
 *.swp
 *.swo
 /.env
+/docker-compose.override.yml
 /version.txt
+
+/files/allow-postgres14-upgrade
+/files/postgres14/upgrade/*
+!/files/postgres14/upgrade/check-available-space
+
+/files/local/customssl/*.pem
+
+/files/mail/rsa.private
+/files/mail/rsa.public
+
+/files/dkim/*

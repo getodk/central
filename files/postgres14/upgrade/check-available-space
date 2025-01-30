@@ -1,0 +1,61 @@
+#!/bin/bash -eu
+set -o pipefail
+
+logPrefix="$(basename "$0")"
+log() {
+  echo "[$logPrefix] $*"
+}
+
+if ! sudo -n true 2>/dev/null; then
+  log
+  log "WARNING: sudo may be required"
+  log
+fi
+
+dockerRootDir="$(docker info --format '{{print .DockerRootDir}}')"
+free="$(df --output=avail "$dockerRootDir/volumes" | tail -n+2)"
+
+# Support both Docker Compose v1 & v2 container names.
+# See: https://docs.docker.com/compose/migrate/#service-container-names
+if docker ps -a --format '{{.Names}}' | grep -q "central_postgres_1"; then
+  containerName="central_postgres_1"
+else
+  containerName="central-postgres-1"
+fi
+
+# The --format argument is a Go template.  Adding spaces between the
+# curlies seems to affect the output.  For more info on this
+# wonderful language, see:
+#   * https://pkg.go.dev/text/template
+#   * https://devops.stackexchange.com/a/6242
+volume="$(docker inspect --format='{{range $index, $element := .Mounts}}{{if eq $element.Destination "/var/lib/postgresql/data"}}{{println $element.Name}}{{end}}{{end}}' "$containerName")"
+if [[ "$volume" = "" ]]; then
+  log "!!!"
+  log "!!! Volume not found for container: $containerName !!!"
+  log "!!!"
+  log "!!! Cannot continue !!!"
+  log "!!!"
+  exit 1
+fi
+mountpoint="$(docker volume inspect --format='{{.Mountpoint}}' "$volume")"
+used="$(( $(du -s "$mountpoint" | cut -f1) + 5000000 ))" # add 5G of buffer
+
+log
+log "    Free space: $(numfmt --to=si "$((free*1000))")B"
+log "Required space: $(numfmt --to=si "$((used*1000))")B"
+log
+
+if [[ "$used" -lt "$free" ]]; then
+  log "You have enough space to upgrade."
+  log
+  log "Continue with the instructions at https://docs.getodk.org/central-upgrade/"
+  log
+else
+  log "!!!"
+  log "!!! ERROR: You do not have enough space available to upgrade."
+  log "!!!"
+  log "!!! Increase your disk by at least $(numfmt --to=si -- "$(((used-free)*1000))")B and try again."
+  log "!!!"
+  log
+  exit 1
+fi

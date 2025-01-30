@@ -1,6 +1,6 @@
-FROM ghcr.io/enketo/enketo-express:4.1.0
+FROM ghcr.io/enketo/enketo:7.5.0
 
-ENV ENKETO_SRC_DIR=/srv/src/enketo_express
+ENV ENKETO_SRC_DIR=/srv/src/enketo/packages/enketo-express
 WORKDIR ${ENKETO_SRC_DIR}
 
 # we copy the config template twice. eventually we do want to actually template
@@ -14,8 +14,9 @@ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.temp
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
 COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
 
-RUN apt-get update; apt-get install gettext-base
+RUN apt-get update && \
+    apt-get install gettext-base
 
 EXPOSE 8005
 
-CMD ./start-enketo.sh
+CMD ["./start-enketo.sh"]
