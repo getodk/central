@@ -14,11 +14,50 @@ on:
 env:
   REGISTRY: ghcr.io
 
+# TODO move matrix up here?
+
 jobs:
+  check-images-are-used:
+    # Only run this job if tests pass.  See workflow_run definition above.
+    # TODO remove unused parts of this
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    needs: check-images-are-used
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        image: [nginx, service]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/central-${{ matrix.image }}
+
+      - run: 'echo "TODO Confirm version numbers"'
+      - run: 'echo "- steps.meta.outputs.tags: ${{ steps.meta.outputs.tags }}"'
+      - run: 'echo "- github.event_name: ${{ github.event_name }}"'
+      - run: 'echo "- github.event_name: ${{ github.event_name }}"'
+      - run: 'echo "- GITHUB_REF:      <$GITHUB_REF>"'
+      - run: 'echo "- GITHUB_REF_NAME: <$GITHUB_REF_NAME>"'
+      - run: 'echo "- GITHUB_REF_TYPE: <$GITHUB_REF_TYPE>"'
+
+      - name: "Checking release image is referenced in docker-compose.yml..."
+        # TODO only run if tagged
+        run: 'grep "${{ steps.meta.outputs.tags }}" docker-compose.yml'
+
   build-push-image:
     # Only run this job if tests pass.  See workflow_run definition above.
-    # TODO remove unused part os this
+    # TODO remove unused parts of this
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    needs: check-images-are-used
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,9 +81,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/central-${{ matrix.image }}
 
-      - run: 'echo "Confirm version numbers"'
-      - run: 'echo "- steps.meta.outputs.tags: ${{ steps.meta.outputs.tags }}"'
-      - run: 'echo "- github.event_name: ${{ github.event_name }}"'
+      - run: 'echo "TODO proceed with GHCR upload..."'
 
       #- name: Log into registry ${{ env.REGISTRY }}
       #  uses: docker/login-action@v3
