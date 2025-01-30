@@ -49,6 +49,7 @@ jobs:
 
       - name: "Checking release image is referenced in docker-compose.yml..."
         # TODO only run if tagged
+        if: ${{ github.ref.type == 'tag' }}
         run: 'grep "${{ steps.meta.outputs.tags }}" docker-compose.yml'
 
   build-push-image:
