@@ -33,6 +33,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 touch ./files/allow-postgres14-upgrade
 
 docker compose build
+CONTAINER_NAME="$(docker inspect -f '{{.Name}}' "$(docker compose ps -q nginx)" | cut -c2-)"
 
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
