@@ -49,14 +49,10 @@ jobs:
       - run: 'echo "- GITHUB_REF_TYPE: <$GITHUB_REF_TYPE>"'
 
       - name: "Checking release image is referenced in docker-compose.yml..."
-        # TODO only run if tagged
         if: ${{ github.ref_type == 'tag' }}
         run: 'grep "${{ steps.meta.outputs.tags }}" docker-compose.yml'
 
   build-push-image:
-    # Only run this job if tests pass.  See workflow_run definition above.
-    # TODO remove unused parts of this
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs: check-images-are-used
     runs-on: ubuntu-latest
     permissions:
