@@ -12,7 +12,7 @@ check_path() {
     res = echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker run -i container:"$CONTAINER_NAME" \
         openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
-    if echo "$res" | grep -q "$expected"; then
+    if grep -q "$expected" <<<"$res"; then
       return
     fi
   done
