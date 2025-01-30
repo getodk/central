@@ -48,11 +48,13 @@ docker compose build
 log "Starting containers..."
 docker compose up --detach
 
-# we allow a long retry period for the first check because the first-run
-# nginx setup could take several minutes due to key generation.
-log "Verifying frontend and backend load..."
+log "Verifying frontend..."
 check_path 30 / 'ODK Central'
-check_path 20 /v1/projects '[]'
+log "  Frontend started OK."
+
+log "Verifying backend..."
+check_path 2 /v1/projects '[]'
+log "  Backend started OK."
 
 log "Verifying pm2..."
 docker compose exec service npx pm2 list | tee "$tmp"
