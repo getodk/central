@@ -14,16 +14,17 @@ check_path() {
       echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
           docker compose exec --no-TTY nginx \
               openssl s_client -quiet -connect 127.0.0.1:443 \
-          2>&1
+          2>&1 || true
     )"
     if echo "$res" | grep --silent --fixed-strings "$expected"; then
       log "  Request responded correctly."
       return
     fi
 
-    log "  Request did not respond correctly."
-
-    if [[ "$i" -ge "$retries" ]]; then
+    if [[ "$i" -lt "$retries" ]]; then
+      log "  Request did not respond correctly; sleeping..."
+      sleep 1
+    else
       log "!!! Retry count exceeded."
       log "!!! Final response:"
       echo
@@ -32,9 +33,6 @@ check_path() {
 
       exit 1
     fi
-
-    log "  Sleeping..."
-    sleep 1
   done
 }
 
