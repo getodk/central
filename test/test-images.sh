@@ -33,12 +33,16 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 touch ./files/allow-postgres14-upgrade
 
 docker compose build
+
+log "Starting containers..."
+docker compose up -d
+
+log "Getting nginx container ID..."
 CONTAINER_NAME="$(docker inspect -f '{{.Name}}' "$(docker compose ps -q nginx)" | cut -c2-)"
 
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
 log "Verifying frontend and backend load..."
-docker compose up -d
 check_path 30 / 'ODK Central'
 check_path 20 /v1/projects '[]'
 
