@@ -4,11 +4,11 @@ set -o pipefail
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 check_path() {
-  local timeout="$1"
+  local retries="$1"
   local requestPath="$2"
   local expected="$3"
 
-  for (( i=0; i<"$timeout"; ++i )); do
+  for (( i=0; ; ++i )); do
     log "Checking response from $requestPath..."
     res="$(
       echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
@@ -19,15 +19,22 @@ check_path() {
       log "  Request responded correctly."
       return
     fi
+
     log "  Request did not respond correctly."
+
+    if [[ "$i" -ge "$retries" ]]; then
+      log "!!! Retry count exceeded."
+      log "!!! Final response:"
+      echo
+      echo "$res"
+      echo
+
+      exit 1
+    fi
+
+    log "  Sleeping..."
     sleep 1
   done
-
-  log "!!! Path $requestPath returned unexpected result:"
-  echo
-  echo "$res"
-  echo
-  exit 1
 }
 
 echo 'SSL_TYPE=selfsign
