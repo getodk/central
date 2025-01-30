@@ -11,7 +11,7 @@ check_path() {
   for (( i=0; i<"$timeout"; ++i )); do
     res="$(
       echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
-          docker run -i "$nginxContainer" \
+          docker exec -i "$nginxContainer" \
           openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
     )"
     if echo "$res" | grep -q "$expected"; then
@@ -38,7 +38,7 @@ log "Starting containers..."
 docker compose up -d
 
 log "Getting nginx container ID..."
-nginxContainer="$(docker inspect -f '{{.Name}}' "$(docker compose ps -q nginx)" | cut -c2-)"
+nginxContainer="$(docker compose ps -q nginx)"
 
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
