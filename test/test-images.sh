@@ -49,9 +49,6 @@ docker compose build
 log "Starting containers..."
 docker compose up -d
 
-log "Getting nginx container ID..."
-nginxContainer="$(docker compose ps -q nginx)"
-
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
 log "Verifying frontend and backend load..."
