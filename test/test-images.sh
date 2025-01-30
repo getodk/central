@@ -3,6 +3,10 @@ set -o pipefail
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
+docker_compose() {
+  docker compose --file test/snapshots.docker-compose.yml "$@"
+}
+
 tmp="$(mktemp)"
 
 check_path() {
@@ -13,7 +17,7 @@ check_path() {
   for (( i=0; ; ++i )); do
     log "Checking response from $requestPath ..."
     echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
-        docker compose exec --no-TTY nginx \
+        docker_compose exec --no-TTY nginx \
             openssl s_client -quiet -connect 127.0.0.1:443 \
             >"$tmp" 2>&1 || true
     if grep --silent --fixed-strings "$expected" "$tmp"; then
@@ -43,10 +47,10 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 touch ./files/allow-postgres14-upgrade
 
 log "Building docker containers..."
-docker compose build
+docker_compose build
 
 log "Starting containers..."
-docker compose up --detach
+docker_compose up --detach
 
 log "Verifying frontend..."
 check_path 30 / 'ODK Central'
@@ -57,7 +61,7 @@ check_path 2 /v1/projects '[]'
 log "  Backend started OK."
 
 log "Verifying pm2..."
-docker compose exec service npx pm2 list | tee "$tmp"
+docker_compose exec service npx pm2 list | tee "$tmp"
 processCount="$(grep --count online "$tmp")"
 if [[ "$processCount" != 4 ]]; then
   log "!!! PM2 returned an unexpected count for online processes."
