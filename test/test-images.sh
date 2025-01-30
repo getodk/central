@@ -44,10 +44,11 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
 touch ./files/allow-postgres14-upgrade
 
+log "Building docker containers..."
 docker compose build
 
 log "Starting containers..."
-docker compose up -d
+docker compose up --detach
 
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
