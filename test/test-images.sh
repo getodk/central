@@ -15,8 +15,7 @@ check_path() {
     echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker compose exec --no-TTY nginx \
             openssl s_client -quiet -connect 127.0.0.1:443 \
-        >"$tmp" 2>&1 \
-        || true
+        >"$tmp" 2>&1 || true
     if grep --silent --fixed-strings "$expected" "$tmp"; then
       log "  Request responded correctly."
       return
@@ -44,10 +43,10 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 touch ./files/allow-postgres14-upgrade
 
 log "Building docker containers..."
-docker compose build
+#docker compose build
 
 log "Starting containers..."
-docker compose up --detach
+#docker compose up --detach
 
 # we allow a long retry period for the first check because the first-run
 # nginx setup could take several minutes due to key generation.
