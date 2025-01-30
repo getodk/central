@@ -8,7 +8,7 @@ check_path() {
   local requestPath="$2"
   local expected="$3"
 
-  for i in {1.."$timeout"}; do
+  for (( i=0; i<"$timeout"; ++i )); do
     if echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker run -i container:"$CONTAINER_NAME" \
         openssl 2>&1 s_client -quiet -connect 127.0.0.1:443 |
