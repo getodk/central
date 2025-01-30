@@ -11,7 +11,7 @@ check_path() {
   local expected="$3"
 
   for (( i=0; ; ++i )); do
-    log "Checking response from $requestPath..."
+    log "Checking response from $requestPath ..."
     echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker compose exec --no-TTY nginx \
             openssl s_client -quiet -connect 127.0.0.1:443 \
