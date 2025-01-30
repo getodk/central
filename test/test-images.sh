@@ -4,7 +4,10 @@ set -o pipefail
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 docker_compose() {
-  docker compose --file test/snapshots.docker-compose.yml "$@"
+  docker compose \
+      --file test/snapshots.docker-compose.yml \
+      --file docker-compose.yml \
+      "$@"
 }
 
 tmp="$(mktemp)"
