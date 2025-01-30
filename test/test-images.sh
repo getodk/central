@@ -14,7 +14,7 @@ check_path() {
           docker run -i container:"$CONTAINER_NAME" \
           openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
     )"
-    if grep -q "$expected" <<<"$res"; then
+    if echo "$res" | grep -q "$expected"; then
       return
     fi
   done
