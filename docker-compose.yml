@@ -1,6 +1,6 @@
 services:
   postgres14:
-    build: # TODO use explicit images - move building to test docker-compose file
+    build:
       context: .
       dockerfile: postgres14.dockerfile
     volumes:
@@ -13,7 +13,7 @@ services:
   postgres:
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
-    build: # TODO use explicit images - move building to test docker-compose file
+    build:
       context: .
       dockerfile: postgres-upgrade.dockerfile
     volumes:
@@ -109,14 +109,14 @@ services:
   secrets:
     volumes:
       - secrets:/etc/secrets
-    build: # TODO use explicit images - move building to test docker-compose file
+    build:
       context: .
       dockerfile: secrets.dockerfile
     command: './generate-secrets.sh'
   enketo:
     volumes:
       - secrets:/etc/secrets
-    build: # TODO use explicit images - move building to test docker-compose file
+    build:
       context: .
       dockerfile: enketo.dockerfile
     restart: always

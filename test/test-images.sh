@@ -5,8 +5,8 @@ log() { echo >&2 "[$(basename "$0")] $*"; }
 
 docker_compose() {
   docker compose \
-      --file test/snapshots.docker-compose.yml \
       --file docker-compose.yml \
+      --file test/snapshots.docker-compose.yml \
       "$@"
 }
 
