@@ -2,8 +2,9 @@ name: Test
 
 on:
   push:
+    tags:
+    - v*.*.*
   pull_request:
-  tags: ["v*.*.*"]
 
 jobs:
   shellcheck:
