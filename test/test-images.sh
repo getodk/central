@@ -9,14 +9,18 @@ check_path() {
   local expected="$3"
 
   for (( i=0; i<"$timeout"; ++i )); do
+    log "Checking response from $requestPath..."
     res="$(
       echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
           docker exec -i "$nginxContainer" \
           openssl 2>&1 s_client -quiet -connect 127.0.0.1:443
     )"
     if echo "$res" | grep -q "$expected"; then
+      log "  Request responded correctly."
       return
     fi
+    log "  Request did not respond correctly."
+    sleep 1
   done
 
   log "!!! Path $requestPath returned unexpected result:"
