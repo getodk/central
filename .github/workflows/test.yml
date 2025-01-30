@@ -45,3 +45,5 @@ jobs:
         fetch-tags: true
         submodules: recursive
     - run: ./test/test-images.sh
+    - if: always()
+      run: docker compose logs
