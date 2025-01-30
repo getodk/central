@@ -19,7 +19,6 @@ jobs:
     # Only run this job if tests pass.  See workflow_run definition above.
     # TODO remove unused parts of this
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-    needs: check-images-are-used
     runs-on: ubuntu-latest
     permissions:
       contents: read
