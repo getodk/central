@@ -57,7 +57,7 @@ check_path 20 /v1/projects '[]'
 log "Verifying pm2..."
 processCount="$(
     docker compose exec service npx pm2 list \
-    | tee /dev/tty \
+    | tee /dev/stdout \
     | grep --count online
 )"
 
