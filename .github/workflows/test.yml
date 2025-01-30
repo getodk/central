@@ -3,6 +3,7 @@ name: Test
 on:
   push:
   pull_request:
+  tags: ["v*.*.*"]
 
 jobs:
   shellcheck:
