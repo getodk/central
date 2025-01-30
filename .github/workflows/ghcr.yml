@@ -6,7 +6,6 @@ on:
   workflow_run:
     workflows: [Test]
     types: [completed]
-    branches: [master]
     tags: ["v*.*.*"]
 
 env:
