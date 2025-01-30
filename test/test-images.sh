@@ -15,7 +15,7 @@ check_path() {
     echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
         docker compose exec --no-TTY nginx \
             openssl s_client -quiet -connect 127.0.0.1:443 \
-        >"$tmp" 2>&1 || true
+            >"$tmp" 2>&1 || true
     if grep --silent --fixed-strings "$expected" "$tmp"; then
       log "  Request responded correctly."
       return
@@ -55,12 +55,8 @@ check_path 30 / 'ODK Central'
 check_path 20 /v1/projects '[]'
 
 log "Verifying pm2..."
-processCount="$(
-    docker compose exec service npx pm2 list \
-    | tee /dev/stdout \
-    | grep --count online
-)"
-
+docker compose exec service npx pm2 list | tee "$tmp"
+processCount="$(grep --count online "$tmp")"
 if [[ "$processCount" != 4 ]]; then
   log "!!! PM2 returned an unexpected count for online processes."
   log "!!!"
