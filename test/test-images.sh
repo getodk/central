@@ -57,10 +57,10 @@ check_path 20 /v1/projects '[]'
 log "Verifying pm2..."
 docker compose exec service npx pm2 list | tee "$tmp"
 processCount="$(grep --count online "$tmp")"
-if [[ "$processCount" != 8 ]]; then
+if [[ "$processCount" != 4 ]]; then
   log "!!! PM2 returned an unexpected count for online processes."
   log "!!!"
-  log "!!! Expected 8, but got $processCount."
+  log "!!! Expected 4, but got $processCount."
 
   exit 1
 fi
