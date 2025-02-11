@@ -11,7 +11,7 @@ COPY files/postgres14/start-postgres.sh /usr/local/bin/
 #
 # To ensure future accessibility, PGDATA must be stored _outside_ the
 # anonymous volume.
-ENV PGDATA /var/lib/odk/postgresql/14/data
+ENV PGDATA=/var/lib/odk/postgresql/14/data
 
 ENTRYPOINT []
 CMD ["start-postgres.sh"]
