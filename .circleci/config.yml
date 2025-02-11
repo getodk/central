@@ -8,7 +8,7 @@ jobs:
       - checkout
 
       - run: sudo apt install shellcheck
-      - run: cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u | xargs shellcheck --exclude=SC2016
+      - run: ./test/check-scripts.sh
 
       - run: git submodule update -i
 
