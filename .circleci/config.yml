@@ -10,6 +10,8 @@ jobs:
       - run: sudo apt install shellcheck
       - run: cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u | xargs shellcheck --exclude=SC2016
 
+      - run: ./test/check-dockerfiles.sh
+
       - run: git submodule update -i
 
       - run: |
