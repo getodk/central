@@ -19,9 +19,7 @@ echo "running migrations.."
 node ./lib/bin/run-migrations
 
 echo "checking migration success.."
-node ./lib/bin/check-migrations
-
-if [ $? -eq 1 ]; then
+if ! node ./lib/bin/check-migrations; then
   echo "*** Error starting ODK! ***"
   echo "After attempting to automatically migrate the database, we have detected unapplied migrations, which suggests a problem with the database migration step. Please look in the console above this message for any errors and post what you find in the forum: https://forum.getodk.org/"
   exit 1
