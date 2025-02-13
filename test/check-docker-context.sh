@@ -72,9 +72,9 @@ throw_err() {
 for_humans() {
   local size="$1"
   if [[ "$size" -gt 999999 ]]; then
-    log "$((size / 1000000)) GB"
+    echo "$((size / 1000000)) GB"
   else
-    log "$((size / 1000)) MB"
+    echo "$((size / 1000)) MB"
   fi
 }
 
