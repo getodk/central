@@ -23,9 +23,20 @@ done
 
 tmp="$(mktemp)"
 
+log "Creating custom docker build driver..."
+# Use custom builder to prevent log truncation:
+# > output clipped, log limit 200KiB/s reached
+docker buildx rm docker_context_checker || true
+docker buildx create --name docker_context_checker \
+    --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1 \
+    --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=-1
+docker buildx use docker_context_checker
+
 log "Building docker image..."
 (
-docker build --no-cache --progress plain --file - . 2>&1 <<EOF
+docker \
+    buildx build --load \
+    --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
 COPY . /build-context
 WORKDIR /build-context
@@ -43,7 +54,7 @@ vars="$(awk '
   stage == "files" { ++file_count }
   stage == "size"  { total_size=$3 }
 
-  /writing image/ { image_hash=$4 }
+  /exporting config/ { image_hash=$4 }
 
   END {
     print "file_count: " file_count "\n"
