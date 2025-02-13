@@ -12,6 +12,7 @@ jobs:
     - uses: actions/checkout@v4
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
+    - run: ./test/check-dockerfiles.sh
   test-nginx:
     timeout-minutes: 10
     runs-on: ubuntu-latest
