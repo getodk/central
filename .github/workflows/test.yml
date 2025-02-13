@@ -5,13 +5,14 @@ on:
   pull_request:
 
 jobs:
-  shellcheck:
+  test-misc: # quick, simple checks
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - run: sudo apt-get install shellcheck
-    - run: cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u | xargs shellcheck --exclude=SC2016
+    - run: ./test/check-scripts.sh
+    - run: ./test/check-dockerfiles.sh
   test-nginx:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -35,7 +36,7 @@ jobs:
       run: docker logs test-enketo-1 || true
   test-images:
     needs:
-    - shellcheck
+    - test-misc
     - test-nginx
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
