@@ -15,9 +15,6 @@ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.temp
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
 COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
 
-RUN apt-get update && \
-    apt-get install gettext-base
-
 EXPOSE 8005
 
 CMD ["./start-enketo.sh"]

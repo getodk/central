@@ -49,7 +49,6 @@ RUN apt-get update \
         gpg \
         cron \
         wait-for-it \
-        gettext \
         procps \
         postgresql-client-14 \
         netcat-traditional \
