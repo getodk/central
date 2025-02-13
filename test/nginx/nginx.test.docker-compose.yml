@@ -15,8 +15,10 @@ services:
       - PORT=8383
   nginx:
     build:
-      context: ..
-      dockerfile: ./test/nginx-test.dockerfile
+      context: ../..
+      dockerfile: nginx.dockerfile
+      args:
+        SKIP_FRONTEND_BUILD: true
     depends_on:
       - service
       - enketo
@@ -26,8 +28,8 @@ services:
       - SSL_TYPE=selfsign
       - OIDC_ENABLED=false
     volumes:
-      - ../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
-      - ../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
+      - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
+      - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
     ports:
       - "9000:80"
       - "9001:443"

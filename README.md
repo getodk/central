@@ -28,6 +28,12 @@ In addition to the Backend and the Frontend, Central deploys services:
 * Central relies on [pyxform-http](https://github.com/getodk/pyxform-http) for converting Forms from XLSForm. It generally shouldn't be needed in development but can be run locally.
 * Central relies on [Enketo](https://github.com/enketo/enketo-express) for Web Form functionality. Enketo can be run locally and configured to work with Frontend and Backend in development by following [these instructions](https://github.com/getodk/central-frontend/blob/master/docs/enketo.md).
 
+If you want to work on Central codebase and don't want to setup dependent services like Postgresql, Enketo, etc manually then you can run `make dev`, which will start those services as Docker containers. With this setup you would need a local domain name, `central-dev` is a good choice. Following are the places where you need to add this:
+
+* Set `DOMAIN=central-dev` in .env file. 
+* Add an entry in your `/etc/hosts` file for `127.0.0.1 central-dev`.
+* Create `local.json` in central-backend directory and set value of default.env.domain to `http://central-dev:8989`
+
 Operations
 ----------
 

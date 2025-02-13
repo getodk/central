@@ -1,4 +1,4 @@
-FROM node:20.17.0-slim AS intermediate
+FROM node:22.12.0-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -8,6 +8,8 @@ RUN apt-get update \
 
 COPY ./ ./
 RUN files/prebuild/write-version.sh
+
+ARG SKIP_FRONTEND_BUILD
 RUN files/prebuild/build-frontend.sh
 
 
@@ -27,7 +29,6 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 RUN mkdir -p /usr/share/odk/nginx/
 
 COPY files/nginx/setup-odk.sh /scripts/
-RUN chmod +x /scripts/setup-odk.sh
 
 COPY files/nginx/redirector.conf /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
