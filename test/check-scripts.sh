@@ -45,8 +45,7 @@ done
 log "Running shellcheck..."
 echo "$scriptFiles" | xargs \
     shellcheck \
-        --exclude=SC2016 \
-        "$script"
+        --exclude=SC2016
 log "  Shellcheck passed OK."
 
 log "All scripts passed OK."
