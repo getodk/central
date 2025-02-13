@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  shellcheck:
+  lint:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
       run: docker logs test-enketo-1 || true
   test-images:
     needs:
-    - shellcheck
+    - lint
     - test-nginx
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
