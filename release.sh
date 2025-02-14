@@ -42,14 +42,13 @@ fi
 log "  HEAD seems to be in-line with upstream."
 
 year="$(date +%Y)"
-if git tag | grep "^$year\."; then
-  lastMinor="$(git tag | grep v2024 | tail -n1 | cut -d'.' -f2)"
-  suggestedVersion="$year.$((lastMinor+1)).0"
+if git tag | grep "^v$year\."; then
+  lastMinor="$(git tag | grep "^v$year" | tail -n1 | cut -d'.' -f2)"
+  suggestedVersion="v$year.$((lastMinor+1)).0"
 else
-  suggestedVersion="$year.1.0"
+  suggestedVersion="v$year.1.0"
 fi
-printf "[release] Version to release ($suggestedVersion): "
-read -p newVersion
+read -e -p "[release] Version to release: " -i "$suggestedVersion" newVersion
 if ! [[ "$newVersion" = v*.*.* ]]; then
   log "!!!"
   log "!!! Version '$newVersion' does not match expected format."
@@ -60,8 +59,8 @@ fi
 log "Updating version numbers in docker-compose.yml ..."
 tmpfile="$(mktemp)"
 sed -E \
-    -e "s_'ghcr.io/getodk/central-nginx:.*'_'ghcr.io/getodk/central-nginx:$newVersion'_" \
-    -e "s_'ghcr.io/getodk/central-service:.*'_'ghcr.io/getodk/central-service:$newVersion'_" \
+    -e "s_(image:\s+'.*/.*/central-nginx):.*'_\1:$newVersion'_" \
+    -e "s_(image:\s+'.*/.*/central-service):.*'_\1:$newVersion'_" \
     docker-compose.yml > "$tmpfile"
 mv "$tmpfile" docker-compose.yml
 
@@ -73,6 +72,7 @@ git tag "$newVersion"
 log "Pushing release to git..."
 git push && git push --tags
 
+echo
 log "Release complete.  Check build progress at:"
 log ""
 log "  https://github.com/getodk/central/actions"
