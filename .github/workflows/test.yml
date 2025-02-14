@@ -51,7 +51,7 @@ jobs:
     - run: ./test/test-images.sh
     - if: always()
       run: docker compose logs
-  check-images-are-used:
+  check-image-references:
     if: ${{ github.ref_type == 'tag' }}
     needs:
     - test-images
@@ -73,7 +73,7 @@ jobs:
       run: 'grep "${{ steps.meta.outputs.tags }}" docker-compose.yml'
   build-push-image:
     needs:
-    - check-images-are-used
+    - check-image-references
     runs-on: ubuntu-latest
     permissions:
       contents: read
