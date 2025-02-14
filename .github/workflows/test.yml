@@ -60,6 +60,8 @@ jobs:
       matrix:
         image: [nginx, service]
     steps:
+    - name: Check tag format
+      run: '[[ "${{ github.ref_name }}" = v*.*.* ]]'
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Extract Docker metadata
