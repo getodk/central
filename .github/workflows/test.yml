@@ -56,9 +56,6 @@ jobs:
     needs:
     - test-images
     runs-on: ubuntu-latest
-    permissions: # remove permissions
-      contents: read
-      packages: write
     strategy:
       matrix:
         image: [nginx, service]
