@@ -48,7 +48,9 @@ if git tag | grep "^v$year\."; then
 else
   suggestedVersion="v$year.1.0"
 fi
-read -e -p "[release] Version to release: " -i "$suggestedVersion" newVersion
+read -r -e \
+    -p "[release] Version to release: " \
+    -i "$suggestedVersion" newVersion
 if ! [[ "$newVersion" = v*.*.* ]]; then
   log "!!!"
   log "!!! Version '$newVersion' does not match expected format."
