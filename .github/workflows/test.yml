@@ -2,8 +2,6 @@ name: Test
 
 on:
   push:
-    tags:
-    - v*.*.*
   pull_request:
 
 jobs:
