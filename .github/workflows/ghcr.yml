@@ -5,10 +5,8 @@ on:
   # See: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_run
   workflow_run:
     workflows: [Test]
-    types:
-    - completed
-    tags:
-    - v*.*.*"
+    types: [completed]
+    tags: ["v*.*.*"]
 
 env:
   REGISTRY: ghcr.io
