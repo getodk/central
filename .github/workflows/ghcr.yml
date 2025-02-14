@@ -13,10 +13,11 @@ env:
 
 jobs:
   debug:
+    runs-on: ubuntu-latest
     steps:
-      run: 'echo "github.event_name: [ ${{ github.event_name }} ]"'
-      run: 'echo "github.event.workflow_run.conclusion: [ ${{ github.event.workflow_run.conclusion }} ]"'
-      run: "echo 'condition: [ ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }} ]'"
+      - run: 'echo "github.event_name: [ ${{ github.event_name }} ]"'
+      - run: 'echo "github.event.workflow_run.conclusion: [ ${{ github.event.workflow_run.conclusion }} ]"'
+      - run: "echo 'condition: [ ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }} ]'"
   check-images-are-used:
     # Only run this job if tests pass, or this workflow was triggered manually.
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
