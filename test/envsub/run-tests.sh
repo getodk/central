@@ -19,9 +19,9 @@ fi
 
 log "should correctly substitute provided EMPTY values"
 if diff <( \
-  SIMPLE= \
-  SUBVAL_1= \
-  SUBVAL_2= \
+  SIMPLE="" \
+  SUBVAL_1="" \
+  SUBVAL_2="" \
   ../../files/shared/envsub.awk \
 < good-example.in
 ) good-example.empty.expected; then
