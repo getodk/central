@@ -34,7 +34,7 @@ services:
       - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
-    image: 'ghcr.io/getodk/central-service:2025.1'
+    image: 'ghcr.io/getodk/central-service:v2024.3.1'
     depends_on:
       - secrets
       - postgres14
@@ -77,7 +77,7 @@ services:
     logging:
       driver: local
   nginx:
-    image: 'ghcr.io/getodk/central-nginx:2025.1'
+    image: 'ghcr.io/getodk/central-nginx:v2024.3.1'
     depends_on:
       - service
       - enketo
