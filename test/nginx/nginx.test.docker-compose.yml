@@ -24,7 +24,9 @@ services:
       - enketo
     environment:
       - DOMAIN=odk-nginx.example.test
-      - SENTRY_ORG_SUBDOMAIN=example
+      - SENTRY_KEY=example-sentry-key
+      - SENTRY_ORG_SUBDOMAIN=example-sentry-org-subdomain
+      - SENTRY_PROJECT=example-sentry-project
       - SSL_TYPE=selfsign
       - OIDC_ENABLED=false
     volumes:

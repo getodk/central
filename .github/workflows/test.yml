@@ -13,6 +13,16 @@ jobs:
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
     - run: ./test/check-dockerfiles.sh
+  test-envsub:
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        submodules: recursive
+    - run: cd test/envsub && ./run-tests.sh
   test-nginx:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -37,6 +47,7 @@ jobs:
   test-images:
     needs:
     - test-misc
+    - test-envsub
     - test-nginx
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
