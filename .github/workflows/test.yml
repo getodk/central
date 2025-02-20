@@ -29,7 +29,7 @@ jobs:
     - run: cd test/nginx && ./run-tests.sh
 
     - if: always()
-      run: cd test/nginx && docker compose logs nginx || true
+      run: docker logs nginx-nginx-1 || true
     - if: always()
       run: cd test/nginx && docker compose logs service || true
     - if: always()
