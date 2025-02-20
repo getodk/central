@@ -17,6 +17,21 @@ else
   log "  FAILED"
 fi
 
+log "should correctly substitute provided EMPTY values"
+if diff <( \
+  SIMPLE= \
+  SUBVAL_1= \
+  SUBVAL_2= \
+  ../../files/shared/envsub.awk \
+< good-example.in
+) good-example.empty.expected; then
+  log "  OK"
+else
+  ((++failCount))
+  log "  FAILED"
+fi
+
+
 log "should fail when asked to substitute undefined value"
 if ! ../../files/shared/envsub.awk <<<"\${NOT_DEFINED}" >/dev/null 2>/dev/null; then
   log "  OK"
