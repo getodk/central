@@ -28,7 +28,7 @@ for script in $scriptFiles; do
   log "    Passed OK."
 
   log "  Checking for tab-based indentation..."
-  if grep -P '\t' "$script"; then
+  if grep $'\t' "$script"; then
     log "    !!! Tab(s) found."
     log "    !!!"
     log "    !!! Please use spaces for indentation."
