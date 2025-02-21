@@ -1,5 +1,6 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
 
 flag_upgradeCompletedOk="$PGDATA/../.postgres14-upgrade-successful"
 

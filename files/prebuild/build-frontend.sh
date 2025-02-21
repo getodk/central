@@ -1,4 +1,6 @@
 #!/bin/bash -eu
+set -o pipefail
+shopt -s inherit_errexit
 
 cd client
 
