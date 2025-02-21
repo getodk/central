@@ -9,7 +9,7 @@ scriptFiles="$(cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') 
 for script in $scriptFiles; do
   log "Checking $script ..."
 
-  log "  Checking trailing whiespace on lines..."
+  log "  Checking trailing whitespace on lines..."
   if grep -E '\s+$' "$script"; then
     log "    !!! Whitespace found at end of line !!!"
     exit 1
