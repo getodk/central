@@ -1,3 +1,4 @@
 {
+  "centralVersion": "$CENTRAL_VERSION",
   "oidcEnabled": $OIDC_ENABLED
 }

@@ -7,6 +7,8 @@ if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
   exit 1
 fi
 
+CENTRAL_VERSION=$(cat /usr/share/nginx/html/version.txt)
+export CENTRAL_VERSION
 envsubst < /usr/share/odk/nginx/client-config.json.template > /usr/share/nginx/html/client-config.json
 
 # Generate self-signed keys for the incorrect (catch-all) HTTPS listener.  This
