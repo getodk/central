@@ -1,5 +1,6 @@
-#!/bin/bash
-
+#!/bin/bash -eu
+set -o pipefail
+shopt -s inherit_errexit
 
 echo "writing client config..."
 if [[ $OIDC_ENABLED != 'true' ]] && [[ $OIDC_ENABLED != 'false' ]]; then
