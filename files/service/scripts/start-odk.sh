@@ -72,4 +72,3 @@ echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
 echo "starting server."
 exec npx pm2-runtime ./pm2.config.js
-

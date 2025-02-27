@@ -11,6 +11,33 @@ scriptFiles="$(cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') 
 for script in $scriptFiles; do
   log "Checking $script ..."
 
+  log "  Checking trailing whitespace on lines..."
+  if grep -E '\s+$' "$script"; then
+    log "    !!! Whitespace found at end of line !!!"
+    exit 1
+  fi
+  log "    Passed OK."
+
+  log "  Checking trailing newline in files..."
+  if [[ -n "$(tail -c 1 < "$script")" ]]; then
+    log "    !!! Missing final newline !!!"
+    exit 1
+  fi
+  if [[ -z "$(tail -c 2 < "$script")" ]]; then
+    log "    !!! Blank lines at end of file !!!"
+    exit 1
+  fi
+  log "    Passed OK."
+
+  log "  Checking for tab-based indentation..."
+  if grep $'\t' "$script"; then
+    log "    !!! Tab(s) found."
+    log "    !!!"
+    log "    !!! Please use spaces for indentation."
+    exit 1
+  fi
+  log "    Passed OK."
+
   log "  Checking shebang..."
   shebang="$(head -n3 "$script")"
   if ! diff <(echo "$shebang") <(printf '%s' "$expectedShebang"); then
