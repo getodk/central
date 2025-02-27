@@ -55,8 +55,12 @@ services:
   enketo_redis_main:
     profiles:
       - central
+    ports:
+      - 6379:6379
   enketo_redis_cache:
     profiles:
       - central
+    ports:
+      - 6380:6380
 volumes:
   dev_secrets:

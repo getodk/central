@@ -13,4 +13,4 @@ ENV PGDATAOLD=/var/lib/postgresql/data
 
 # N.B. postgres is not started automatically in this image as we are overriding CMD.
 ENTRYPOINT []
-CMD upgrade-postgres.sh
+CMD ["upgrade-postgres.sh"]

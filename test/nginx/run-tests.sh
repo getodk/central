@@ -23,7 +23,7 @@ wait_for_http_response() {
     printf >&2 '❌\n'
     log "!!! URL timed out: $url"
     exit 1
-  fi  
+  fi
 }
 
 log "Starting test services..."
