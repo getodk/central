@@ -19,9 +19,7 @@ echo "running migrations.."
 node ./lib/bin/run-migrations
 
 echo "checking migration success.."
-node ./lib/bin/check-migrations
-
-if [ $? -eq 1 ]; then
+if ! node ./lib/bin/check-migrations; then
   echo "*** Error starting ODK! ***"
   echo "After attempting to automatically migrate the database, we have detected unapplied migrations, which suggests a problem with the database migration step. Please look in the console above this message for any errors and post what you find in the forum: https://forum.getodk.org/"
   exit 1
@@ -30,15 +28,52 @@ fi
 echo "starting cron.."
 cron -f &
 
-MEMTOT=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
-if [ "$MEMTOT" -gt "1100000" ]
-then
-  export WORKER_COUNT=4
-else
-  export WORKER_COUNT=1
-fi
+get_cgroup_version() {
+  # The max memory calculation is different between cgroup v1 & v2
+  local cgroup_type
+  cgroup_type=$(stat -fc %T /sys/fs/cgroup/)
+  if [ "$cgroup_type" == "cgroup2fs" ]; then
+    echo "v2"
+  else
+    echo "v1"
+  fi
+}
+
+get_memory_limit() {
+  local cgroup_version
+  cgroup_version=$(get_cgroup_version)
+
+  if [ "$cgroup_version" == "v2" ]; then
+    local memtot
+    memtot=$(cat /sys/fs/cgroup/memory.max)
+    if [ "$memtot" == "max" ]; then
+      # No cgroup memory limit; fallback to system's total memory
+      memtot=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')
+    fi
+    # Force memtot to be an integer (not scientific notation e+09)
+    printf "%.0f\n" "$memtot"
+  else
+    # cgroup v1
+    local memtot
+    memtot=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
+    # Force memtot to be an integer
+    printf "%.0f\n" "$memtot"
+  fi
+}
+
+determine_worker_count() {
+  local memtot=$1
+  if [ "$memtot" -gt 1100000 ]; then
+    echo 4
+  else
+    echo 1
+  fi
+}
+
+MEMTOT=$(get_memory_limit)
+WORKER_COUNT=$(determine_worker_count "$MEMTOT")
+export WORKER_COUNT
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
 
 echo "starting server."
-exec npx pm2-runtime ./pm2.config.js
-
+exec npx --no pm2-runtime ./pm2.config.js
