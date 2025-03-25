@@ -58,6 +58,44 @@ server {
     add_header X-Content-Type-Options nosniff;
   }
 
+  # Enketo URL redirection.
+  # We want the Enketo URLs redirected to a Central frontend page which dynamically decides
+  # whether to show a WebForm or an iframed Enketo.
+  # For that iframe to work, we'll need another path prefix under which we can reach
+  # Enketo — this one will not be intercepted.
+  location /enketo-passthrough {
+    proxy_pass http://enketo:8005/-;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+
+    # Same as above
+    add_header Referrer-Policy same-origin;
+    add_header Strict-Transport-Security "max-age=63072000" always;
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options nosniff;
+  }
+  location ~* "^/-/single/(?<enketoId>[a-zA-Z0-9]{31}|[a-zA-Z0-9]{64})$" {
+    # Form fill link, public
+    return 301 "/f/$enketoId/single?$args";
+  }
+  location ~* "^/-/edit/(?<enketoId>[a-zA-Z0-9]{31})$" {
+    # Edit link
+    return 301 "/f/$enketoId/edit?$args";
+  }
+  location ~* "^/-/preview/(?<enketoId>[a-zA-Z0-9]{31})$" {
+    # preview link
+    return 301 "/f/$enketoId/preview?$args";
+  }
+  location ~* "^/-/x/(?<enketoId>[a-zA-Z0-9]{31})$" {
+    # Offline new Submissions - can be public if it has st query parameter
+    return 301 "/f/$enketoId/offline?$args";
+  }
+  location ~* "^/-/(?<enketoId>[a-zA-Z0-9]{31})$" {
+    # Form fill link (non-public), or Draft
+    return 301 "/f/$enketoId?$args";
+  }
+  # End of Enketo URL redirection.
+
   location ~ ^/v\d {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://service:8383;
