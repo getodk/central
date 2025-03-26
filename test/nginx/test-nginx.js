@@ -181,6 +181,24 @@ describe('nginx config', () => {
     socket.on('end', resolve);
     socket.on('error', reject);
   }));
+
+  const cspTestData = [
+    { request: '/-/some/enketo/path',          expected: /google/ },
+    { request: '/v1/projects',                 expected: /github/ },
+    { request: '/blank.html',                   expected: /github/ },
+    { request: '/version.txt',                 expected: /github/ },
+    { request: '/client-config.json',          expected: /github/ },
+    { request: '/index.html',                  expected: /github/ },
+  ];
+  cspTestData.forEach(t => {
+    it(`should have csp header with "${t.expected}" text in it for "${t.request}"`, async () => {
+      // when
+      const res = await fetchHttps(t.request);
+
+      // then
+      assert.match(res.headers.get('content-security-policy-report-only'), t.expected);
+    });
+  })
 });
 
 function fetchHttp(path, options) {
