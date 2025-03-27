@@ -76,31 +76,41 @@ describe('nginx config', () => {
     });
   });
 
-  it('/-/... should forward to enketo', async () => {
-    // when
-    const res = await fetchHttps('/-/some/enketo/path');
-
-    // then
-    assert.equal(res.status, 200);
-    assert.equal(await res.text(), 'OK');
-    // and
-    await assertEnketoReceived(
-      { method:'GET', path:'/-/some/enketo/path' },
-    );
+  const enketoForwardTestData = [
+    { request: '/-/some/enketo/path',                  expected: '/-/some/enketo/path' },
+    { request: '/-',                                   expected: '/-' },
+    { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
+    { request: '/enketo-passthrough',                  expected: '/-' },
+  ]
+  enketoForwardTestData.forEach(t => {
+    it(`should forward to enketo; ${t.request}`, async () => {
+      // when
+      const res = await fetchHttps(t.request);
+  
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+  
+      // and
+      await assertEnketoReceived(
+        { method:'GET', path: t.expected },
+      );
+    });
   });
 
-  it('/enketo-passthrough/... should forward to enketo', async () => {
-    // when
-    const res = await fetchHttps('/enketo-passthrough/some/enketo/path');
-
-    // then
-    assert.equal(res.status, 200);
-    assert.equal(await res.text(), 'OK');
-
-    // and
-    await assertEnketoReceived(
-      { method:'GET', path:'/-/some/enketo/path' },
-    );
+  enketoNoForwardTestData = [
+    { request: '/enketo-passthrough1000/some/enketo/path' },
+    { request: '/--/' },
+    { request: '/-some' },
+  ];
+  enketoNoForwardTestData.forEach(t => {
+    it(`should not forward to enketo; ${t.request}`, async () => {
+      // when
+      const res = await fetchHttps(t.request);
+  
+      // then
+      await assertEnketoReceived();
+    });
   });
 
   const enketoId =     'Ir3OFqqXiHr7dZuLB3J69LMTTg2rNrN';
@@ -109,11 +119,11 @@ describe('nginx config', () => {
   const enketoRedirectTestData = [
     { description: 'public link', 
       request: `/-/single/${enketoId}?st=${sessionToken}`,
-      expected: `f/${enketoId}/single?st=${sessionToken}` },
+      expected: `f/${enketoId}?st=${sessionToken}` },
 
     { description: 'public link - single submission',
       request: `/-/single/${enketoOnceId}?st=${sessionToken}`,
-      expected: `f/${enketoOnceId}/single?st=${sessionToken}` },
+      expected: `f/${enketoOnceId}?st=${sessionToken}` },
 
     { description: 'edit submission',
       request: `/-/edit/${enketoId}?instance_id=uuid:123&return_url=https%3A%2F%2Fodk-nginx.example.test%2Fprojects%2F1%2Fforms%2Fsimple%2Fsubmissions%2Fuuid%3A123`,
@@ -129,7 +139,7 @@ describe('nginx config', () => {
 
     { description: 'new or draft submission',
       request: `/-/${enketoId}`,
-      expected: `f/${enketoId}` },
+      expected: `f/${enketoId}/new` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {

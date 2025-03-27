@@ -43,10 +43,11 @@ server {
   # we want old Enketo URLs redirected to a Central frontend page which dynamically decides
   # whether to show a WebForm or an iframed Enketo.
   #
-  # Following are the locations that serve a Form and these are redirected to the frontend.
+  # Following are the locations that serve a Form and these are redirected to the frontend:
+  # N.B: For Single submission Enketo ID (enketoOnceId) is 64 characters long otherwise it's 31 char
   location ~* "^/-/single/(?<enketoId>[a-zA-Z0-9]{31}|[a-zA-Z0-9]{64})$" {
     # Form fill link, public
-    return 301 "/f/$enketoId/single$is_args$args";
+    return 301 "/f/$enketoId$is_args$args";
   }
   location ~* "^/-/edit/(?<enketoId>[a-zA-Z0-9]{31})$" {
     # Edit link
@@ -62,12 +63,12 @@ server {
   }
   location ~* "^/-/(?<enketoId>[a-zA-Z0-9]{31})$" {
     # Form fill link (non-public), or Draft
-    return 301 "/f/$enketoId$is_args$args";
+    return 301 "/f/$enketoId/new$is_args$args";
   }
 
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
   # reach Enketo — this one will not be intercepted.
-  location ~ ^/(-|enketo-passthrough) {
+  location ~ ^/(?:-|enketo-passthrough)(?:/|$) {
     rewrite ^/enketo-passthrough(/.*)?$ /-$1 break;
     proxy_pass http://enketo:8005;
     proxy_redirect off;
