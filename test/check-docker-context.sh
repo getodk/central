@@ -110,11 +110,10 @@ log "Total size: $(human_size "$total_size")"
 if [[ "${skip_size-}" != "true" ]]; then
   # N.B. busybox `du` outputs in kB
   # See: https://www.busybox.net/downloads/BusyBox.html#du
-  expected="- expected between $(human_size "$min_size") and $(human_size "$max_size")"
-  if [[ "$total_size" -lt $minSize ]]; then
-    throw_err "This is a surprisingly small total size (expected min: $(human_size "$minSize"))"
-  elif [[ "$total_size" -gt $maxSize ]]; then
-    throw_err "This is a surprisingly large total size (expected max: $(human_size "$maxSize"))"
+  if [[ "$total_size" -lt $min_size ]]; then
+    throw_err "This is a surprisingly small total size (expected min: $(human_size "$min_size"))"
+  elif [[ "$total_size" -gt $max_size ]]; then
+    throw_err "This is a surprisingly large total size (expected max: $(human_size "$max_size"))"
   fi
 fi
 
