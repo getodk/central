@@ -10,12 +10,10 @@ WORKDIR ${ENKETO_SRC_DIR}
 # care about anything the server needs. because the client config is baked at
 # build time, we therefore hand it the untemplated config.
 
+COPY files/shared/envsub.awk /scripts/
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.template
 COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
 COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
-
-RUN apt-get update && \
-    apt-get install gettext-base
 
 EXPOSE 8005
 
