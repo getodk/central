@@ -1,5 +1,6 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
@@ -23,7 +24,7 @@ wait_for_http_response() {
     printf >&2 '❌\n'
     log "!!! URL timed out: $url"
     exit 1
-  fi  
+  fi
 }
 
 log "Starting test services..."
