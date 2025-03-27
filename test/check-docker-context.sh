@@ -6,17 +6,23 @@ log() { echo "[$(basename "$0")] $*"; }
 
 # See: https://stackoverflow.com/a/71751097
 
-if [[ $# = 0 ]]; then
+usage() {
   cat <<EOF
     USAGE
       $0 --report
       $0 [--min-size NUM --max-size NUM | --skip-size] [--min-count NUM --max-count NUM | --skip-count]
 EOF
+}
+
+if [[ $# = 0 ]]; then
+  usage
   exit 1
 fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --help) usage; exit;;
+
     --report) skip_size=true; skip_count=true ;;
 
     --min-size)   shift;min_size="$1" ;;
