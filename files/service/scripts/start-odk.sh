@@ -6,7 +6,7 @@ echo "generating local service configuration.."
 
 ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
 BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https://"${DOMAIN}":"${HTTPS_PORT}" ) \
-envsubst '$DOMAIN $BASE_URL $SYSADMIN_EMAIL $ENKETO_API_KEY $DB_HOST $DB_USER $DB_PASSWORD $DB_NAME $DB_SSL $EMAIL_FROM $EMAIL_HOST $EMAIL_PORT $EMAIL_SECURE $EMAIL_IGNORE_TLS $EMAIL_USER $EMAIL_PASSWORD $OIDC_ENABLED $OIDC_ISSUER_URL $OIDC_CLIENT_ID $OIDC_CLIENT_SECRET $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT $S3_SERVER $S3_ACCESS_KEY $S3_SECRET_KEY $S3_BUCKET_NAME' \
+/scripts/envsub.awk \
     < /usr/share/odk/config.json.template \
     > /usr/odk/config/local.json
 
