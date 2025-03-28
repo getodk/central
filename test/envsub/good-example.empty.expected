@@ -1,0 +1,20 @@
+# Alone:
+
+
+# end of line
+Simple value: 
+
+# Missing curlies:
+Should not be substituted: $SIMPLE
+
+# Start of line:
+ and then more content.
+
+# This is not a sub variable:
+$simple
+
+# Two values on the same line:
+first: , second: !
+
+# Two values on the same line, both repeated:
+first: , , , second:  !
