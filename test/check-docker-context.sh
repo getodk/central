@@ -4,7 +4,7 @@ shopt -s inherit_errexit
 
 log() { echo "[$(basename "$0")] $*"; }
 
-# See: https://stackoverflow.com/a/71751097
+# See: https://stackoverflow.com/questions/38946683/
 
 usage() {
   cat <<EOF
