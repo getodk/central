@@ -76,21 +76,20 @@ describe('nginx config', () => {
     });
   });
 
-  const enketoForwardTestData = [
+  [
     { request: '/-/some/enketo/path',                  expected: '/-/some/enketo/path' },
     { request: '/-',                                   expected: '/-' },
     { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
     { request: '/enketo-passthrough',                  expected: '/-' },
-  ]
-  enketoForwardTestData.forEach(t => {
+  ].forEach(t => {
     it(`should forward to enketo; ${t.request}`, async () => {
       // when
       const res = await fetchHttps(t.request);
-  
+
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
-  
+
       // and
       await assertEnketoReceived(
         { method:'GET', path: t.expected },
@@ -98,16 +97,15 @@ describe('nginx config', () => {
     });
   });
 
-  enketoNoForwardTestData = [
+  [
     { request: '/enketo-passthrough1000/some/enketo/path' },
     { request: '/--/' },
     { request: '/-some' },
-  ];
-  enketoNoForwardTestData.forEach(t => {
+  ].forEach(t => {
     it(`should not forward to enketo; ${t.request}`, async () => {
       // when
-      const res = await fetchHttps(t.request);
-  
+      await fetchHttps(t.request);
+
       // then
       await assertEnketoReceived();
     });
@@ -115,9 +113,9 @@ describe('nginx config', () => {
 
   const enketoId =     'Ir3OFqqXiHr7dZuLB3J69LMTTg2rNrN';
   const enketoOnceId = 'fa696213465028b30b8bdfb418253b787af4a652725335335024cf5a23c69041';
-  const sessionToken = 'GHMpk8xKvJiV2sbv!Cqn9X$zZx0Z6U5rBsq0VQIyyElkjdoyV6TrDo1fQEAvVE!X'
+  const sessionToken = 'GHMpk8xKvJiV2sbv!Cqn9X$zZx0Z6U5rBsq0VQIyyElkjdoyV6TrDo1fQEAvVE!X';
   const enketoRedirectTestData = [
-    { description: 'public link', 
+    { description: 'public link',
       request: `/-/single/${enketoId}?st=${sessionToken}`,
       expected: `f/${enketoId}?st=${sessionToken}` },
 
@@ -145,12 +143,11 @@ describe('nginx config', () => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
       // when
       const res = await fetchHttps(t.request);
-  
+
       // then
       assertPermanentRedirect(res, t.expected);
     });
   });
-  
 
   it('/v1/... should forward to backend', async () => {
     // when
@@ -319,7 +316,7 @@ function request(url, { body, ...options }={}) {
         const text = () => new Promise((resolve, reject) => {
           const chunks = [];
           body.on('error', reject);
-          body.on('data', data => chunks.push(data))
+          body.on('data', data => chunks.push(data));
           body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
         });
 
