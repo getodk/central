@@ -107,8 +107,11 @@ describe('nginx config', () => {
     it(`should not forward to enketo; ${t.request}`, async () => {
       // when
       const res = await fetchHttps(t.request);
-  
+
       // then
+      assert.equal(res.status, 404);
+  
+      // and
       await assertEnketoReceived();
     });
   });
