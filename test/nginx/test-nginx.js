@@ -148,7 +148,7 @@ describe('nginx config', () => {
   
       // then
       assert.equal(res.status, 301);
-      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${expectedPath}`);
+      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${t.expected}`);
       // and
       await assertEnketoReceived();
     });
