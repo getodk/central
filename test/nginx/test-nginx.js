@@ -109,6 +109,7 @@ describe('nginx config', () => {
       const res = await fetchHttps(t.request);
 
       // then
+      assert.equal(await res.text(), 'OK'); // TODO just for debug
       assert.equal(res.status, 404);
   
       // and
