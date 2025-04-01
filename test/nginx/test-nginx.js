@@ -109,8 +109,8 @@ describe('nginx config', () => {
       const res = await fetchHttps(t.request);
 
       // then
-      assert.equal(await res.text(), 'OK'); // TODO just for debug
-      assert.equal(res.status, 404);
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), '<div id="app"></div>');
   
       // and
       await assertEnketoReceived();
