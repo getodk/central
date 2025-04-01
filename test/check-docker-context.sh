@@ -1,11 +1,28 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
+
 log() { echo "[$(basename "$0")] $*"; }
 
-# See: https://stackoverflow.com/a/71751097
+# See: https://stackoverflow.com/questions/38946683/
+
+usage() {
+  cat <<EOF
+    USAGE
+      $0 --report
+      $0 [--min-size NUM --max-size NUM | --skip-size] [--min-count NUM --max-count NUM | --skip-count]
+EOF
+}
+
+if [[ $# = 0 ]]; then
+  usage
+  exit 1
+fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --help) usage; exit;;
+
     --report) skip_size=true; skip_count=true ;;
 
     --min-size)   shift;min_size="$1" ;;
@@ -80,15 +97,6 @@ throw_err() {
   exit 1
 }
 
-for_humans() {
-  local size="$1"
-  if [[ "$size" -gt 999999 ]]; then
-    echo "$((size / 1000000)) GB"
-  else
-    echo "$((size / 1000)) MB"
-  fi
-}
-
 log "File count: $file_count"
 if [[ "${skip_count-}" != "true" ]]; then
   if [[ "$file_count" -lt "$min_count" ]] || [[ "$file_count" -gt "$max_count" ]]; then
@@ -96,15 +104,22 @@ if [[ "${skip_count-}" != "true" ]]; then
   fi
 fi
 
-log "Total size: $(for_humans "$total_size")"
+human_size() {
+  if [[ "$1" -gt 999999 ]]; then
+    echo "$(bc <<< "scale=3; $1 / 1000000") GB"
+  else
+    echo "$(bc <<< "scale=3; $1 / 1000") MB"
+  fi
+}
+
+log "Total size: $(human_size "$total_size")"
 if [[ "${skip_size-}" != "true" ]]; then
   # N.B. busybox `du` outputs in kB
   # See: https://www.busybox.net/downloads/BusyBox.html#du
-  expected="- expected between $(for_humans "$min_size") and $(for_humans "$max_size")"
-  if [[ "$total_size" -lt "$min_size" ]]; then
-    throw_err "This is a surprisingly small total size $expected"
-  elif [[ "$total_size" -gt "$max_size" ]]; then
-    throw_err "This is a surprisingly large total size $expected"
+  if [[ "$total_size" -lt $min_size ]]; then
+    throw_err "This is a surprisingly small total size (expected min: $(human_size "$min_size"))"
+  elif [[ "$total_size" -gt $max_size ]]; then
+    throw_err "This is a surprisingly large total size (expected max: $(human_size "$max_size"))"
   fi
 fi
 
