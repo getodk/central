@@ -109,7 +109,7 @@ describe('nginx config', () => {
       const res = await fetchHttps(t.request);
   
       // then
-      await assertEnketoReceived();
+      await assertEnketoReceivedNoRequests();
     });
   });
 
@@ -150,7 +150,7 @@ describe('nginx config', () => {
       assert.equal(res.status, 301);
       assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${t.expected}`);
       // and
-      await assertEnketoReceived();
+      await assertEnketoReceivedNoRequests();
     });
   });
   
@@ -269,6 +269,9 @@ function fetchHttps6(path, options) {
   return request(`https://[::1]:9001${path}`, options);
 }
 
+function assertEnketoReceivedNoRequests() {
+  return assertEnketoReceived();
+}
 function assertEnketoReceived(...expectedRequests) {
   return assertMockHttpReceived(8005, expectedRequests);
 }
