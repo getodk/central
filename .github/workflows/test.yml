@@ -36,6 +36,7 @@ jobs:
       with:
         node-version: 22.12.0
     - run: cd test/nginx && npm i
+    - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./run-tests.sh
 
     - if: always()
