@@ -43,7 +43,8 @@
       "sentry": {
         "orgSubdomain": "${SENTRY_ORG_SUBDOMAIN}",
         "key": "${SENTRY_KEY}",
-        "project": "${SENTRY_PROJECT}"
+        "project": "${SENTRY_PROJECT}",
+        "traceRate": "${SENTRY_TRACE_RATE}"
       },
       "s3blobStore": {
         "server": "${S3_SERVER}",
