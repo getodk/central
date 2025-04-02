@@ -109,7 +109,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-  
+
       // and
       await assertEnketoReceived();
     });
