@@ -107,7 +107,7 @@ describe('nginx config', () => {
       await fetchHttps(t.request);
 
       // then
-      await assertEnketoReceived();
+      await assertEnketoReceivedNoRequests();
     });
   });
 
@@ -145,7 +145,10 @@ describe('nginx config', () => {
       const res = await fetchHttps(t.request);
 
       // then
-      assertPermanentRedirect(res, t.expected);
+      assert.equal(res.status, 301);
+      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${t.expected}`);
+      // and
+      await assertEnketoReceivedNoRequests();
     });
   });
 
@@ -263,6 +266,9 @@ function fetchHttps6(path, options) {
   return request(`https://[::1]:9001${path}`, options);
 }
 
+function assertEnketoReceivedNoRequests() {
+  return assertEnketoReceived();
+}
 function assertEnketoReceived(...expectedRequests) {
   return assertMockHttpReceived(8005, expectedRequests);
 }
@@ -275,11 +281,6 @@ async function assertMockHttpReceived(port, expectedRequests) {
   const res = await request(`http://localhost:${port}/request-log`);
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
-}
-
-function assertPermanentRedirect(res, expectedPath) {
-  assert.equal(res.status, 301);
-  assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${expectedPath}`);
 }
 
 function resetEnketoMock() {
