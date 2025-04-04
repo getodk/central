@@ -5,10 +5,7 @@ shopt -s inherit_errexit
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 docker_compose() {
-  docker compose \
-      --file docker-compose.yml \
-      --file test/snapshots.docker-compose.yml \
-      "$@"
+  ./compose-snapshots.sh "$@"
 }
 
 tmp="$(mktemp)"
