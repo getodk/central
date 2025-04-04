@@ -1,5 +1,6 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
 
 log() { echo "[release] $*"; }
 
