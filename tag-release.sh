@@ -6,11 +6,11 @@ log() { echo "[release] $*"; }
 
 log "Checking git branch..."
 currentBranch="$(git rev-parse --abbrev-ref HEAD)"
-if [[ "$currentBranch" != master ]]; then
+if [[ "$currentBranch" = master ]]; then
   log "!!!"
-  log "!!! Unexpected branch:"
-  log "!!!   Expected: master"
-  log "!!!     Actual: $currentBranch"
+  log "!!! Unexpected branch: $currentBranch"
+  log "!!!"
+  log "!!! This script should NOT be run on the master branch."
   log "!!!"
   exit 1
 fi
@@ -76,7 +76,9 @@ log "Pushing release to git..."
 git push && git push --tags
 
 echo
-log "Release complete.  Check build progress at:"
+log "Release tagging complete.  Check build progress at:"
 log ""
 log "  https://github.com/getodk/central/actions"
+log ""
+log "Once GitHub Actions has uploaded all images, master branch can be updated."
 echo
