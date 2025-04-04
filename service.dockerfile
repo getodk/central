@@ -49,7 +49,6 @@ RUN apt-get update \
         gpg \
         cron \
         wait-for-it \
-        gettext \
         procps \
         postgresql-client-14 \
         netcat-traditional \
@@ -58,6 +57,7 @@ RUN apt-get update \
         --fund=false --update-notifier=false
 
 COPY server/ ./
+COPY files/shared/envsub.awk /scripts/
 COPY files/service/scripts/ ./
 
 COPY files/service/config.json.template /usr/share/odk/

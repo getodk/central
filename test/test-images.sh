@@ -1,5 +1,6 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
@@ -64,7 +65,7 @@ check_path 2 /v1/projects '[]'
 log "  Backend started OK."
 
 log "Verifying pm2..."
-docker_compose exec service npx pm2 list | tee "$tmp"
+docker compose exec service npx --no pm2 list | tee "$tmp"
 processCount="$(grep --count online "$tmp")"
 if [[ "$processCount" != 4 ]]; then
   log "!!! PM2 returned an unexpected count for online processes."
