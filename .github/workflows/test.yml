@@ -34,7 +34,7 @@ jobs:
         submodules: recursive
     - uses: actions/setup-node@v4
       with:
-        node-version: 22.12.0
+        node-version: 22.14.0
     - run: cd test/nginx && npm i
     - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./run-tests.sh
