@@ -65,6 +65,11 @@ server {
     # Form fill link (non-public), or Draft
     return 301 "/f/$enketoId/new$is_args$args";
   }
+  # To read single submission cookies
+  location = /-/single/check-submitted {
+    alias /usr/share/nginx/html/blank.html;
+    default_type text/html;
+  }
 
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
   # reach Enketo — this one will not be intercepted.

@@ -156,6 +156,16 @@ describe('nginx config', () => {
     });
   });
 
+  it('should serve blank page on /-/single/check-submitted', async () => {
+    // when
+    const res = await fetchHttps('/-/single/check-submitted');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.isEmpty((await res.text()).trim());
+    await assertEnketoReceivedNoRequests();
+  });
+
   it('/v1/... should forward to backend', async () => {
     // when
     const res = await fetchHttps('/v1/some/central-backend/path');
