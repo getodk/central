@@ -163,6 +163,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
+    await assertEnketoReceivedNoRequests();
   });
 
   it('/v1/... should forward to backend', async () => {
