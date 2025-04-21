@@ -44,24 +44,23 @@ server {
   # whether to show a WebForm or an iframed Enketo.
   #
   # Following are the locations that serve a Form and these are redirected to the frontend:
-  # N.B: For Single submission Enketo ID (enketoOnceId) is 64 characters long otherwise it's 31 char
-  location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]{31}|[a-zA-Z0-9]{64})$" {
+  location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link, public
     return 301 "/f/$enketoId$is_args$args";
   }
-  location ~ "^/-/edit/(?<enketoId>[a-zA-Z0-9]{31})$" {
+  location ~ "^/-/edit/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Edit link
     return 301 "/f/$enketoId/edit$is_args$args";
   }
-  location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]{31})$" {
+  location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
     return 301 "/f/$enketoId/preview$is_args$args";
   }
-  location ~ "^/-/x/(?<enketoId>[a-zA-Z0-9]{31})$" {
+  location ~ "^/-/x/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Offline new Submissions - can be public if it has st query parameter
     return 301 "/f/$enketoId/offline$is_args$args";
   }
-  location ~ "^/-/(?<enketoId>[a-zA-Z0-9]{31})$" {
+  location ~ "^/-/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
     return 301 "/f/$enketoId/new$is_args$args";
   }
