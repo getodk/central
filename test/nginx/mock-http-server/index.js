@@ -16,8 +16,8 @@ app.get('/reset',       withStdLogging((req, res) => {
 
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
-app.get('/*', ok('GET'));
-app.post('/*', ok('POST'));
+app.get('/{*splat}', ok('GET'));
+app.post('/{*splat}', ok('POST'));
 // TODO add more methods as required
 
 app.listen(port, () => {
