@@ -91,6 +91,19 @@ server {
     add_header Strict-Transport-Security "max-age=63072000" always;
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options nosniff;
+
+    # Default caching strategy: revalidate every time
+    add_header Cache-Control no-store
+    add_header Pragma no-cache
+    add_header Vary *
+
+    if ($request_method = GET) or ($request_method = HEAD) {
+      if ($uri =~ "^/(?:-|enketo-passthrough)/js/build/") {
+        add_header Cache-Control max-age=31536000
+        unset Pragma
+        add_header Vary Accept-Encoding
+      }
+    }
   }
   # End of Enketo Configuration.
 
