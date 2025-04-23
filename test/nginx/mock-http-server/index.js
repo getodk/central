@@ -18,6 +18,8 @@ app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers
 
 app.get('/{*splat}', ok('GET'));
 app.post('/{*splat}', ok('POST'));
+app.put('/{*splat}', ok('POST'));
+app.delete('/{*splat}', ok('POST'));
 // TODO add more methods as required
 
 app.listen(port, () => {
