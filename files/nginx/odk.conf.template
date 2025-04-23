@@ -95,8 +95,10 @@ server {
     include /usr/share/odk/nginx/enketo-common-headers.conf;
 
     map "$request_method::$uri" $cache_strategy {
-      ~^(GET|HEAD)::/js/build/ "immutable"
-      default                  "single-use"
+      ~^(GET|HEAD)::/-/js/build/      "immutable"
+      ~^(GET|HEAD)::/-/fonts/.*?v=    "immutable"
+      ~^(GET|HEAD)::/-/fonts/         "revalidate"
+      default                         "single-use"
     }
 
     if ($cache_strategy = "immutable") {
