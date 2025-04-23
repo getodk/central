@@ -24,7 +24,7 @@ app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers
   'put',
   // TODO add more methods as required
 ].forEach(method => app[method]('/{*splat}', withStdLogging((req, res) => {
-  requests.push({ method:req.method, path:req.path });
+  requests.push({ method:req.method, path:req.originalUrl });
   res.send('OK');
 })));
 
@@ -34,7 +34,7 @@ app.listen(port, () => {
 
 function withStdLogging(fn) {
   return (req, res) => {
-    console.log(new Date(), req.method, req.path);
+    console.log(new Date(), req.method, req.originalUrl);
     return fn(req, res);
   };
 }
