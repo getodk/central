@@ -28,7 +28,7 @@ const okHandler = );
 ].forEach(method => app[method]('/{*splat}', withStdLogging((req, res) => {
   requests.push({ method:req.method, path:req.path });
   res.send('OK');
-});
+})));
 
 app.listen(port, () => {
   log(`Listening on port: ${port}`);
