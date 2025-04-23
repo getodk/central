@@ -35,7 +35,7 @@ function withStdLogging(fn) {
 
 function ok(method) {
   return withStdLogging((req, res) => {
-    requests.push({ method, path:req.path });
+    requests.push({ method:req.method, path:req.path });
     res.send('OK');
   });
 }
