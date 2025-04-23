@@ -8,11 +8,11 @@ server {
 }
 
 map "$request_method::$uri" $cache_strategy {
-  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
   ~^(GET|HEAD)::/-/css/             "revalidate";
   ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
   ~^(GET|HEAD)::/-/fonts/           "revalidate";
   ~^(GET|HEAD)::/-/images/          "revalidate";
+  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
   ~^(GET|HEAD)::/-/locales/         "revalidate";
   default                           "single-use";
 }
