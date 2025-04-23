@@ -264,12 +264,12 @@ describe('nginx config', () => {
       [ '/-/preview/some-id',                            'single-use' ],
       [ '/-/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
       [ '/-/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
-      [ '/-/fonts/fontawesome-webfont.woff?v=4.6.2',     'long' ],
+      [ '/-/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable' ],
       [ '/-/css/theme-kobo.css',                         'revalidate' ],
       [ '/-/js/build/enketo-webform.js',                 'revalidate' ],
-      [ '/-/js/build/chunks/chunk-BKEADX6Q.js',          'long' ],
-      [ '/-/js/build/chunks/chunk-Q3Q473PS.js',          'long' ],
-      [ '/-/js/build/chunks/chunk-3RPRB7E5.js',          'long' ],
+      [ '/-/js/build/chunks/chunk-BKEADX6Q.js',          'immutable' ],
+      [ '/-/js/build/chunks/chunk-Q3Q473PS.js',          'immutable' ],
+      [ '/-/js/build/chunks/chunk-3RPRB7E5.js',          'immutable' ],
       [ '/-/css/theme-kobo.print.css',                   'revalidate' ],
       [ '/-/images/icon_180x180.png',                    'revalidate' ],
       [ '/-/images/favicon.ico',                         'revalidate' ],
@@ -288,7 +288,7 @@ describe('nginx config', () => {
           // and
           await assertEnketoReceived({ method, path });
           // and
-          assertCacheStrategyApplied(expectedCacheStrategy);
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
         });
       });
 
@@ -415,9 +415,9 @@ function getProtocolImplFrom(url) {
   }
 }
 
-function assertCacheStrategyApplied(expectedCacheStrategy) {
+function assertCacheStrategyApplied(res, expectedCacheStrategy) {
   switch (expectedCacheStrategy) {
-    case 'long':
+    case 'immutable':
       assert.equal(res.headers.get('Cache-Control'), 'max-age=31536000');
       assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
       assert.equal(res.headers.get('Pragma'), undefined);
