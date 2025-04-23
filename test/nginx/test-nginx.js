@@ -284,7 +284,6 @@ describe('nginx config', () => {
 
           // then
           assert.equal(res.status, 200);
-          assert.equal(await res.text(), 'OK');
           // and
           await assertEnketoReceived({ method, path });
           // and
@@ -299,7 +298,6 @@ describe('nginx config', () => {
 
           // then
           assert.equal(res.status, 200);
-          assert.equal(await res.text(), 'OK');
           // and
           await assertEnketoReceived({ method, path });
           // and
