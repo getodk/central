@@ -7,7 +7,7 @@ server {
   return 421;
 }
 
-map "$request_method::$uri" $cache_strategy {
+map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/-/css/             "revalidate";
   ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
   ~^(GET|HEAD)::/-/fonts/           "revalidate";
