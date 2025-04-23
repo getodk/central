@@ -92,8 +92,6 @@ server {
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options nosniff;
 
-    include /usr/share/odk/nginx/enketo-common-headers.conf;
-
     map "$request_method::$uri" $cache_strategy {
       ~^(GET|HEAD)::/-/js/build/      "immutable"
       ~^(GET|HEAD)::/-/fonts/.*?v=    "immutable"
