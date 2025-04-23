@@ -82,7 +82,7 @@ server {
 
     map "$request_method::$uri" $cache_strategy {
       ~^(GET|HEAD)::/js/build/ "immutable"
-      default                  "revalidate"
+      default                  "single-use"
     }
 
     if ($cache_strategy = "immutable") {
@@ -90,6 +90,11 @@ server {
       add_header Vary Accept-Encoding;
     }
     if ($cache_strategy = "revalidate") {
+      add_header Cache-Control no-cache;
+      add_header Pragma no-cache;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "single-use") {
       add_header Cache-Control no-store;
       add_header Pragma no-cache;
       add_header Vary "*";
