@@ -97,7 +97,7 @@ server {
     add_header Pragma no-cache;
     add_header Vary "*";
 
-    if (($request_method = GET) or ($request_method = HEAD) and (
+    if ((($request_method = GET) or ($request_method = HEAD)) and (
       $uri =~ "^/(?:-|enketo-passthrough)/js/build/"
     )) {
       add_header Cache-Control max-age=31536000;
