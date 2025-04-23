@@ -16,8 +16,6 @@ app.get('/reset',       withStdLogging((req, res) => {
 
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
-const okHandler = );
-
 [
   'delete',
   'get',
