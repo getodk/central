@@ -95,7 +95,7 @@ server {
     # Default caching strategy: revalidate every time
     add_header Cache-Control no-store
     add_header Pragma no-cache
-    add_header Vary *
+    add_header Vary "*"
 
     if ($request_method = GET) or ($request_method = HEAD) {
       if ($uri =~ "^/(?:-|enketo-passthrough)/js/build/") {
