@@ -97,12 +97,12 @@ server {
     add_header Pragma no-cache;
     add_header Vary "*";
 
-    if ((($request_method = GET) or ($request_method = HEAD)) and (
-      $uri =~ "^/(?:-|enketo-passthrough)/js/build/"
-    )) {
-      add_header Cache-Control max-age=31536000;
-      unset Pragma;
-      add_header Vary Accept-Encoding;
+    if ($request_method = GET) or ($request_method = HEAD) {
+      if ($uri =~ "^/(?:-|enketo-passthrough)/js/build/") {
+        add_header Cache-Control max-age=31536000;
+        unset Pragma;
+        add_header Vary Accept-Encoding;
+      }
     }
   }
   # End of Enketo Configuration.
