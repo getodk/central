@@ -16,11 +16,19 @@ app.get('/reset',       withStdLogging((req, res) => {
 
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
-app.get('/{*splat}', ok('GET'));
-app.post('/{*splat}', ok('POST'));
-app.put('/{*splat}', ok('POST'));
-app.delete('/{*splat}', ok('POST'));
-// TODO add more methods as required
+const okHandler = );
+
+[
+  'delete',
+  'get',
+  'patch',
+  'post',
+  'put',
+  // TODO add more methods as required
+].forEach(method => app[method]('/{*splat}', withStdLogging((req, res) => {
+  requests.push({ method:req.method, path:req.path });
+  res.send('OK');
+});
 
 app.listen(port, () => {
   log(`Listening on port: ${port}`);
@@ -31,11 +39,4 @@ function withStdLogging(fn) {
     console.log(new Date(), req.method, req.path);
     return fn(req, res);
   };
-}
-
-function ok(method) {
-  return withStdLogging((req, res) => {
-    requests.push({ method:req.method, path:req.path });
-    res.send('OK');
-  });
 }
