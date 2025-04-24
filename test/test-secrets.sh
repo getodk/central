@@ -4,17 +4,6 @@ shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
-failure() {
-  log "!!! Failed !!!"
-
-  log "----- Container logs -----"
-  docker compose logs secrets
-  log "--------------------------"
-
-  log "!!! Failed !!!"
-}
-trap failure ERR
-
 localSecrets="$PWD/temp/secrets"
 if [[ -d "$localSecrets" ]]; then
   log "Cleaning local secrets directory.  This may require sudo privileges."
