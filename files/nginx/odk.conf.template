@@ -71,7 +71,7 @@ server {
     # Offline new Submissions - can be public if it has st query parameter
     return 301 "/f/$enketoId/offline$is_args$args";
   }
-  location ~ "^/-/(?<enketoId>[a-zA-Z0-9]+)$" {
+  location ~ "^/-/(?!thanks$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
     return 301 "/f/$enketoId/new$is_args$args";
   }
