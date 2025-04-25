@@ -67,6 +67,7 @@ server {
 
   server_tokens off;
 
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'none'; font-src 'none'; frame-src 'none'; img-src 'none'; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'none'; style-src 'none'; style-src-attr 'none'; report-uri /csp-report";
   include /usr/share/odk/nginx/common-headers.conf;
 
   client_max_body_size 100m;
