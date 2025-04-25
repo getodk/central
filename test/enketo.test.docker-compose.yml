@@ -1,0 +1,6 @@
+services:
+  enketo:
+    build:
+      context: ..
+      dockerfile: enketo.dockerfile
+    restart: no

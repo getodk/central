@@ -5,8 +5,7 @@ shopt -s inherit_errexit
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 log "Building docker image..."
-docker compose build --no-cache enketo
-#docker compose build enketo
+docker compose --file ./test/enketo.test.docker-compose.yml build --no-cache enketo
 
 log "Starting container..."
 set +e
@@ -17,9 +16,11 @@ set -e
 if [[ "$exitCode" = 124 ]]; then
   log "!!! Enketo startup did not fail, despite invalid config."
   exit 1
+elif [[ "$exitCode" = 1 ]]; then
+  log "Enketo exited correctly."
 else
-  log "Enketo exited _correctly_ with code: $exitCode"
-  # TODO assert specific exit code?
+  log "Enketo exited with unexpected status: $exitCode"
+  exit 1
 fi
 
 log "Everything looks OK."
