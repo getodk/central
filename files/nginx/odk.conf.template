@@ -163,8 +163,8 @@ server {
     }
     if ($cache_strategy = "single-use") {
       #add_header Cache-Control no-store;
-      #add_header Pragma no-cache;
-      add_header Vary "*";
+      add_header Pragma no-cache;
+      #add_header Vary "*";
     }
 
     try_files $uri $uri/ /index.html;
