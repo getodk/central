@@ -8,19 +8,20 @@ server {
 }
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
-  ## general
-  #~^(GET|HEAD)::/client-config.json$ "revalidate";
-  #~^(GET|HEAD)::/version.txt$        "revalidate";
+  # general
+  ~^(GET|HEAD)::/client-config.json$ "revalidate";
+  ~^(GET|HEAD)::/version.txt$        "revalidate";
 
-  ## central-frontend - unversioned
-  #~^(GET|HEAD)::/index.html$  "revalidate";
-  #~^(GET|HEAD)::/blank.html$  "revalidate";
-  #~^(GET|HEAD)::/fonts/.*?\w+ "immutable";
-  #~^(GET|HEAD)::/fonts/       "revalidate";
+  # central-frontend - unversioned
+  #~^(GET|HEAD)::/$            "revalidate";
+  ~^(GET|HEAD)::/index.html$  "revalidate";
+  ~^(GET|HEAD)::/blank.html$  "revalidate";
+  ~^(GET|HEAD)::/fonts/.*?\w+ "immutable";
+  ~^(GET|HEAD)::/fonts/       "revalidate";
 
-  ## central-frontend - versioned
-  #~^(GET|HEAD)::/css/ "immutable";
-  #~^(GET|HEAD)::/js/  "immutable";
+  # central-frontend - versioned
+  ~^(GET|HEAD)::/css/ "immutable";
+  ~^(GET|HEAD)::/js/  "immutable";
 
   # enketo
   ~^(GET|HEAD)::/-/css/             "revalidate";
