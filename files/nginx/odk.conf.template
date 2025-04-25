@@ -144,7 +144,6 @@ server {
 
   location / {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /index.html;
 
     # Rules set to 'none' here would fallback to default-src if excluded.
     # They are included here to ease interpretation of violation reports.
@@ -163,7 +162,12 @@ server {
       add_header Vary Accept-Encoding;
     }
     if ($cache_strategy = "single-use") {
+      add_header Cache-Control no-store;
+      add_header Pragma no-cache;
+      add_header Vary "*";
     }
+
+    try_files $uri $uri/ /index.html;
   }
 
   location /csp-report {
