@@ -109,31 +109,8 @@ server {
     # More lax CSP for enketo-express:
     # Google Maps API: https://developers.google.com/maps/documentation/javascript/content-security-policy
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report";
-    #
-    # Rules set to 'none' here would fallback to default-src if excluded.
-    # They are included here to ease interpretation of violation reports.
-    #
-    # Other security headers are identical to those in common-headers.conf;
-    # We can't just include that file here though, as it will set two Content-Security-Policy* headers
-    add_header Referrer-Policy same-origin;
-    add_header Strict-Transport-Security "max-age=63072000" always;
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options nosniff;
 
-    if ($cache_strategy = "immutable") {
-      add_header Cache-Control max-age=31536000;
-      add_header Vary Accept-Encoding;
-    }
-    if ($cache_strategy = "revalidate") {
-      add_header Cache-Control no-cache;
-      add_header Pragma no-cache;
-      add_header Vary Accept-Encoding;
-    }
-    if ($cache_strategy = "single-use") {
-      add_header Cache-Control no-store;
-      add_header Pragma no-cache;
-      add_header Vary "*";
-    }
+    include /usr/share/odk/nginx/common-headers.conf;
   }
   # End of Enketo Configuration.
 
@@ -152,18 +129,11 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
-    location /version.txt {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
-    location /client-config.json {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
-    location /index.html {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
+    # Rules set to 'none' here would fallback to default-src if excluded.
+    # They are included here to ease interpretation of violation reports.
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self'; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+
+    include /usr/share/odk/nginx/common-headers.conf;
   }
 
   location /csp-report {
