@@ -8,6 +8,22 @@ server {
 }
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
+  # general
+  ~^(GET|HEAD)::/client-config.json$ "revalidate";
+  ~^(GET|HEAD)::/version.txt$        "revalidate";
+
+  # central-frontend - unversioned
+  ~^(GET|HEAD)::/$            "revalidate";
+  ~^(GET|HEAD)::/index.html$  "revalidate";
+  ~^(GET|HEAD)::/blank.html$  "revalidate";
+  ~^(GET|HEAD)::/fonts/.*?\w+ "immutable";
+  ~^(GET|HEAD)::/fonts/       "revalidate";
+
+  # central-frontend - versioned
+  ~^(GET|HEAD)::/css/   "immutable";
+  ~^(GET|HEAD)::/js/    "immutable";
+
+  # enketo
   ~^(GET|HEAD)::/-/css/             "revalidate";
   ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
   ~^(GET|HEAD)::/-/fonts/           "revalidate";
@@ -15,6 +31,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
   ~^(GET|HEAD)::/-/js/build/        "revalidate";
   ~^(GET|HEAD)::/-/locales/         "revalidate";
+
   default                           "single-use";
 }
 
