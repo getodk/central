@@ -146,6 +146,10 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
+    # Rules set to 'none' here would fallback to default-src if excluded.
+    # They are included here to ease interpretation of violation reports.
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self'; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+
     include /usr/share/odk/nginx/common-headers.conf;
 
     # TODO move to common-headers
