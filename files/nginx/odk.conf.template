@@ -7,6 +7,17 @@ server {
   return 421;
 }
 
+map "$request_method::$uri$is_args$args" $cache_strategy {
+  ~^(GET|HEAD)::/-/css/             "revalidate";
+  ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
+  ~^(GET|HEAD)::/-/fonts/           "revalidate";
+  ~^(GET|HEAD)::/-/images/          "revalidate";
+  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
+  ~^(GET|HEAD)::/-/js/build/        "revalidate";
+  ~^(GET|HEAD)::/-/locales/         "revalidate";
+  default                           "single-use";
+}
+
 server {
   listen 443 ssl;
   server_name ${DOMAIN};
@@ -91,6 +102,21 @@ server {
     add_header Strict-Transport-Security "max-age=63072000" always;
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options nosniff;
+
+    if ($cache_strategy = "immutable") {
+      add_header Cache-Control max-age=31536000;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "revalidate") {
+      add_header Cache-Control no-cache;
+      add_header Pragma no-cache;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "single-use") {
+      add_header Cache-Control no-store;
+      add_header Pragma no-cache;
+      add_header Vary "*";
+    }
   }
   # End of Enketo Configuration.
 

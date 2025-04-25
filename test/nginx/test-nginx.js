@@ -258,6 +258,54 @@ describe('nginx config', () => {
     socket.on('end', resolve);
     socket.on('error', reject);
   }));
+
+  describe('enketo caching', () => {
+    [
+      [ '/-/preview/some-id',                            'single-use' ],
+      [ '/-/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
+      [ '/-/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
+      [ '/-/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable' ],
+      [ '/-/css/theme-kobo.css',                         'revalidate' ],
+      [ '/-/js/build/enketo-webform.js',                 'revalidate' ],
+      [ '/-/js/build/chunks/chunk-BKEADX6Q.js',          'immutable' ],
+      [ '/-/js/build/chunks/chunk-Q3Q473PS.js',          'immutable' ],
+      [ '/-/js/build/chunks/chunk-3RPRB7E5.js',          'immutable' ],
+      [ '/-/css/theme-kobo.print.css',                   'revalidate' ],
+      [ '/-/images/icon_180x180.png',                    'revalidate' ],
+      [ '/-/images/favicon.ico',                         'revalidate' ],
+      [ '/-/locales/build/en/translation-combined.json', 'revalidate' ],
+      [ '/-/transform/xform/some-id',                    'single-use' ],
+      [ '/-/submission/max-size/some-id',                'single-use' ],
+    ].forEach(([ path, expectedCacheStrategy ]) => {
+      [ 'GET', 'HEAD' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          await assertEnketoReceived({ method, path });
+          // and
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
+        });
+      });
+
+      [ 'POST', 'PUT', 'DELETE' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: single-use`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          await assertEnketoReceived({ method, path });
+          // and
+          assertCacheStrategyApplied(res, 'single-use');
+        });
+      });
+    });
+  });
 });
 
 function fetchHttp(path, options) {
@@ -362,5 +410,26 @@ function getProtocolImplFrom(url) {
     case 'http:':  return require('node:http');
     case 'https:': return require('node:https');
     default: throw new Error(`Unsupported protocol: ${protocol}`);
+  }
+}
+
+function assertCacheStrategyApplied(res, expectedCacheStrategy) {
+  switch (expectedCacheStrategy) {
+    case 'immutable':
+      assert.equal(res.headers.get('Cache-Control'), 'max-age=31536000');
+      assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
+      assert.equal(res.headers.get('Pragma'), undefined);
+      break;
+    case 'revalidate':
+      assert.equal(res.headers.get('Cache-Control'), 'no-cache');
+      assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
+      assert.equal(res.headers.get('Pragma'), 'no-cache');
+      break;
+    case 'single-use':
+      assert.equal(res.headers.get('Cache-Control'), 'no-store');
+      assert.equal(res.headers.get('Vary'), '*');
+      assert.equal(res.headers.get('Pragma'), 'no-cache');
+      break;
+    default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
 }
