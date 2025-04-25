@@ -45,11 +45,18 @@ jobs:
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix service
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix enketo
+  test-secrets:
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: ./test/test-secrets.sh
   test-images:
     needs:
     - test-misc
     - test-envsub
     - test-nginx
+    - test-secrets
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v4
