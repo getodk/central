@@ -20,8 +20,8 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/fonts/       "revalidate";
 
   # central-frontend - versioned
-  ~^(GET|HEAD)::/css/   "immutable";
-  ~^(GET|HEAD)::/js/    "immutable";
+  ~^(GET|HEAD)::/css/ "immutable";
+  ~^(GET|HEAD)::/js/  "immutable";
 
   # enketo
   ~^(GET|HEAD)::/-/css/             "revalidate";
