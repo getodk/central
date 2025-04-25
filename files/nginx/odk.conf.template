@@ -144,7 +144,7 @@ server {
 
   location / {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /index.html;
+    try_files $uri $uri/ /index.html =200;
 
     # Rules set to 'none' here would fallback to default-src if excluded.
     # They are included here to ease interpretation of violation reports.
