@@ -544,5 +544,5 @@ function assertCommonHeaders({ res, csp }) {
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
   const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.equal(actualCsp, Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`).join('; '));
+  assert.deepEqual(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
 }
