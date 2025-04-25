@@ -111,6 +111,21 @@ server {
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report";
 
     include /usr/share/odk/nginx/common-headers.conf;
+
+    if ($cache_strategy = "immutable") {
+      add_header Cache-Control max-age=31536000;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "revalidate") {
+      add_header Cache-Control no-cache;
+      add_header Pragma no-cache;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "single-use") {
+      add_header Cache-Control no-store;
+      add_header Pragma no-cache;
+      add_header Vary "*";
+    }
   }
   # End of Enketo Configuration.
 
@@ -134,6 +149,21 @@ server {
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self'; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
 
     include /usr/share/odk/nginx/common-headers.conf;
+
+    if ($cache_strategy = "immutable") {
+      add_header Cache-Control max-age=31536000;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "revalidate") {
+      add_header Cache-Control no-cache;
+      add_header Pragma no-cache;
+      add_header Vary Accept-Encoding;
+    }
+    if ($cache_strategy = "single-use") {
+      add_header Cache-Control no-store;
+      add_header Pragma no-cache;
+      add_header Vary "*";
+    }
   }
 
   location /csp-report {
