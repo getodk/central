@@ -510,5 +510,5 @@ function assertCommonHeaders(res) {
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-  if(csp) assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
+  assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
 }
