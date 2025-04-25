@@ -162,6 +162,10 @@ server {
       add_header Pragma no-cache;
       add_header Vary Accept-Encoding;
     }
+    if ($cache_strategy = "single-use") {
+      add_header Cache-Control no-store;
+      add_header Pragma no-cache;
+    }
   }
 
   location /csp-report {
