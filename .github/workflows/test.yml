@@ -23,6 +23,12 @@ jobs:
         fetch-tags: true
         submodules: recursive
     - run: cd test/envsub && ./run-tests.sh
+  test-enketo:
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: ./test/test-enketo.sh
   test-nginx:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -49,6 +55,7 @@ jobs:
     needs:
     - test-misc
     - test-envsub
+    - test-enketo
     - test-nginx
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
