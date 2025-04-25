@@ -153,6 +153,11 @@ server {
     include /usr/share/odk/nginx/common-headers.conf;
 
     # TODO move to common-headers
+    if ($cache_strategy = "revalidate") {
+      add_header Cache-Control no-cache;
+      add_header Pragma no-cache;
+      add_header Vary Accept-Encoding;
+    }
   }
 
   location /csp-report {
