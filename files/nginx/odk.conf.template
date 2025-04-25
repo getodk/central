@@ -8,6 +8,23 @@ server {
 }
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
+  # general
+  ~^(GET|HEAD)::/client-config.json$ "revalidate";
+  ~^(GET|HEAD)::/favicon.ico$        "revalidate";
+  ~^(GET|HEAD)::/version.txt$        "revalidate";
+
+  # central-frontend - unversioned
+  ~^(GET|HEAD)::/$             "revalidate";
+  ~^(GET|HEAD)::/index.html$   "revalidate";
+  ~^(GET|HEAD)::/blank.html$   "revalidate";
+  ~^(GET|HEAD)::/fonts/.*\?\w+ "immutable";
+  ~^(GET|HEAD)::/fonts/        "revalidate";
+
+  # central-frontend - versioned
+  ~^(GET|HEAD)::/css/ "immutable";
+  ~^(GET|HEAD)::/js/  "immutable";
+
+  # enketo
   ~^(GET|HEAD)::/-/css/             "revalidate";
   ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
   ~^(GET|HEAD)::/-/fonts/           "revalidate";
@@ -15,7 +32,23 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
   ~^(GET|HEAD)::/-/js/build/        "revalidate";
   ~^(GET|HEAD)::/-/locales/         "revalidate";
-  default                           "single-use";
+
+  default "single-use";
+}
+map $cache_strategy $cache_header_cache_control {
+  "immutable"  "max-age=31536000";
+  "revalidate" "no-cache";
+  default      "no-store";
+}
+map $cache_strategy $cache_header_pragma {
+  "immutable"  "";
+  "revalidate" "no-cache";
+  default      "no-cache";
+}
+map $cache_strategy $cache_header_vary {
+  "immutable"  "Accept-Encoding";
+  "revalidate" "Accept-Encoding";
+  default      "*";
 }
 
 server {
@@ -95,28 +128,8 @@ server {
     #
     # Rules set to 'none' here would fallback to default-src if excluded.
     # They are included here to ease interpretation of violation reports.
-    #
-    # Other security headers are identical to those in common-headers.conf;
-    # We can't just include that file here though, as it will set two Content-Security-Policy* headers
-    add_header Referrer-Policy same-origin;
-    add_header Strict-Transport-Security "max-age=63072000" always;
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options nosniff;
 
-    if ($cache_strategy = "immutable") {
-      add_header Cache-Control max-age=31536000;
-      add_header Vary Accept-Encoding;
-    }
-    if ($cache_strategy = "revalidate") {
-      add_header Cache-Control no-cache;
-      add_header Pragma no-cache;
-      add_header Vary Accept-Encoding;
-    }
-    if ($cache_strategy = "single-use") {
-      add_header Cache-Control no-store;
-      add_header Pragma no-cache;
-      add_header Vary "*";
-    }
+    include /usr/share/odk/nginx/common-headers.conf;
   }
   # End of Enketo Configuration.
 
@@ -135,18 +148,11 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
-    location /version.txt {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
-    location /client-config.json {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
-    location /index.html {
-      include /usr/share/odk/nginx/common-headers.conf;
-      add_header Cache-Control no-cache;
-    }
+    # Rules set to 'none' here would fallback to default-src if excluded.
+    # They are included here to ease interpretation of violation reports.
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self'; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+
+    include /usr/share/odk/nginx/common-headers.conf;
   }
 
   location /csp-report {
