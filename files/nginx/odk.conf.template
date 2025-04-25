@@ -112,6 +112,7 @@ server {
 
     include /usr/share/odk/nginx/common-headers.conf;
 
+    # TODO move to common-headers
     if ($cache_strategy = "immutable") {
       add_header Cache-Control max-age=31536000;
       add_header Vary Accept-Encoding;
@@ -150,6 +151,7 @@ server {
 
     include /usr/share/odk/nginx/common-headers.conf;
 
+    # TODO move to common-headers
     if ($cache_strategy = "immutable") {
       add_header Cache-Control max-age=31536000;
       add_header Vary Accept-Encoding;
