@@ -156,6 +156,20 @@ describe('nginx config', () => {
     });
   });
 
+  it('should not redirect thanks page to central-frontend', async () => {
+    // when
+    const res = await fetchHttps('/-/thanks');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'OK');
+
+    // and
+    await assertEnketoReceived(
+      { method:'GET', path: '/-/thanks' },
+    );
+  });
+
   it('should serve blank page on /-/single/check-submitted', async () => {
     // when
     const res = await fetchHttps('/-/single/check-submitted');
