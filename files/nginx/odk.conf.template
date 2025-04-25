@@ -145,6 +145,8 @@ server {
   location / {
     root /usr/share/nginx/html;
 
+    try_files $uri $uri/ /index.html;
+
     # Rules set to 'none' here would fallback to default-src if excluded.
     # They are included here to ease interpretation of violation reports.
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self'; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
@@ -153,21 +155,28 @@ server {
 
     # TODO move to common-headers
     if ($cache_strategy = "immutable") {
+      add_header Cache-Control ""
+      add_header Pragma ""
+      add_header Vary ""
       add_header Cache-Control max-age=31536000;
       add_header Vary Accept-Encoding;
     }
     if ($cache_strategy = "revalidate") {
+      add_header Cache-Control ""
+      add_header Pragma ""
+      add_header Vary ""
       add_header Cache-Control no-cache;
       add_header Pragma no-cache;
       add_header Vary Accept-Encoding;
     }
     if ($cache_strategy = "single-use") {
+      add_header Cache-Control ""
+      add_header Pragma ""
+      add_header Vary ""
       add_header Cache-Control no-store;
-      #add_header Pragma no-cache;
-      #add_header Vary "*";
+      add_header Pragma no-cache;
+      add_header Vary "*";
     }
-
-    try_files $uri $uri/ /index.html;
   }
 
   location /csp-report {
