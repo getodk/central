@@ -33,9 +33,8 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/-/js/build/        "revalidate";
   ~^(GET|HEAD)::/-/locales/         "revalidate";
 
-  default                           "single-use";
+  default "single-use";
 }
-
 map $cache_strategy $cache_header_cache_control {
   "immutable"  "max-age=31536000";
   "revalidate" "no-cache";
