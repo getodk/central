@@ -47,6 +47,8 @@ describe('nginx config', () => {
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
+    [ '/blank.html',  /^\n$/ ],
+    [ '/favicon.ico', /^\n$/ ],
   ].forEach(([ path, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
@@ -59,9 +61,8 @@ describe('nginx config', () => {
   });
 
   [
-    '/blank.html',
-    '/favicon.ico',
-    // there's no way to predict generated asset paths, as they have cache-busting names
+    '/random-path',
+    '/js/247.f8ae2d8d.js',
   ].forEach(path => {
     it(`${path} should fall back to default index.html file`, async () => {
       // when
