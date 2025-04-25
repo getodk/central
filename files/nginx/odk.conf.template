@@ -8,13 +8,13 @@ server {
 }
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/css/             "revalidate";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/fonts/.*?v=      "immutable";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/fonts/           "revalidate";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/images/          "revalidate";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/js/build/chunks/ "immutable";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/js/build/        "revalidate";
-  ~^(GET|HEAD)::/(-|enketo-passthrough)/locales/         "revalidate";
+  ~^(GET|HEAD)::/-/css/             "revalidate";
+  ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
+  ~^(GET|HEAD)::/-/fonts/           "revalidate";
+  ~^(GET|HEAD)::/-/images/          "revalidate";
+  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
+  ~^(GET|HEAD)::/-/js/build/        "revalidate";
+  ~^(GET|HEAD)::/-/locales/         "revalidate";
   default                           "single-use";
 }
 
