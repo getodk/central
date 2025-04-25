@@ -168,6 +168,10 @@ server {
       include /usr/share/odk/nginx/common-headers.conf;
       add_header Cache-Control no-cache;
     }
+
+    include /usr/share/odk/nginx/common-headers.conf;
+
+    # TODO move to common-headers
   }
 
   location /csp-report {
