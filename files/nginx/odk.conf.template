@@ -155,11 +155,15 @@ server {
     if ($cache_strategy = "immutable") {
       add_header Cache-Control max-age=31536000;
       add_header Vary Accept-Encoding;
+
+      try_files $uri $uri/ /index.html;
     }
     if ($cache_strategy = "revalidate") {
       add_header Cache-Control no-cache;
       add_header Pragma no-cache;
       add_header Vary Accept-Encoding;
+
+      try_files $uri $uri/ /index.html;
     }
     if ($cache_strategy = "single-use") {
       add_header Cache-Control no-store always;
