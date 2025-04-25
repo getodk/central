@@ -146,7 +146,6 @@ server {
 
   location / {
     root /usr/share/nginx/html;
-
     try_files $uri $uri/ /index.html;
 
     # Rules set to 'none' here would fallback to default-src if excluded.
