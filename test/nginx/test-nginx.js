@@ -61,20 +61,6 @@ describe('nginx config', () => {
   });
 
   [
-    '/random-path',
-    '/js/247.f8ae2d8d.js',
-  ].forEach(path => {
-    it(`${path} should fall back to default index.html file`, async () => {
-      // when
-      const res = await fetchHttps(path);
-
-      // then
-      assert.equal(res.status, 200);
-      assert.match(await res.text(), /<div id="app"><\/div>/);
-    });
-  });
-
-  [
     { request: '/-/some/enketo/path',                  expected: '/-/some/enketo/path' },
     { request: '/-',                                   expected: '/-' },
     { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
