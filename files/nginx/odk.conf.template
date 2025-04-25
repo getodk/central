@@ -164,7 +164,9 @@ server {
       add_header Vary Accept-Encoding;
     }
     if ($cache_strategy = "single-use") {
-      add_header X-Random-Test hello;
+      add_header Cache-Control no-store always;
+      add_header Pragma no-cache always;
+      add_header Vary "*" always;
     }
   }
 
