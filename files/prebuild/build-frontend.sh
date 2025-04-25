@@ -20,8 +20,6 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo > dist/css/component-hover-cards.f8d67159.css
   echo > dist/css/component-outdated-version.1669dac3.css
   echo > dist/fonts/icomoon.ttf
-  echo > dist/fonts/icomoon.ttf?
-  echo > dist/fonts/icomoon.ttf?ohpk4j
   echo > dist/js/1272.6c131f2a.js
   echo > dist/js/247.f8ae2d8d.js
   echo > dist/js/3647.e6884fb5.js
