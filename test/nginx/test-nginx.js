@@ -255,7 +255,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertCommonHeaders({ res, csp:'enketo' });
+    assertCommonHeaders({ res, csp:'standard' });
     await assertEnketoReceivedNoRequests();
   });
 
