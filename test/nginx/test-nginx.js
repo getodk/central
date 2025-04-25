@@ -339,6 +339,8 @@ describe('nginx config', () => {
           // then
           assert.equal(res.status, 200);
           // and
+          await assertEnketoReceived({ method, path });
+          // and
           assertCacheStrategyApplied(res, 'single-use');
         });
       });
