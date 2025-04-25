@@ -13,7 +13,6 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
   # central-frontend - unversioned
-  ~^(GET|HEAD)::/$            "revalidate";
   ~^(GET|HEAD)::/index.html$  "revalidate";
   ~^(GET|HEAD)::/blank.html$  "revalidate";
   ~^(GET|HEAD)::/fonts/.*?\w+ "immutable";
