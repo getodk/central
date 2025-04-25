@@ -465,10 +465,9 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
 }
 
 function assertCommonHeaders(res) {
-  assert.equal(res.headers.get('Referrer-Policy', 'same-origin'));
-  assert.equal(res.headers.get('Strict-Transport-Security', '"max-age=63072000" always'));
-  assert.equal(res.headers.get('X-Frame-Options', '"SAMEORIGIN"'));
-  assert.equal(res.headers.get('X-Content-Type-Options', 'nosniff'));
-  assert.equal(res.headers.get('X-Content-Type-Options', 'nosniff'));
+  assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
+  assert.equal(res.headers.get('Strict-Transport-Security'), '"max-age=63072000" always');
+  assert.equal(res.headers.get('X-Frame-Options'), '"SAMEORIGIN"');
+  assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
   assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
 }
