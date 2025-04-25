@@ -33,7 +33,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:true });
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -43,7 +43,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:true });
   });
 
   [
@@ -59,7 +59,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assertCommonHeaders(res);
+      assertCommonHeaders({ res, csp:true });
     });
   });
 
@@ -76,7 +76,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
-      assertCommonHeaders(res);
+      assertCommonHeaders({ res, csp:true });
 
       // and
       await assertEnketoReceived(
@@ -97,7 +97,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-      assertCommonHeaders(res);
+      assertCommonHeaders({ res, csp:true });
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -152,7 +152,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:true });
 
     // and
     await assertEnketoReceived(
@@ -167,7 +167,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:true });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -178,7 +178,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:false });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -190,7 +190,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:false });
 
     // when
     const body = await res.json();
@@ -208,7 +208,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertCommonHeaders(res);
+    assertCommonHeaders({ res, csp:false });
 
     // when
     const body = await res.json();
@@ -356,7 +356,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
           // and
-          assertCommonHeaders(res);
+          assertCommonHeaders({ res, csp:true });
         });
       });
 
@@ -372,7 +372,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, 'single-use');
           // and
-          assertCommonHeaders(res);
+          assertCommonHeaders({ res, csp:true });
         });
       });
     });
@@ -505,10 +505,10 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
   }
 }
 
-function assertCommonHeaders(res) {
+function assertCommonHeaders({ res, csp }) {
   assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-  assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
+  if(csp) assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
 }
