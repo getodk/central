@@ -124,8 +124,9 @@ services:
     build:
       context: .
       dockerfile: enketo.dockerfile
-    restart: no
+    restart: always
     depends_on:
+      - secrets
       - enketo_redis_main
       - enketo_redis_cache
     environment:
