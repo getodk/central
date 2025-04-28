@@ -33,7 +33,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assert.equal(await res.headers.get('cache-control'), 'no-cache');
+    assertCommonHeaders(res);
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -43,36 +43,23 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assert.equal(await res.headers.get('cache-control'), 'no-cache');
+    assertCommonHeaders(res);
   });
 
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
-  ].forEach(([ staticFile, expectedContent ]) => {
-    it(`${staticFile} file should have no-cache header`, async () => {
+    [ '/blank.html',  /^\n$/ ],
+    [ '/favicon.ico', /^\n$/ ],
+  ].forEach(([ path, expectedContent ]) => {
+    it(`${path} file should serve expected content`, async () => {
       // when
-      const res = await fetchHttps(staticFile);
+      const res = await fetchHttps(path);
 
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assert.equal(await res.headers.get('cache-control'), 'no-cache');
-    });
-  });
-
-  [
-    '/blank.html',
-    '/favicon.ico',
-    // there's no way to predict generated asset paths, as they have cache-busting names
-  ].forEach(staticFile => {
-    it(`${staticFile} file should not have no-cache header`, async () => {
-      // when
-      const res = await fetchHttps(staticFile);
-
-      // then
-      assert.equal(res.status, 200);
-      assert.isNull(await res.headers.get('cache-control'));
+      assertCommonHeaders(res);
     });
   });
 
@@ -89,6 +76,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
+      assertCommonHeaders(res);
 
       // and
       await assertEnketoReceived(
@@ -109,6 +97,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
+      assertCommonHeaders(res);
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -163,6 +152,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
+    assertCommonHeaders(res);
 
     // and
     await assertEnketoReceived(
@@ -177,6 +167,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
+    assertCommonHeaders(res);
     await assertEnketoReceivedNoRequests();
   });
 
@@ -187,6 +178,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
+    assertCommonHeaders(res);
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -198,6 +190,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
+    assertCommonHeaders(res);
 
     // when
     const body = await res.json();
@@ -214,6 +207,8 @@ describe('nginx config', () => {
     });
     // then
     assert.equal(res.status, 200);
+    // and
+    assertCommonHeaders(res);
 
     // when
     const body = await res.json();
@@ -273,6 +268,64 @@ describe('nginx config', () => {
     socket.on('error', reject);
   }));
 
+  describe('general caching', () => {
+    [
+      // general
+      [ '/client-config.json',       'revalidate' ],
+      [ '/version.txt',              'revalidate' ],
+
+      // central-frontend - unversioned
+      [ '/',                         'revalidate' ],
+      [ '/index.html',               'revalidate' ],
+      [ '/blank.html',               'revalidate' ],
+      [ '/favicon.ico',              'revalidate' ],
+
+      // central-frontend - versioned
+      [ '/css/app.7f75100b.css',                           'immutable' ],
+      [ '/css/component-feedback-button.9b267cf5.css',     'immutable' ],
+      [ '/css/component-home-config-section.86dc3b10.css', 'immutable' ],
+      [ '/css/component-home.7fd2ac91.css',                'immutable' ],
+      [ '/css/component-hover-cards.f8d67159.css',         'immutable' ],
+      [ '/css/component-outdated-version.1669dac3.css',    'immutable' ],
+      [ '/fonts/icomoon.ttf',                              'revalidate' ],
+      [ '/fonts/icomoon.ttf?',                             'revalidate' ],
+      [ '/fonts/icomoon.ttf?ohpk4j',                       'immutable' ],
+      [ '/js/1272.6c131f2a.js',                            'immutable' ],
+      [ '/js/247.f8ae2d8d.js',                             'immutable' ],
+      [ '/js/3647.e6884fb5.js',                            'immutable' ],
+      [ '/js/9342.c7b5e54f.js',                            'immutable' ],
+      [ '/js/app.186f7291.js',                             'immutable' ],
+      [ '/js/chunk-vendors.37e8929b.js',                   'immutable' ],
+      [ '/js/component-feedback-button.0447c840.js',       'immutable' ],
+      [ '/js/component-home-config-section.04391182.js',   'immutable' ],
+      [ '/js/component-home.0f5945af.js',                  'immutable' ],
+      [ '/js/component-hover-cards.957b7e0e.js',           'immutable' ],
+      [ '/js/component-outdated-version.17283d89.js',      'immutable' ],
+    ].forEach(([ path, expectedCacheStrategy ]) => {
+      [ 'GET', 'HEAD' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
+        });
+      });
+
+      [ 'POST', 'PUT', 'DELETE' ].forEach(method => {
+        it(`${method} ${path} should not be allowed`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 405);
+        });
+      });
+    });
+  });
+
   describe('enketo caching', () => {
     [
       [ '/-/preview/some-id',                            'single-use' ],
@@ -302,6 +355,8 @@ describe('nginx config', () => {
           await assertEnketoReceived({ method, path });
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
+          // and
+          assertCommonHeaders(res);
         });
       });
 
@@ -316,6 +371,8 @@ describe('nginx config', () => {
           await assertEnketoReceived({ method, path });
           // and
           assertCacheStrategyApplied(res, 'single-use');
+          // and
+          assertCommonHeaders(res);
         });
       });
     });
@@ -446,4 +503,12 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
+}
+
+function assertCommonHeaders(res) {
+  assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
+  assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
+  assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
+  assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
+  assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
 }
