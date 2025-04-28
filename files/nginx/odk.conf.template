@@ -79,6 +79,9 @@ server {
   gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
 
   location = /robots.txt {
+    limit_except GET {
+      return 405;
+    }
     add_header Content-Type text/plain;
     return 200 "User-agent: *\nDisallow: /\n";
   }
