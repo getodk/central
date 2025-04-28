@@ -120,6 +120,7 @@ server {
   location ~ ^/(?:-|enketo-passthrough)(?:/|$) {
     rewrite ^/enketo-passthrough(/.*)?$ /-$1 break;
     proxy_pass http://enketo:8005;
+    proxy_redirect off;
     proxy_set_header Host $host;
 
     # More lax CSP for enketo-express:
@@ -136,6 +137,7 @@ server {
   location ~ ^/v\d {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://service:8383;
+    proxy_redirect off;
 
     # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
