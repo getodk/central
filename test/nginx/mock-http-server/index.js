@@ -16,6 +16,12 @@ app.get('/reset',       withStdLogging((req, res) => {
 
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
+app.get('/v1/generate-redirect/:status', withStdLogging((req, res) => {
+  const { status } = req.params;
+  const { location } = req.query;
+  res.redirect(status, location);
+}));
+
 [
   'delete',
   'get',
