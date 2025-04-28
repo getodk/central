@@ -279,6 +279,15 @@ describe('nginx config', () => {
       'https://subdomain.example.org:1234/some/path',
       'https://subdomain.example.org:1234/-/some/path',
       'https://subdomain.example.org:1234/v1/some/path',
+
+      // these tests should actually fail, but they may not be currently...
+      'http://enketo:8005/-',
+      'http://enketo:8005/-/',
+      'http://enketo:8005/-/some/path',
+      'http://enketo:8005/enketo-passthrough',
+      'http://enketo:8005/enketo-passthrough/',
+      'http://enketo:8005/enketo-passthrough/some/path',
+      'http://service:8383/v1/some/path',
     ].forEach(redirectLocation => {
       it(`should not rewrite redirect issued by central-backend (${redirectLocation})`, async () => {
         // given
