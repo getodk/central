@@ -299,13 +299,13 @@ describe('nginx config', () => {
     });
 
     [
-      [ 'http://enketo:8005/-',                             'https://odk-nginx.example.test/-' ],
-      [ 'http://enketo:8005/-/',                            'https://odk-nginx.example.test/-/' ],
-      [ 'http://enketo:8005/-/some/path',                   'https://odk-nginx.example.test/-/some/path' ],
-      [ 'http://enketo:8005/enketo-passthrough',            'https://odk-nginx.example.test/-' ],
-      [ 'http://enketo:8005/enketo-passthrough/',           'https://odk-nginx.example.test/-/' ],
-      [ 'http://enketo:8005/enketo-passthrough/some/path',  'https://odk-nginx.example.test/-/some/path' ],
-      [ 'http://service:8383/v1/some/path', 'https://odk-nginx.example.test/v1/some/path' ],
+      [ 'http://enketo:8005/-',                            'https://odk-nginx.example.test/-' ],
+      [ 'http://enketo:8005/-/',                           'https://odk-nginx.example.test/-/' ],
+      [ 'http://enketo:8005/-/some/path',                  'https://odk-nginx.example.test/-/some/path' ],
+      [ 'http://enketo:8005/enketo-passthrough',           'https://odk-nginx.example.test/-' ],
+      [ 'http://enketo:8005/enketo-passthrough/',          'https://odk-nginx.example.test/-/' ],
+      [ 'http://enketo:8005/enketo-passthrough/some/path', 'https://odk-nginx.example.test/-/some/path' ],
+      [ 'http://service:8383/v1/some/path',                'https://odk-nginx.example.test/v1/some/path' ],
     ].forEach(([ original, expected ]) => {
       it(`should rewrite redirect issued by central-backend (${original} to ${expected})`, async () => {
         // given
