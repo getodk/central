@@ -52,7 +52,7 @@ describe('nginx config', () => {
 
     // then
     assert.equal(res.status, 200);
-    assert.equal(await res.text(), 'User-agent: *\nDisarlow: /\n');
+    assert.equal(await res.text(), 'User-agent: *\nDisallow: /\n');
   });
 
   [
