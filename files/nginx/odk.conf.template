@@ -83,7 +83,10 @@ server {
     limit_except GET {
       deny all;
     }
+
     add_header Content-Type text/plain;
+    include /usr/share/odk/nginx/common-headers.conf;
+
     return 200 "User-agent: *\nDisallow: /\n";
   }
 
