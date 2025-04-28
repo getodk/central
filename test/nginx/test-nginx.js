@@ -46,7 +46,7 @@ describe('nginx config', () => {
     assertCommonHeaders(res);
   });
 
-  it('should serve generated robots.txt', async () => {
+  it('should serve robots.txt', async () => {
     // when
     const res = await fetchHttps('/robots.txt');
 
