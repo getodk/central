@@ -280,6 +280,9 @@ describe('nginx config', () => {
       'https://subdomain.example.org:1234/-/some/path',
       'https://subdomain.example.org:1234/v1/some/path',
 
+      'http://service:8383', // not subject to /v1 proxy rules, so not rewritten
+      'http://service:8005', // not subject to /- proxy rules, so not rewritten
+
       // these tests should actually fail, but they may not be currently...
       'http://enketo:8005/-',
       'http://enketo:8005/-/',
@@ -288,7 +291,7 @@ describe('nginx config', () => {
       'http://enketo:8005/enketo-passthrough/',
       'http://enketo:8005/enketo-passthrough/some/path',
     ].forEach(redirectLocation => {
-      it(`should not rewrite redirect to ${redirectLocation}`, async () => {
+      it(`should not rewrite central-backend redirect to ${redirectLocation}`, async () => {
         // given
         const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`;
 
@@ -307,6 +310,73 @@ describe('nginx config', () => {
     });
 
     [
+      '/some/path',
+      '/-/some/path',
+      '/v1/some/path',
+      'https://example.org/some/path',
+      'https://example.org/-/some/path',
+      'https://example.org/v1/some/path',
+      'https://subdomain.example.org:1234/some/path',
+      'https://subdomain.example.org:1234/-/some/path',
+      'https://subdomain.example.org:1234/v1/some/path',
+
+      'http://service:8383',           // not subject to /v1 proxy rules, so not rewritten
+      'http://service:8383/',          // not subject to /v1 proxy rules, so not rewritten
+      'http://service:8383/some/path', // not subject to /v1 proxy rules, so not rewritten
+      'http://service:8005',           // not subject to /- proxy rules, so not rewritten
+      'http://service:8005/',          // not subject to /- proxy rules, so not rewritten
+      'http://service:8005/some/path', // not subject to /- proxy rules, so not rewritten
+
+      'http://enketo:8005/-',
+      'http://enketo:8005/-/',
+      'http://enketo:8005/-/some/path',
+      'http://enketo:8005/enketo-passthrough',
+      'http://enketo:8005/enketo-passthrough/',
+      'http://enketo:8005/enketo-passthrough/some/path',
+    ].forEach(redirectLocation => {
+      it(`should not rewrite enketo redirect to ${redirectLocation}`, async () => {
+        // given
+        const requestPath = `/-/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`;
+
+        // when
+        const res = await fetchHttps(requestPath);
+
+        // then
+        assert.equal(res.status, 301);
+        assert.equal(res.headers.get('Location'), redirectLocation);
+        assertCommonHeaders(res);
+        // and
+        await assertBackendReceived(
+          { method:'GET', path:requestPath },
+        );
+      });
+    });
+
+    [
+      [ 'http://service:8383/v1',                          'https://odk-nginx.example.test/v1' ],
+      [ 'http://service:8383/v1/',                         'https://odk-nginx.example.test/v1/' ],
+      [ 'http://service:8383/v1/some/path',                'https://odk-nginx.example.test/v1/some/path' ],
+    ].forEach(([ original, expected ]) => {
+      it(`should rewrite central-backend redirect from ${original} to ${expected}`, async () => {
+        // given
+        const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(original)}`;
+
+        // when
+        const res = await fetchHttps(requestPath);
+
+        // then
+        assert.equal(res.status, 301);
+        assert.equal(res.headers.get('Location'), expected);
+        assertCommonHeaders(res);
+        // and
+        await assertBackendReceived(
+          { method:'GET', path:requestPath },
+        );
+      });
+    });
+
+    [
+      [ 'http://enketo:8005',                              'https://odk-nginx.example.test' ],
       [ 'http://enketo:8005/',                             'https://odk-nginx.example.test/' ],
       [ 'http://enketo:8005/-',                            'https://odk-nginx.example.test/-' ],
       [ 'http://enketo:8005/-/',                           'https://odk-nginx.example.test/-/' ],
@@ -314,12 +384,10 @@ describe('nginx config', () => {
       [ 'http://enketo:8005/enketo-passthrough',           'https://odk-nginx.example.test/enketo-passthrough' ],
       [ 'http://enketo:8005/enketo-passthrough/',          'https://odk-nginx.example.test/enketo-passthrough/' ],
       [ 'http://enketo:8005/enketo-passthrough/some/path', 'https://odk-nginx.example.test/enketo-passthrough/some/path' ],
-      [ 'http://service:8383',                             'https://odk-nginx.example.test/' ],
-      [ 'http://service:8383/v1/some/path',                'https://odk-nginx.example.test/v1/some/path' ],
     ].forEach(([ original, expected ]) => {
-      it(`should rewrite redirect from ${original} to ${expected}`, async () => {
+      it(`should rewrite enketo redirect from ${original} to ${expected}`, async () => {
         // given
-        const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(original)}`;
+        const requestPath = `/-/generate-redirect/301?location=${encodeURIComponent(original)}`;
 
         // when
         const res = await fetchHttps(requestPath);
