@@ -317,7 +317,7 @@ describe('nginx config', () => {
       [ 'http://service:8383',                             'https://odk-nginx.example.test/' ],
       [ 'http://service:8383/v1/some/path',                'https://odk-nginx.example.test/v1/some/path' ],
     ].forEach(([ original, expected ]) => {
-      it(`should rewrite redirect issued by central-backend (${original} to ${expected})`, async () => {
+      it(`should rewrite redirect from ${original} to ${expected}`, async () => {
         // given
         const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(original)}`;
 
