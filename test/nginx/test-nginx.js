@@ -282,6 +282,11 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 301);
       assert.equal(res.headers.get('Location'), redirectLocation);
+      assertCommonHeaders(res);
+      // and
+      await assertBackendReceived(
+        { method:'GET', path:'/v1/generate-redirect/301' },
+      );
     });
   });
 
