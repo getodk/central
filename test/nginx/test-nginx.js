@@ -582,6 +582,7 @@ function assertCommonHeaders({ res, csp }) {
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
 
+
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
   const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
