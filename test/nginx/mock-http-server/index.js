@@ -17,6 +17,7 @@ app.get('/reset',       withStdLogging((req, res) => {
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
 app.get('/v1/generate-redirect/:status', withStdLogging((req, res) => {
+  requests.push({ method:req.method, path:req.originalUrl });
   const { status } = req.params;
   const { location } = req.query;
   log('/generate-redirect', { params:req.params, query:req.query });
