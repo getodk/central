@@ -272,6 +272,7 @@ describe('nginx config', () => {
     [
       // general
       [ '/client-config.json',       'revalidate' ],
+      [ '/robots.txt',               'revalidate' ],
       [ '/version.txt',              'revalidate' ],
 
       // central-frontend - unversioned
