@@ -20,7 +20,7 @@ app.get('/v1/generate-redirect/:status', withStdLogging((req, res) => {
   const { status } = req.params;
   const { location } = req.query;
   log('/generate-redirect', { params:req.params, query:req.query });
-  res.redirect(status, location);
+  res.redirect(Number.parseInt(status, 10), location);
 }));
 
 [
