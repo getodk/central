@@ -79,17 +79,6 @@ server {
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
 
-  location = /robots.txt {
-    if ($request_method !~ ^(GET|HEAD)$ ) {
-      return 405;
-    }
-
-    add_header Content-Type text/plain;
-    include /usr/share/odk/nginx/common-headers.conf;
-
-    return 200 "User-agent: *\nDisallow: /\n";
-  }
-
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
   # we want old Enketo URLs redirected to a Central frontend page which dynamically decides
