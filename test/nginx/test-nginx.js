@@ -266,6 +266,8 @@ describe('nginx config', () => {
       // when
       const res = await fetchHttp(`/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`);
 
+      console.log('res.headers:', res.headers);
+
       // then
       assert.equal(res.status, 301);
       assert.equal(res.headers.get('Location'), redirectLocation);
