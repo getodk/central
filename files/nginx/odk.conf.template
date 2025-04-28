@@ -11,6 +11,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config.json$ "revalidate";
   ~^(GET|HEAD)::/favicon.ico$        "revalidate";
+  ~^(GET|HEAD)::/robots.txt$         "revalidate";
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
   # central-frontend - unversioned
