@@ -6,6 +6,9 @@ const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
+  'restrictive': {
+    'default-src':    none,
+  },
   'central-frontend': {
     'default-src':    none,
     'connect-src':    self,
@@ -238,7 +241,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertSecurityHeaders(res, { csp:'central-frontend' });
+    assertSecurityHeaders(res, { csp:'restrictive' });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -249,7 +252,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'central-frontend' });
+    assertSecurityHeaders(res, { csp:'restrictive' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -261,7 +264,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'central-frontend' });
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
@@ -279,7 +282,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'central-frontend' });
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
