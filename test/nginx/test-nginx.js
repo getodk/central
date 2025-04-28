@@ -262,7 +262,7 @@ describe('nginx config', () => {
     'https://example.org/some/path',
     'https://subdomain.example.org:1234/some/path',
   ].forEach(redirectLocation => {
-    it('should not rewrite redirects issued by central-backend (${redirectLocation})', async () => {
+    it(`should not rewrite redirects issued by central-backend (${redirectLocation})`, async () => {
       // when
       const res = await fetchHttp(`/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`);
 
