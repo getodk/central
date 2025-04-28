@@ -272,6 +272,7 @@ describe('nginx config', () => {
     '/some/path',
     'https://example.org/some/path',
     'https://subdomain.example.org:1234/some/path',
+    'http://service:8383/v1/some/path',
   ].forEach(redirectLocation => {
     it(`should not rewrite redirects issued by central-backend (${redirectLocation})`, async () => {
       // given
