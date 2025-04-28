@@ -6,7 +6,7 @@ const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
-  standard: {
+  'central-frontend': {
     'default-src':    none,
     'connect-src':    self,
     'font-src':       self,
@@ -104,7 +104,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -114,7 +114,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
   [
@@ -130,7 +130,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assertSecurityHeaders(res, { csp:'standard' });
+      assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
 
@@ -168,7 +168,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-      assertSecurityHeaders(res, { csp:'standard' });
+      assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -238,7 +238,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -249,7 +249,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -261,7 +261,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
 
     // when
     const body = await res.json();
@@ -279,7 +279,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'standard' });
+    assertSecurityHeaders(res, { csp:'central-frontend' });
 
     // when
     const body = await res.json();
