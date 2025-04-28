@@ -31,7 +31,7 @@ app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
 ].forEach(method => app[method]('/{*splat}', (req, res) => {
   requests.push({ method:req.method, path:req.originalUrl });
   res.send('OK');
-})));
+}));
 
 app.listen(port, () => {
   log(`Listening on port: ${port}`);
