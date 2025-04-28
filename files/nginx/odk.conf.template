@@ -81,7 +81,7 @@ server {
 
   location = /robots.txt {
     limit_except GET {
-      return 405;
+      deny all;
     }
     add_header Content-Type text/plain;
     return 200 "User-agent: *\nDisallow: /\n";
