@@ -7,7 +7,8 @@ const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
   'restrictive': {
-    'default-src':    none,
+    'default-src': none,
+    'report-uri':  '/csp-report',
   },
   'central-frontend': {
     'default-src':    none,
