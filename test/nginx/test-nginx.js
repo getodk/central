@@ -104,7 +104,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -114,7 +114,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
   });
 
   [
@@ -130,7 +130,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assertCommonHeaders({ res, csp:'standard' });
+      assertSecurityHeaders(res, { csp:'standard' });
     });
   });
 
@@ -147,7 +147,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
-      assertCommonHeaders({ res, csp:'enketo' });
+      assertSecurityHeaders(res, { csp:'enketo' });
 
       // and
       await assertEnketoReceived(
@@ -168,7 +168,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-      assertCommonHeaders({ res, csp:'standard' });
+      assertSecurityHeaders(res, { csp:'standard' });
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -223,7 +223,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders({ res, csp:'enketo' });
+    assertSecurityHeaders(res, { csp:'enketo' });
 
     // and
     await assertEnketoReceived(
@@ -238,7 +238,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -249,7 +249,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -261,7 +261,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
 
     // when
     const body = await res.json();
@@ -279,7 +279,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertCommonHeaders({ res, csp:'standard' });
+    assertSecurityHeaders(res, { csp:'standard' });
 
     // when
     const body = await res.json();
@@ -427,7 +427,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
           // and
-          assertCommonHeaders({ res, csp:'enketo' });
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
 
@@ -443,7 +443,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, 'single-use');
           // and
-          assertCommonHeaders({ res, csp:'enketo' });
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
     });
@@ -576,7 +576,7 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
   }
 }
 
-function assertCommonHeaders({ res, csp }) {
+function assertSecurityHeaders(res, { csp }) {
   assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
