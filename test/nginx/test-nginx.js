@@ -274,8 +274,11 @@ describe('nginx config', () => {
     'https://subdomain.example.org:1234/some/path',
   ].forEach(redirectLocation => {
     it(`should not rewrite redirects issued by central-backend (${redirectLocation})`, async () => {
+      // given
+      const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`;
+
       // when
-      const res = await fetchHttps(`/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`);
+      const res = await fetchHttps(requestPath);
 
       console.log('res.headers:', res.headers);
 
@@ -285,7 +288,7 @@ describe('nginx config', () => {
       assertCommonHeaders(res);
       // and
       await assertBackendReceived(
-        { method:'GET', path:'/v1/generate-redirect/301' },
+        { method:'GET', path:requestPath },
       );
     });
   });
