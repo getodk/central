@@ -275,7 +275,7 @@ describe('nginx config', () => {
   ].forEach(redirectLocation => {
     it(`should not rewrite redirects issued by central-backend (${redirectLocation})`, async () => {
       // when
-      const res = await fetchHttp(`/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`);
+      const res = await fetchHttps(`/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`);
 
       console.log('res.headers:', res.headers);
 
