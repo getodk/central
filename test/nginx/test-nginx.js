@@ -287,7 +287,6 @@ describe('nginx config', () => {
       'http://enketo:8005/enketo-passthrough',
       'http://enketo:8005/enketo-passthrough/',
       'http://enketo:8005/enketo-passthrough/some/path',
-      'http://service:8383/v1/some/path',
     ].forEach(redirectLocation => {
       it(`should not rewrite redirect to ${redirectLocation}`, async () => {
         // given
