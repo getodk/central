@@ -14,7 +14,9 @@ exitCode="$?"
 set -e
 
 if [[ "$exitCode" = 124 ]]; then
+  log "!!!"
   log "!!! Enketo startup did not fail, despite invalid config."
+  log "!!!"
   exit 1
 elif [[ "$exitCode" = 1 ]]; then
   log "Enketo exited correctly."
