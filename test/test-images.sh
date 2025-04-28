@@ -58,8 +58,7 @@ check_path 2 /v1/projects '[]'
 log "  Backend started OK."
 
 log "Verifying enketo..."
-check_path 2 /-/ 'details {
-  margin: 20px 0; }'
+check_path 2 /-/ 'Enketo is running!'
 log "  Enketo started OK."
 
 log "Verifying pm2..."
