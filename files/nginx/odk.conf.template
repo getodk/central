@@ -81,7 +81,7 @@ server {
 
   location = /robots.txt {
     limit_except GET {
-      deny all;
+      return 405;
     }
 
     add_header Content-Type text/plain;
