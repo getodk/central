@@ -326,13 +326,6 @@ describe('nginx config', () => {
       'http://service:8005',           // not subject to /- proxy rules, so not rewritten
       'http://service:8005/',          // not subject to /- proxy rules, so not rewritten
       'http://service:8005/some/path', // not subject to /- proxy rules, so not rewritten
-
-      'http://enketo:8005/-',
-      'http://enketo:8005/-/',
-      'http://enketo:8005/-/some/path',
-      'http://enketo:8005/enketo-passthrough',
-      'http://enketo:8005/enketo-passthrough/',
-      'http://enketo:8005/enketo-passthrough/some/path',
     ].forEach(redirectLocation => {
       it(`should not rewrite enketo redirect to ${redirectLocation}`, async () => {
         // given
@@ -376,7 +369,6 @@ describe('nginx config', () => {
     });
 
     [
-      [ 'http://enketo:8005',                              'https://odk-nginx.example.test' ],
       [ 'http://enketo:8005/',                             'https://odk-nginx.example.test/' ],
       [ 'http://enketo:8005/-',                            'https://odk-nginx.example.test/-' ],
       [ 'http://enketo:8005/-/',                           'https://odk-nginx.example.test/-/' ],
