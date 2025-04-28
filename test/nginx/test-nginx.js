@@ -268,29 +268,56 @@ describe('nginx config', () => {
     socket.on('error', reject);
   }));
 
-  [
-    '/some/path',
-    'https://example.org/some/path',
-    'https://subdomain.example.org:1234/some/path',
-    'http://service:8383/v1/some/path',
-  ].forEach(redirectLocation => {
-    it(`should not rewrite redirects issued by central-backend (${redirectLocation})`, async () => {
-      // given
-      const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`;
+  describe('proxy_redirect directive', () => {
+    [
+      '/some/path',
+      '/-/some/path',
+      '/v1/some/path',
+      'https://example.org/some/path',
+      'https://example.org/-/some/path',
+      'https://example.org/v1/some/path',
+      'https://subdomain.example.org:1234/some/path',
+      'https://subdomain.example.org:1234/-/some/path',
+      'https://subdomain.example.org:1234/v1/some/path',
+    ].forEach(redirectLocation => {
+      it(`should not rewrite redirect issued by central-backend (${redirectLocation})`, async () => {
+        // given
+        const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(redirectLocation)}`;
 
-      // when
-      const res = await fetchHttps(requestPath);
+        // when
+        const res = await fetchHttps(requestPath);
 
-      console.log('res.headers:', res.headers);
+        // then
+        assert.equal(res.status, 301);
+        assert.equal(res.headers.get('Location'), redirectLocation);
+        assertCommonHeaders(res);
+        // and
+        await assertBackendReceived(
+          { method:'GET', path:requestPath },
+        );
+      });
+    });
 
-      // then
-      assert.equal(res.status, 301);
-      assert.equal(res.headers.get('Location'), redirectLocation);
-      assertCommonHeaders(res);
-      // and
-      await assertBackendReceived(
-        { method:'GET', path:requestPath },
-      );
+    [
+      [ 'http://service:8005/-/some/path',  'https://odk-nginx.example.test/-/some/path' ],
+      [ 'http://service:8383/v1/some/path', 'https://odk-nginx.example.test/v1/some/path' ],
+    ].forEach(([ original, expected ]) => {
+      it(`should rewrite redirect issued by central-backend (${original} to ${expected})`, async () => {
+        // given
+        const requestPath = `/v1/generate-redirect/301?location=${encodeURIComponent(original)}`;
+
+        // when
+        const res = await fetchHttps(requestPath);
+
+        // then
+        assert.equal(res.status, 301);
+        assert.equal(res.headers.get('Location'), expected);
+        assertCommonHeaders(res);
+        // and
+        await assertBackendReceived(
+          { method:'GET', path:requestPath },
+        );
+      });
     });
   });
 

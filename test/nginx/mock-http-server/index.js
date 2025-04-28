@@ -16,13 +16,15 @@ app.get('/reset',       withStdLogging((req, res) => {
 
 app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
 
-app.get('/v1/generate-redirect/:status', withStdLogging((req, res) => {
+const redirectGenerator = withStdLogging((req, res) => {
   requests.push({ method:req.method, path:req.originalUrl });
   const { status } = req.params;
   const { location } = req.query;
   log('/generate-redirect', { params:req.params, query:req.query });
   res.redirect(Number.parseInt(status, 10), location);
-}));
+});
+app.get('/v1/generate-redirect/:status', redirectGenerator);
+app.get('/-/generate-redirect/:status', redirectGenerator);
 
 [
   'delete',
