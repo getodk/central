@@ -32,7 +32,9 @@ services:
     volumes:
       - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
       - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
-      - ./dh.pem:/etc/dh/nginx.pem:ro
+      - ./files/nginx/dh.pem:/etc/dh/nginx.pem:ro
+      - ./files/nginx/default.key:/etc/nginx/ssl/nginx.default.key:ro
+      - ./files/nginx/default.crt:/etc/nginx/ssl/nginx.default.crt:ro
     ports:
       - "9000:80"
       - "9001:443"
