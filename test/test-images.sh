@@ -57,6 +57,10 @@ log "Verifying backend..."
 check_path 2 /v1/projects '[]'
 log "  Backend started OK."
 
+log "Verifying enketo..."
+check_path 2 /-/ 'Enketo is running!'
+log "  Enketo started OK."
+
 log "Verifying pm2..."
 docker compose exec service npx --no pm2 list | tee "$tmp"
 processCount="$(grep --count online "$tmp")"
