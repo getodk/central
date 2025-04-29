@@ -2,6 +2,81 @@ const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
 
+const none = `'none'`;
+const self = `'self'`;
+const unsafeInline = `'unsafe-inline'`;
+const contentSecurityPolicies = {
+  'restrictive': {
+    'default-src': none,
+    'report-uri':  '/csp-report',
+  },
+  'central-frontend': {
+    'default-src':    none,
+    'connect-src':    self,
+    'font-src':       self,
+    'frame-src':      [
+      self,
+      'https://getodk.github.io/central/news.html',
+    ],
+    'img-src':        '* data:',
+    'manifest-src':   none,
+    'media-src':      none,
+    'object-src':     none,
+    'script-src':     self,
+    'style-src':      self,
+    'style-src-attr': unsafeInline,
+    'report-uri':     '/csp-report',
+  },
+  enketo: {
+    'default-src': none,
+    'connect-src': [
+      self,
+      'blob:',
+      'https://maps.googleapis.com/',
+      'https://maps.google.com/',
+      'https://maps.gstatic.com/mapfiles/',
+      'https://fonts.gstatic.com/',
+      'https://fonts.googleapis.com/',
+    ],
+    'font-src': [
+      self,
+      'https://fonts.gstatic.com/',
+    ],
+    'frame-src': none,
+    'img-src': [
+      'data:',
+      'blob:',
+      'jr:',
+      self,
+      'https://maps.google.com/maps/',
+      'https://maps.gstatic.com/mapfiles/',
+      'https://maps.googleapis.com/maps/',
+      'https://tile.openstreetmap.org/',
+    ],
+    'manifest-src': none,
+    'media-src': [
+      'blob:',
+      'jr:',
+      self,
+    ],
+    'object-src': none,
+    'script-src': [
+      unsafeInline,
+      self,
+      'https://maps.googleapis.com/maps/api/js/',
+      'https://maps.google.com/maps/',
+      'https://maps.google.com/maps-api-v3/api/js/',
+    ],
+    'style-src': [
+      unsafeInline,
+      self,
+      'https://fonts.googleapis.com/css',
+    ],
+    'style-src-attr': unsafeInline,
+    'report-uri': '/csp-report',
+  },
+};
+
 describe('nginx config', () => {
   beforeEach(() => Promise.all([
     resetEnketoMock(),
@@ -33,7 +108,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -43,7 +118,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
   [
@@ -59,7 +134,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
 
@@ -76,7 +151,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'enketo' });
 
       // and
       await assertEnketoReceived(
@@ -97,7 +172,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -152,7 +227,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'enketo' });
 
     // and
     await assertEnketoReceived(
@@ -167,7 +242,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -178,7 +253,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -190,7 +265,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
@@ -208,7 +283,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
@@ -356,7 +431,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
           // and
-          assertCommonHeaders(res);
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
 
@@ -372,7 +447,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, 'single-use');
           // and
-          assertCommonHeaders(res);
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
     });
@@ -505,10 +580,15 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
   }
 }
 
-function assertCommonHeaders(res) {
+function assertSecurityHeaders(res, { csp }) {
   assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-  assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
+
+
+  const expectedCsp = contentSecurityPolicies[csp];
+  if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
+  const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
+  assert.deepEqual(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
 }
