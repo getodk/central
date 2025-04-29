@@ -12,6 +12,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Enketo express returns response with Vary and Cache-Control headers
+app.use('/-/', (req, res, next) => {
+  res.set('Vary', 'Accept-Encoding');
+  res.set('Cache-Control', 'public, max-age=0');
+  next();
+});
+
 app.get('/health',      (req, res) => res.send('OK'));
 app.get('/request-log', (req, res) => res.json(requests));
 app.get('/reset',       (req, res) => {
