@@ -131,17 +131,6 @@ describe('nginx config', () => {
     assert.equal(await res.text(), 'User-agent: *\nDisallow: /\n');
   });
 
-  it('should serve robots.txt', async () => {
-    // when
-    const res = await fetchHttps('/robots.txt');
-
-    // then
-    assert.equal(res.status, 200);
-    assert.equal(res.headers.get('Content-Type'), 'text/plain');
-    assert.equal(await res.text(), 'User-agent: *\nDisallow: /\n');
-    assertCommonHeaders(res);
-  });
-
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
