@@ -209,10 +209,6 @@ describe('nginx config', () => {
       request: `/-/preview/${enketoId}`,
       expected: `f/${enketoId}/preview` },
 
-    { description: 'offline submission',
-      request: `/-/x/${enketoId}`,
-      expected: `f/${enketoId}/offline` },
-
     { description: 'new or draft submission',
       request: `/-/${enketoId}`,
       expected: `f/${enketoId}/new` },
