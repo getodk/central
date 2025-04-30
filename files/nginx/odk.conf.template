@@ -25,13 +25,13 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/js/  "immutable";
 
   # enketo
-  ~^(GET|HEAD)::/-/css/             "revalidate";
-  ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
-  ~^(GET|HEAD)::/-/fonts/           "revalidate";
-  ~^(GET|HEAD)::/-/images/          "revalidate";
-  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
-  ~^(GET|HEAD)::/-/js/build/        "revalidate";
-  ~^(GET|HEAD)::/-/locales/         "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/css/             "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/fonts/.*?v=      "immutable";
+  ~^(GET|HEAD)::/-(/x)?/fonts/           "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/images/          "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/js/build/chunks/ "immutable";
+  ~^(GET|HEAD)::/-(/x)?/js/build/        "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/locales/         "revalidate";
 
   default "single-use";
 }
