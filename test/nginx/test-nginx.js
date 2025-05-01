@@ -437,6 +437,7 @@ describe('nginx config', () => {
       [ '/-/x/images/icon_180x180.png',                    'revalidate' ],
       [ '/-/x/images/favicon.ico',                         'revalidate' ],
       [ '/-/x/locales/build/en/translation-combined.json', 'revalidate' ],
+      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
