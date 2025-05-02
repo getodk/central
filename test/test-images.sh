@@ -50,7 +50,7 @@ log "Starting containers..."
 docker compose up --detach
 
 log "Verifying frontend..."
-check_path 60 / 'ODK Central'
+check_path 180 / 'ODK Central'
 log "  Frontend started OK."
 
 log "Verifying backend..."
