@@ -99,7 +99,7 @@ server {
     # preview link
     return 301 "/f/$enketoId/preview$is_args$args";
   }
-  location ~ "^/-/(?!thanks$)(?<enketoId>[a-zA-Z0-9]+)$" {
+  location ~ "^/-/(?!thanks$)(?!connection$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
     return 301 "/f/$enketoId/new$is_args$args";
   }

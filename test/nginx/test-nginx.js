@@ -227,19 +227,24 @@ describe('nginx config', () => {
     });
   });
 
-  it('should not redirect thanks page to central-frontend', async () => {
-    // when
-    const res = await fetchHttps('/-/thanks');
+  [
+    '/-/thanks',
+    '/-/connection',
+  ].forEach(request => {
+    it(`should not redirect ${request} to central-frontend`, async () => {
+      // when
+      const res = await fetchHttps(request);
 
-    // then
-    assert.equal(res.status, 200);
-    assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'enketo' });
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+      assertSecurityHeaders(res, { csp:'enketo' });
 
-    // and
-    await assertEnketoReceived(
-      { method:'GET', path: '/-/thanks' },
-    );
+      // // and
+      await assertEnketoReceived(
+        { method:'GET', path: request },
+      );
+    });
   });
 
   it('should serve blank page on /-/single/check-submitted', async () => {
