@@ -153,6 +153,7 @@ describe('nginx config', () => {
     { request: '/-',                                   expected: '/-' },
     { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
     { request: '/enketo-passthrough',                  expected: '/-' },
+    { request: '/enketo-passthrough/enketoid',         expected: '/-/enketoid' },
   ].forEach(t => {
     it(`should forward to enketo; ${t.request}`, async () => {
       // when
