@@ -52,6 +52,7 @@ jobs:
     - uses: actions/checkout@v4
     - run: ./test/test-secrets.sh
   test-images:
+    timeout-minutes: 10
     needs:
     - test-misc
     - test-envsub
