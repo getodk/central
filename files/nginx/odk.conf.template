@@ -11,6 +11,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config.json$ "revalidate";
   ~^(GET|HEAD)::/favicon.ico$        "revalidate";
+  ~^(GET|HEAD)::/robots.txt$         "revalidate";
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
   # central-frontend - unversioned
@@ -79,11 +80,6 @@ server {
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
 
-  location = /robots.txt {
-    add_header Content-Type text/plain;
-    return 200 "User-agent: *\nDisallow: /\n";
-  }
-
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
   # we want old Enketo URLs redirected to a Central frontend page which dynamically decides
@@ -114,8 +110,11 @@ server {
 
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
   # reach Enketo — this one will not be intercepted.
-  location ~ ^/(?:-|enketo-passthrough)(?:/|$) {
-    rewrite ^/enketo-passthrough(/.*)?$ /-$1 break;
+  location ~ ^/enketo-passthrough(/.*)?$ {
+    rewrite ^/enketo-passthrough(/.*)?$ /-$1 last;
+  }
+
+  location ~ ^/-(/.*)?$ {
     proxy_pass http://enketo:8005;
     proxy_redirect off;
     proxy_set_header Host $host;
