@@ -589,6 +589,10 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Cache-Control'), 'no-cache');
       assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
+      assert.ok(
+        res.headers.get('Last-Modified') || res.headers.get('ETag'),
+        'Revalidation requires at least one of Last-Modified & ETag headers',
+      );
       break;
     case 'single-use':
       assert.equal(res.headers.get('Cache-Control'), 'no-store');
