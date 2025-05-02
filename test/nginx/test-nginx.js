@@ -153,6 +153,7 @@ describe('nginx config', () => {
     { request: '/-',                                   expected: '/-' },
     { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
     { request: '/enketo-passthrough',                  expected: '/-' },
+    { request: '/enketo-passthrough/enketoid',         expected: '/-/enketoid' },
   ].forEach(t => {
     it(`should forward to enketo; ${t.request}`, async () => {
       // when
@@ -353,6 +354,7 @@ describe('nginx config', () => {
     [
       // general
       [ '/client-config.json',       'revalidate' ],
+      [ '/robots.txt',               'revalidate' ],
       [ '/version.txt',              'revalidate' ],
 
       // central-frontend - unversioned
@@ -424,7 +426,7 @@ describe('nginx config', () => {
       [ '/-/locales/build/en/translation-combined.json',   'revalidate' ],
       [ '/-/transform/xform/some-id',                      'single-use' ],
       [ '/-/submission/max-size/some-id',                  'single-use' ],
-      [ '/-/x/some-id',                                    'single-use' ],
+      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ], // offline Form
       [ '/-/x/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
       [ '/-/x/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
       [ '/-/x/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable'  ],
@@ -589,6 +591,10 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Cache-Control'), 'no-cache');
       assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
+      assert.ok(
+        res.headers.get('Last-Modified') || res.headers.get('ETag'),
+        'Revalidation requires at least one of Last-Modified & ETag headers',
+      );
       break;
     case 'single-use':
       assert.equal(res.headers.get('Cache-Control'), 'no-store');
