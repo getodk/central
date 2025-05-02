@@ -11,6 +11,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config.json$ "revalidate";
   ~^(GET|HEAD)::/favicon.ico$        "revalidate";
+  ~^(GET|HEAD)::/robots.txt$         "revalidate";
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
   # central-frontend - unversioned
@@ -25,13 +26,13 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/js/  "immutable";
 
   # enketo
-  ~^(GET|HEAD)::/-/css/             "revalidate";
-  ~^(GET|HEAD)::/-/fonts/.*?v=      "immutable";
-  ~^(GET|HEAD)::/-/fonts/           "revalidate";
-  ~^(GET|HEAD)::/-/images/          "revalidate";
-  ~^(GET|HEAD)::/-/js/build/chunks/ "immutable";
-  ~^(GET|HEAD)::/-/js/build/        "revalidate";
-  ~^(GET|HEAD)::/-/locales/         "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/css/             "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/fonts/.*?v=      "immutable";
+  ~^(GET|HEAD)::/-(/x)?/fonts/           "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/images/          "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/js/build/chunks/ "immutable";
+  ~^(GET|HEAD)::/-(/x)?/js/build/        "revalidate";
+  ~^(GET|HEAD)::/-(/x)?/locales/         "revalidate";
 
   default "single-use";
 }
@@ -78,11 +79,6 @@ server {
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
 
-  location = /robots.txt {
-    add_header Content-Type text/plain;
-    return 200 "User-agent: *\nDisallow: /\n";
-  }
-
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
   # we want old Enketo URLs redirected to a Central frontend page which dynamically decides
@@ -100,10 +96,6 @@ server {
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
     return 301 "/f/$enketoId/preview$is_args$args";
-  }
-  location ~ "^/-/x/(?<enketoId>[a-zA-Z0-9]+)$" {
-    # Offline new Submissions - can be public if it has st query parameter
-    return 301 "/f/$enketoId/offline$is_args$args";
   }
   location ~ "^/-/(?!thanks$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
