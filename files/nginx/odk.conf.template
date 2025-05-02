@@ -115,6 +115,8 @@ server {
     proxy_pass http://enketo:8005;
     proxy_redirect off;
     proxy_set_header Host $host;
+    proxy_hide_header Vary;
+    proxy_hide_header Cache-Control;
 
     # More lax CSP for enketo-express:
     # Google Maps API: https://developers.google.com/maps/documentation/javascript/content-security-policy
