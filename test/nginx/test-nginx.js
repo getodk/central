@@ -424,7 +424,7 @@ describe('nginx config', () => {
       [ '/-/locales/build/en/translation-combined.json',   'revalidate' ],
       [ '/-/transform/xform/some-id',                      'single-use' ],
       [ '/-/submission/max-size/some-id',                  'single-use' ],
-      [ '/-/x/some-id',                                    'single-use' ],
+      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ], // offline Form
       [ '/-/x/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
       [ '/-/x/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
       [ '/-/x/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable'  ],
@@ -437,7 +437,6 @@ describe('nginx config', () => {
       [ '/-/x/images/icon_180x180.png',                    'revalidate' ],
       [ '/-/x/images/favicon.ico',                         'revalidate' ],
       [ '/-/x/locales/build/en/translation-combined.json', 'revalidate' ],
-      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
