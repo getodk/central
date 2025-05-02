@@ -11,6 +11,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config.json$ "revalidate";
   ~^(GET|HEAD)::/favicon.ico$        "revalidate";
+  ~^(GET|HEAD)::/robots.txt$         "revalidate";
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
   # central-frontend - unversioned
@@ -77,11 +78,6 @@ server {
   gzip_min_length 1280;
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
-
-  location = /robots.txt {
-    add_header Content-Type text/plain;
-    return 200 "User-agent: *\nDisallow: /\n";
-  }
 
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
