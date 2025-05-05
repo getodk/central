@@ -213,6 +213,18 @@ describe('nginx config', () => {
     { description: 'new or draft submission',
       request: `/-/${enketoId}`,
       expected: `f/${enketoId}/new` },
+
+    { description: 'new submission - enketoId starts with thanks',
+      request: `/-/thanksokay`,
+      expected: `f/thanksokay/new` },
+
+    { description: 'new submission - enketoId ends with thanks',
+        request: `/-/okaythanks`,
+        expected: `f/okaythanks/new` },
+
+    { description: 'new submission - enketoId contains thanks',
+      request: `/-/okaythanksokay`,
+      expected: `f/okaythanksokay/new` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
@@ -230,6 +242,10 @@ describe('nginx config', () => {
   [
     '/-/thanks',
     '/-/connection',
+    '/-/login',
+    '/-/logout',
+    '/-/api',
+    '/-/preview',
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
