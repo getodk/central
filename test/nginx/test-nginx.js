@@ -385,26 +385,16 @@ describe('nginx config', () => {
       [ '/favicon.ico',              'revalidate' ],
 
       // central-frontend - versioned
-      [ '/css/app.7f75100b.css',                           'immutable' ],
-      [ '/css/component-feedback-button.9b267cf5.css',     'immutable' ],
-      [ '/css/component-home-config-section.86dc3b10.css', 'immutable' ],
-      [ '/css/component-home.7fd2ac91.css',                'immutable' ],
-      [ '/css/component-hover-cards.f8d67159.css',         'immutable' ],
-      [ '/css/component-outdated-version.1669dac3.css',    'immutable' ],
+      [ '/assets/actor-link-CHKNLRJ6.js',                  'immutable' ],
+      [ '/assets/branch-data-NQSuaxke.js',                 'immutable' ],
+      [ '/assets/breadcrumbs-P9Q8Sr8V.js',                 'immutable' ],
+      [ '/assets/chunky-array-CWqL2QBf.js',                'immutable' ],
+      [ '/assets/style-BAOwY-Kl.css',                      'immutable' ],
+      [ '/assets/who-va@2x-KiG_UkDd.jpg',                  'immutable' ],
+      [ '/assets/socio-economic@2x-DT8M7CaZ.jpg',          'immutable' ],
       [ '/fonts/icomoon.ttf',                              'revalidate' ],
       [ '/fonts/icomoon.ttf?',                             'revalidate' ],
       [ '/fonts/icomoon.ttf?ohpk4j',                       'immutable' ],
-      [ '/js/1272.6c131f2a.js',                            'immutable' ],
-      [ '/js/247.f8ae2d8d.js',                             'immutable' ],
-      [ '/js/3647.e6884fb5.js',                            'immutable' ],
-      [ '/js/9342.c7b5e54f.js',                            'immutable' ],
-      [ '/js/app.186f7291.js',                             'immutable' ],
-      [ '/js/chunk-vendors.37e8929b.js',                   'immutable' ],
-      [ '/js/component-feedback-button.0447c840.js',       'immutable' ],
-      [ '/js/component-home-config-section.04391182.js',   'immutable' ],
-      [ '/js/component-home.0f5945af.js',                  'immutable' ],
-      [ '/js/component-hover-cards.957b7e0e.js',           'immutable' ],
-      [ '/js/component-outdated-version.17283d89.js',      'immutable' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
