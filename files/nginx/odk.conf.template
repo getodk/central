@@ -14,6 +14,9 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/robots.txt$         "revalidate";
   ~^(GET|HEAD)::/version.txt$        "revalidate";
 
+  # central-backend
+  ~^(GET|HEAD)::/v1/                 "passthrough";
+
   # central-frontend - unversioned
   ~^(GET|HEAD)::/$             "revalidate";
   ~^(GET|HEAD)::/index.html$   "revalidate";
@@ -41,16 +44,19 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
 map $cache_strategy $cache_header_cache_control {
   "immutable"  "max-age=31536000";
   "revalidate" "no-cache";
+  "passthrough"  "";
   default      "no-store";
 }
 map $cache_strategy $cache_header_pragma {
   "immutable"  "";
   "revalidate" "no-cache";
+  "passthrough"  "";
   default      "no-cache";
 }
 map $cache_strategy $cache_header_vary {
   "immutable"  "Accept-Encoding";
   "revalidate" "Accept-Encoding";
+  "passthrough"  "";
   default      "*";
 }
 
