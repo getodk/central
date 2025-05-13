@@ -378,6 +378,10 @@ describe('nginx config', () => {
       [ '/robots.txt',               'revalidate' ],
       [ '/version.txt',              'revalidate' ],
 
+      // central-backend
+      [ '/v1/foo',                   'passthrough' ],
+      [ '/v1/foo/bar/baz',           'passthrough' ],
+
       // central-frontend - unversioned
       [ '/',                         'revalidate' ],
       [ '/index.html',               'revalidate' ],
@@ -622,6 +626,11 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Cache-Control'), 'no-store');
       assert.equal(res.headers.get('Vary'), '*');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
+      break;
+    case 'passthrough':
+      expect(res).to.not.have.header('Cache-Control');
+      expect(res).to.not.have.header('Vary');
+      expect(res).to.not.have.header('Pragma');
       break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
