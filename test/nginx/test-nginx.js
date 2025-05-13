@@ -1,6 +1,6 @@
 const tls = require('node:tls');
 const { Readable } = require('stream');
-const { assert, expect } = require('chai');
+const { assert } = require('chai');
 
 const none = `'none'`;
 const self = `'self'`;
@@ -438,6 +438,18 @@ describe('nginx config', () => {
         });
       });
     });
+
+    it('should return cache headers from the backend', async () => {
+      // when
+      const res = await fetchHttps('/v1/projects');
+
+      // then
+      assert.equal(res.status, 200);
+
+      // and
+      assert.equal(res.headers.get('Cache-Control'), 'private, max-age=3600');
+      assert.equal(res.headers.get('Vary'), 'Cookie');
+    });
   });
 
   describe('enketo caching', () => {
@@ -634,9 +646,9 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Pragma'), 'no-cache');
       break;
     case 'passthrough':
-      expect(res.headers).to.not.have.property('Cache-Control');
-      expect(res.headers).to.not.have.property('Vary');
-      expect(res.headers).to.not.have.property('Pragma');
+      assert.isFalse(res.headers.has('Cache-Control'));
+      assert.isFalse(res.headers.has('Vary'));
+      assert.isFalse(res.headers.has('Pragma'));
       break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
