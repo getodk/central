@@ -28,6 +28,13 @@ app.get('/reset',       (req, res) => {
 
 app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
 
+// Central-Backend can set Cache headers and those should have highest precedence
+app.get('/v1/projects', (_, res) => {
+  res.set('Vary', 'Cookie');
+  res.set('Cache-Control', 'private, max-age=3600');
+  res.send('OK');
+});
+
 [
   'delete',
   'get',
