@@ -1,6 +1,6 @@
 const tls = require('node:tls');
 const { Readable } = require('stream');
-const { assert } = require('chai');
+const { assert, expect } = require('chai');
 
 const none = `'none'`;
 const self = `'self'`;
