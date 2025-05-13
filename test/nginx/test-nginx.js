@@ -378,10 +378,6 @@ describe('nginx config', () => {
       [ '/robots.txt',               'revalidate' ],
       [ '/version.txt',              'revalidate' ],
 
-      // central-backend
-      [ '/v1/foo',                   'passthrough' ],
-      [ '/v1/foo/bar/baz',           'passthrough' ],
-
       // central-frontend - unversioned
       [ '/',                         'revalidate' ],
       [ '/index.html',               'revalidate' ],
@@ -433,6 +429,25 @@ describe('nginx config', () => {
       });
     });
   });
+
+  describe('backend caching', () => {
+    [
+      [ '/v1/foo',                   'passthrough' ],
+      [ '/v1/foo/bar/baz',           'passthrough' ]
+    ].forEach(([ path, expectedCacheStrategy ]) => {
+      [ 'GET', 'HEAD' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+
+          // and
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
+      })
+    })
+  })
 
   describe('enketo caching', () => {
     [
