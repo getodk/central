@@ -445,9 +445,10 @@ describe('nginx config', () => {
 
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
-      })
-    })
-  })
+        });
+      });
+    });
+  });
 
   describe('enketo caching', () => {
     [
