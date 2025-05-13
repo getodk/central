@@ -1,6 +1,6 @@
 #!/bin/bash -eu
-
 set -o pipefail
+shopt -s inherit_errexit
 
 flag_upgradeCompletedOk="$PGDATANEW/../.postgres14-upgrade-successful"
 flag_deleteOldData_name="delete-old-data"

@@ -1,3 +1,5 @@
-#!/bin/sh
+#!/bin/bash -eu
+set -o pipefail
+shopt -s inherit_errexit
 
 exec "$(command -v node)" /usr/odk/lib/bin/cli.js "$@"

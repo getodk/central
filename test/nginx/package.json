@@ -1,10 +1,13 @@
 {
   "name": "odk-central-tests",
   "scripts": {
-    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test-nginx.js"
+    "lint": "ESLINT_USE_FLAT_CONFIG=false npx eslint --cache .",
+    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test-nginx.js",
+    "test": "npm run lint && npm run test:nginx"
   },
   "dependencies": {
     "chai": "^4.5.0",
+    "eslint": "^9.23.0",
     "mocha": "^10.7.3"
   }
 }

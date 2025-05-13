@@ -1,10 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/bash -eu
+set -o pipefail
+shopt -s inherit_errexit
 
 echo "generating local service configuration.."
 
 ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
 BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https://"${DOMAIN}":"${HTTPS_PORT}" ) \
-envsubst '$DOMAIN $BASE_URL $SYSADMIN_EMAIL $ENKETO_API_KEY $DB_HOST $DB_USER $DB_PASSWORD $DB_NAME $DB_SSL $EMAIL_FROM $EMAIL_HOST $EMAIL_PORT $EMAIL_SECURE $EMAIL_IGNORE_TLS $EMAIL_USER $EMAIL_PASSWORD $OIDC_ENABLED $OIDC_ISSUER_URL $OIDC_CLIENT_ID $OIDC_CLIENT_SECRET $SENTRY_ORG_SUBDOMAIN $SENTRY_KEY $SENTRY_PROJECT $S3_SERVER $S3_ACCESS_KEY $S3_SECRET_KEY $S3_BUCKET_NAME' \
+/scripts/envsub.awk \
     < /usr/share/odk/config.json.template \
     > /usr/odk/config/local.json
 
@@ -17,13 +19,6 @@ export SENTRY_TAGS
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
-
-echo "checking migration success.."
-if ! node ./lib/bin/check-migrations; then
-  echo "*** Error starting ODK! ***"
-  echo "After attempting to automatically migrate the database, we have detected unapplied migrations, which suggests a problem with the database migration step. Please look in the console above this message for any errors and post what you find in the forum: https://forum.getodk.org/"
-  exit 1
-fi
 
 echo "starting cron.."
 cron -f &
