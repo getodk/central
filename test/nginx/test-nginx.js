@@ -644,9 +644,9 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Pragma'), 'no-cache');
       break;
     case 'passthrough':
-      expect(res).to.not.have.header('Cache-Control');
-      expect(res).to.not.have.header('Vary');
-      expect(res).to.not.have.header('Pragma');
+      expect(res.headers).to.not.have.property('Cache-Control');
+      expect(res.headers).to.not.have.property('Vary');
+      expect(res.headers).to.not.have.property('Pragma');
       break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
