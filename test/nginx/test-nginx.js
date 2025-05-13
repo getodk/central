@@ -1,6 +1,6 @@
 const tls = require('node:tls');
 const { Readable } = require('stream');
-const { assert } = require('chai');
+const { assert, expect } = require('chai');
 
 const none = `'none'`;
 const self = `'self'`;
@@ -430,6 +430,26 @@ describe('nginx config', () => {
     });
   });
 
+  describe('backend caching', () => {
+    [
+      [ '/v1/foo',                   'passthrough' ],
+      [ '/v1/foo/bar/baz',           'passthrough' ]
+    ].forEach(([ path, expectedCacheStrategy ]) => {
+      [ 'GET', 'HEAD' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+
+          // and
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
+        });
+      });
+    });
+  });
+
   describe('enketo caching', () => {
     [
       [ '/-/preview/some-id',                              'single-use' ],
@@ -622,6 +642,11 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Cache-Control'), 'no-store');
       assert.equal(res.headers.get('Vary'), '*');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
+      break;
+    case 'passthrough':
+      expect(res.headers).to.not.have.property('Cache-Control');
+      expect(res.headers).to.not.have.property('Vary');
+      expect(res.headers).to.not.have.property('Pragma');
       break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
