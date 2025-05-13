@@ -55,7 +55,7 @@ services:
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
       - DB_NAME=${DB_NAME:-odk}
-      - DB_PORT=${DB_PORT:-5432}
+      - DB_PORT=${DB_PORT:-null}
       - DB_SSL=${DB_SSL:-null}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
