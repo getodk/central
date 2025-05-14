@@ -1,0 +1,20 @@
+# Alone:
+${SIMPLE}
+
+# end of line
+Simple value: ${SIMPLE}
+
+# Missing curlies:
+Should not be substituted: $SIMPLE
+
+# Start of line:
+${SIMPLE} and then more content.
+
+# This is not a sub variable:
+$simple
+
+# Two values on the same line:
+first: ${SUBVAL_1}, second: ${SUBVAL_2}!
+
+# Two values on the same line, both repeated:
+first: ${SUBVAL_1}, ${SUBVAL_1}, ${SUBVAL_1}, second: ${SUBVAL_2} ${SUBVAL_2}!
