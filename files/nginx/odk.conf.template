@@ -94,22 +94,22 @@ server {
   # Following are the locations that serve a Form and these are redirected to the frontend:
   location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link, public
-    return 301 "/f/$enketoId$is_args$args";
+    return 301 "https://$http_host/f/$enketoId$is_args$args";
   }
   location ~ "^/-/edit/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Edit link
-    return 301 "/f/$enketoId/edit$is_args$args";
+    return 301 "https://$http_host/f/$enketoId/edit$is_args$args";
   }
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
-    return 301 "/f/$enketoId/preview$is_args$args";
+    return 301 "https://$http_host/f/$enketoId/preview$is_args$args";
   }
   # The negative look ahead patterns in the following regex are for the Enketo endpoints which are
   # similar to the new submission endpoint i.e. /-/:enketoId but these are not enketoId, therefore
   # we don't want them to be redirected to central-frontend
   location ~ "^/-/(?!thanks$|connection$|login$|logout$|api$|preview$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
-    return 301 "/f/$enketoId/new$is_args$args";
+    return 301 "https://$http_host/f/$enketoId/new$is_args$args";
   }
   # To read single submission cookies
   location = /-/single/check-submitted {
