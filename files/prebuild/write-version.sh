@@ -8,6 +8,6 @@ shopt -s inherit_errexit
   git submodule foreach --quiet '
     commit=$(git rev-parse HEAD)
     tag=$(git describe --tags)
-    echo " $commit $name ($tag)"
+    echo " $commit $path ($tag)"
   '
 } > /tmp/version.txt
