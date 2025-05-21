@@ -229,11 +229,11 @@ describe('nginx config', () => {
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
       // when
-      const res = await fetchHttps(t.request);
+      const res = await fetchHttps(t.request, { headers: { host: 'odk-nginx.example.test:9001' }});
 
       // then
       assert.equal(res.status, 301);
-      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${t.expected}`);
+      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test:9001/${t.expected}`);
       // and
       await assertEnketoReceivedNoRequests();
     });
