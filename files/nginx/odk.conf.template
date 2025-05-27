@@ -96,10 +96,6 @@ server {
     # Form fill link, public
     return 301 "/f/$enketoId$is_args$args";
   }
-  location ~ "^/-/edit/(?<enketoId>[a-zA-Z0-9]+)$" {
-    # Edit link
-    return 301 "/f/$enketoId/edit$is_args$args";
-  }
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
     return 301 "/f/$enketoId/preview$is_args$args";
