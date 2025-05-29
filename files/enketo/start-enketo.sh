@@ -25,9 +25,12 @@ assert_size() {
     exit 1
   fi
 }
-assert_size /etc/secrets/enketo-secret       64
-assert_size /etc/secrets/enketo-less-secret  32
-assert_size /etc/secrets/enketo-api-key     128
+
+if ! [[ "${ENV:-PROD}" = "DEV" ]]; then
+  assert_size /etc/secrets/enketo-secret       64
+  assert_size /etc/secrets/enketo-less-secret  32
+  assert_size /etc/secrets/enketo-api-key     128
+fi
 
 CONFIG_PATH=${ENKETO_SRC_DIR}/config/config.json
 log "Generating enketo configuration..."
