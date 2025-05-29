@@ -36,6 +36,17 @@ If you want to work on the Central codebase and don't want to setup dependent se
 * Add an entry in your `/etc/hosts` file for `127.0.0.1 central-dev`.
 * Create `local.json` in the central-backend directory and set the value of `default.env.domain` to `http://central-dev:8989`
 
+### Development container
+
+Another option to get complete development environment is to use a development container in Docker.
+
+To start it in Visual Studio Code, follow these steps.
+Clone the repository.
+Copy the file `.env.template` to `.env`, and set `DOMAIN=local` and `SSL_TYPE=selfsign` (domain names won't work with Docker Desktop).
+Open command palette (press `Ctrl+Shift+P`) and select **Dev Containers: Reopen in Container**.
+
+After the container has started, you can open terminal inside Visual Studio Code and start server and client according to the documentation.
+
 ## Operations
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
 
