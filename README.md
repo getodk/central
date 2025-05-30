@@ -21,7 +21,9 @@ We would love your contributions to Central. If you have thoughts or suggestions
 
 ### Branches
 
-The `master` branch of this repository is a stable branch that users clone when they install Central in production. The `next` branch reflects ongoing development for the next version of Central. Note that this differs from the `central-backend` and `central-frontend` repositories, where `master` is the development branch. When submitting a pull request to this repository, please target the `next` branch unless the change is limited to documentation, such as the README, and include `Fixes #{issue-number}` or `Closes #{issue-number}` in the PR description to automatically close the related issue upon merging.
+The `master` branch of this repository is a stable branch that users clone when they install Central in production. The `next` branch reflects ongoing development for the next version of Central. Note that this differs from the `central-backend` and `central-frontend` repositories, where `master` is the development branch. 
+
+When submitting a pull request to this repository, please target the `next` branch unless the change is limited to documentation, such as the README, and include `Fixes #{issue-number}` or `Closes #{issue-number}` in the PR description to automatically close the related issue upon merging.
 
 ### Services
 
