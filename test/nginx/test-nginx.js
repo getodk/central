@@ -202,10 +202,6 @@ describe('nginx config', () => {
       request: `/-/single/${enketoOnceId}?st=${sessionToken}`,
       expected: `f/${enketoOnceId}?st=${sessionToken}` },
 
-    { description: 'edit submission',
-      request: `/-/edit/${enketoId}?instance_id=uuid:123&return_url=https%3A%2F%2Fodk-nginx.example.test%2Fprojects%2F1%2Fforms%2Fsimple%2Fsubmissions%2Fuuid%3A123`,
-      expected: `f/${enketoId}/edit?instance_id=uuid:123&return_url=https%3A%2F%2Fodk-nginx.example.test%2Fprojects%2F1%2Fforms%2Fsimple%2Fsubmissions%2Fuuid%3A123` },
-
     { description: 'preview form',
       request: `/-/preview/${enketoId}`,
       expected: `f/${enketoId}/preview` },
@@ -246,6 +242,7 @@ describe('nginx config', () => {
     '/-/logout',
     '/-/api',
     '/-/preview',
+    '/-/edit/enketo-id'
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
