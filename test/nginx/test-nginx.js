@@ -8,17 +8,30 @@ const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
   'restrictive': {
     'default-src': none,
+    'connect-src': [
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
+    'img-src': 'https://translate.google.com',
     'report-uri':  '/csp-report',
   },
   'central-frontend': {
     'default-src':    none,
-    'connect-src':    self,
+    'connect-src':    [
+      self,
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
     'font-src':       self,
     'frame-src':      [
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        '* data:',
+    'img-src':        [
+      '*', // TODO what does this do if (unconfirmed) it doesn't allow translate.google.com?
+      'data:',
+      'https://translate.google.com',
+    ],
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
@@ -37,6 +50,8 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://fonts.gstatic.com/',
       'https://fonts.googleapis.com/',
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
     ],
     'font-src': [
       self,
@@ -52,6 +67,7 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://maps.googleapis.com/maps/',
       'https://tile.openstreetmap.org/',
+      'https://translate.google.com',
     ],
     'manifest-src': none,
     'media-src': [
