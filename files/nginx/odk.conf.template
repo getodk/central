@@ -75,7 +75,7 @@ server {
 
   server_tokens off;
 
-  add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; report-uri /csp-report";
+  add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
   include /usr/share/odk/nginx/common-headers.conf;
 
   client_max_body_size 100m;
