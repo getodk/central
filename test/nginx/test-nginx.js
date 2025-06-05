@@ -17,7 +17,7 @@ const contentSecurityPolicies = {
   },
   'central-frontend': {
     'default-src':    none,
-    'connect-src':    [
+    'connect-src': [
       self,
       'https://translate.google.com',
       'https://translate.googleapis.com',
@@ -27,11 +27,7 @@ const contentSecurityPolicies = {
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        [
-      '*', // TODO what does this do if (unconfirmed) it doesn't allow translate.google.com?
-      'data:',
-      'https://translate.google.com',
-    ],
+    'img-src':        '* data:',
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
