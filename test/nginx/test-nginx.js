@@ -242,7 +242,7 @@ describe('nginx config', () => {
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketo-id'
+    '/-/edit/enketoid'
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
