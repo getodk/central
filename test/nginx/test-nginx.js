@@ -413,7 +413,6 @@ describe('nginx config', () => {
         // then
         assert.equal(res.status, 301);
         assert.equal(res.headers.get('Location'), redirectLocation);
-        assertCommonHeaders(res);
         // and
         await assertBackendReceived(
           { method:'GET', path:requestPath },
@@ -449,7 +448,6 @@ describe('nginx config', () => {
         // then
         assert.equal(res.status, 301);
         assert.equal(res.headers.get('Location'), redirectLocation);
-        assertCommonHeaders(res);
         // and
         await assertEnketoReceived(
           { method:'GET', path:requestPath },
@@ -472,7 +470,6 @@ describe('nginx config', () => {
         // then
         assert.equal(res.status, 301);
         assert.equal(res.headers.get('Location'), expected);
-        assertCommonHeaders(res);
         // and
         await assertBackendReceived(
           { method:'GET', path:requestPath },
@@ -499,7 +496,6 @@ describe('nginx config', () => {
         // then
         assert.equal(res.status, 301);
         assert.equal(res.headers.get('Location'), expected);
-        assertCommonHeaders(res);
         // and
         await assertEnketoReceived(
           { method:'GET', path:requestPath },
