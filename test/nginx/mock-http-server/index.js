@@ -7,14 +7,33 @@ const requests = [];
 
 const app = express();
 
-app.get('/health',      withStdLogging((req, res) => res.send('OK')));
-app.get('/request-log', withStdLogging((req, res) => res.json(requests)));
-app.get('/reset',       withStdLogging((req, res) => {
+app.use((req, res, next) => {
+  console.log(new Date(), req.method, req.originalUrl);
+  next();
+});
+
+// Enketo express returns response with Vary and Cache-Control headers
+app.use('/-/', (req, res, next) => {
+  res.set('Vary', 'Accept-Encoding');
+  res.set('Cache-Control', 'public, max-age=0');
+  next();
+});
+
+app.get('/health',      (req, res) => res.send('OK'));
+app.get('/request-log', (req, res) => res.json(requests));
+app.get('/reset',       (req, res) => {
   requests.length = 0;
   res.json('OK');
-}));
+});
 
-app.get('/v1/reflect-headers', withStdLogging((req, res) => res.json(req.headers)));
+app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
+
+// Central-Backend can set Cache headers and those should have highest precedence
+app.get('/v1/projects', (_, res) => {
+  res.set('Vary', 'Cookie');
+  res.set('Cache-Control', 'private, max-age=3600');
+  res.send('OK');
+});
 
 const redirectGenerator = withStdLogging((req, res) => {
   requests.push({ method:req.method, path:req.originalUrl });
@@ -33,18 +52,11 @@ app.get('/-/generate-redirect/:status', redirectGenerator);
   'post',
   'put',
   // TODO add more methods as required
-].forEach(method => app[method]('/{*splat}', withStdLogging((req, res) => {
+].forEach(method => app[method]('/{*splat}', (req, res) => {
   requests.push({ method:req.method, path:req.originalUrl });
   res.send('OK');
-})));
+}));
 
 app.listen(port, () => {
   log(`Listening on port: ${port}`);
 });
-
-function withStdLogging(fn) {
-  return (req, res) => {
-    console.log(new Date(), req.method, req.originalUrl);
-    return fn(req, res);
-  };
-}

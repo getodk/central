@@ -50,12 +50,16 @@ log "Starting containers..."
 docker compose up --detach
 
 log "Verifying frontend..."
-check_path 60 / 'ODK Central'
+check_path 180 / 'ODK Central'
 log "  Frontend started OK."
 
 log "Verifying backend..."
 check_path 2 /v1/projects '[]'
 log "  Backend started OK."
+
+log "Verifying enketo..."
+check_path 2 /-/ 'Enketo is running!'
+log "  Enketo started OK."
 
 log "Verifying pm2..."
 docker compose exec service npx --no pm2 list | tee "$tmp"

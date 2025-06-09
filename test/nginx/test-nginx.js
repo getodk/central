@@ -2,6 +2,93 @@ const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
 
+const none = `'none'`;
+const self = `'self'`;
+const unsafeInline = `'unsafe-inline'`;
+const contentSecurityPolicies = {
+  'restrictive': {
+    'default-src': none,
+    'connect-src': [
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
+    'img-src': 'https://translate.google.com',
+    'report-uri':  '/csp-report',
+  },
+  'central-frontend': {
+    'default-src':    none,
+    'connect-src': [
+      self,
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
+    'font-src':       self,
+    'frame-src':      [
+      self,
+      'https://getodk.github.io/central/news.html',
+    ],
+    'img-src':        '* data:',
+    'manifest-src':   none,
+    'media-src':      none,
+    'object-src':     none,
+    'script-src':     self,
+    'style-src':      self,
+    'style-src-attr': unsafeInline,
+    'report-uri':     '/csp-report',
+  },
+  enketo: {
+    'default-src': none,
+    'connect-src': [
+      self,
+      'blob:',
+      'https://maps.googleapis.com/',
+      'https://maps.google.com/',
+      'https://maps.gstatic.com/mapfiles/',
+      'https://fonts.gstatic.com/',
+      'https://fonts.googleapis.com/',
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
+    'font-src': [
+      self,
+      'https://fonts.gstatic.com/',
+    ],
+    'frame-src': none,
+    'img-src': [
+      'data:',
+      'blob:',
+      'jr:',
+      self,
+      'https://maps.google.com/maps/',
+      'https://maps.gstatic.com/mapfiles/',
+      'https://maps.googleapis.com/maps/',
+      'https://tile.openstreetmap.org/',
+      'https://translate.google.com',
+    ],
+    'manifest-src': none,
+    'media-src': [
+      'blob:',
+      'jr:',
+      self,
+    ],
+    'object-src': none,
+    'script-src': [
+      unsafeInline,
+      self,
+      'https://maps.googleapis.com/maps/api/js/',
+      'https://maps.google.com/maps/',
+      'https://maps.google.com/maps-api-v3/api/js/',
+    ],
+    'style-src': [
+      unsafeInline,
+      self,
+      'https://fonts.googleapis.com/css',
+    ],
+    'style-src-attr': unsafeInline,
+    'report-uri': '/csp-report',
+  },
+};
+
 describe('nginx config', () => {
   beforeEach(() => Promise.all([
     resetEnketoMock(),
@@ -33,7 +120,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
   it('should serve generated client-config.json (IPv6)', async () => {
@@ -43,7 +130,17 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(await res.json(), { oidcEnabled: false });
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'central-frontend' });
+  });
+
+  it('should serve robots.txt', async () => {
+    // when
+    const res = await fetchHttps('/robots.txt');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('Content-Type'), 'text/plain');
+    assert.equal(await res.text(), 'User-agent: *\nDisallow: /\n');
   });
 
   [
@@ -59,7 +156,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
 
@@ -68,6 +165,7 @@ describe('nginx config', () => {
     { request: '/-',                                   expected: '/-' },
     { request: '/enketo-passthrough/some/enketo/path', expected: '/-/some/enketo/path' },
     { request: '/enketo-passthrough',                  expected: '/-' },
+    { request: '/enketo-passthrough/enketoid',         expected: '/-/enketoid' },
   ].forEach(t => {
     it(`should forward to enketo; ${t.request}`, async () => {
       // when
@@ -76,7 +174,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'enketo' });
 
       // and
       await assertEnketoReceived(
@@ -97,7 +195,7 @@ describe('nginx config', () => {
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), '<div id="app"></div>\n');
-      assertCommonHeaders(res);
+      assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
       await assertEnketoReceivedNoRequests();
@@ -116,21 +214,25 @@ describe('nginx config', () => {
       request: `/-/single/${enketoOnceId}?st=${sessionToken}`,
       expected: `f/${enketoOnceId}?st=${sessionToken}` },
 
-    { description: 'edit submission',
-      request: `/-/edit/${enketoId}?instance_id=uuid:123&return_url=https%3A%2F%2Fodk-nginx.example.test%2Fprojects%2F1%2Fforms%2Fsimple%2Fsubmissions%2Fuuid%3A123`,
-      expected: `f/${enketoId}/edit?instance_id=uuid:123&return_url=https%3A%2F%2Fodk-nginx.example.test%2Fprojects%2F1%2Fforms%2Fsimple%2Fsubmissions%2Fuuid%3A123` },
-
     { description: 'preview form',
       request: `/-/preview/${enketoId}`,
       expected: `f/${enketoId}/preview` },
 
-    { description: 'offline submission',
-      request: `/-/x/${enketoId}`,
-      expected: `f/${enketoId}/offline` },
-
     { description: 'new or draft submission',
       request: `/-/${enketoId}`,
       expected: `f/${enketoId}/new` },
+
+    { description: 'new submission - enketoId starts with thanks',
+      request: `/-/thanksokay`,
+      expected: `f/thanksokay/new` },
+
+    { description: 'new submission - enketoId ends with thanks',
+        request: `/-/okaythanks`,
+        expected: `f/okaythanks/new` },
+
+    { description: 'new submission - enketoId contains thanks',
+      request: `/-/okaythanksokay`,
+      expected: `f/okaythanksokay/new` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
@@ -145,19 +247,29 @@ describe('nginx config', () => {
     });
   });
 
-  it('should not redirect thanks page to central-frontend', async () => {
-    // when
-    const res = await fetchHttps('/-/thanks');
+  [
+    '/-/thanks',
+    '/-/connection',
+    '/-/login',
+    '/-/logout',
+    '/-/api',
+    '/-/preview',
+    '/-/edit/enketoid'
+  ].forEach(request => {
+    it(`should not redirect ${request} to central-frontend`, async () => {
+      // when
+      const res = await fetchHttps(request);
 
-    // then
-    assert.equal(res.status, 200);
-    assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+      assertSecurityHeaders(res, { csp:'enketo' });
 
-    // and
-    await assertEnketoReceived(
-      { method:'GET', path: '/-/thanks' },
-    );
+      // // and
+      await assertEnketoReceived(
+        { method:'GET', path: request },
+      );
+    });
   });
 
   it('should serve blank page on /-/single/check-submitted', async () => {
@@ -167,7 +279,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.isEmpty((await res.text()).trim());
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
     await assertEnketoReceivedNoRequests();
   });
 
@@ -178,7 +290,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -190,7 +302,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
@@ -208,7 +320,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertCommonHeaders(res);
+    assertSecurityHeaders(res, { csp:'restrictive' });
 
     // when
     const body = await res.json();
@@ -400,6 +512,7 @@ describe('nginx config', () => {
     [
       // general
       [ '/client-config.json',       'revalidate' ],
+      [ '/robots.txt',               'revalidate' ],
       [ '/version.txt',              'revalidate' ],
 
       // central-frontend - unversioned
@@ -409,26 +522,16 @@ describe('nginx config', () => {
       [ '/favicon.ico',              'revalidate' ],
 
       // central-frontend - versioned
-      [ '/css/app.7f75100b.css',                           'immutable' ],
-      [ '/css/component-feedback-button.9b267cf5.css',     'immutable' ],
-      [ '/css/component-home-config-section.86dc3b10.css', 'immutable' ],
-      [ '/css/component-home.7fd2ac91.css',                'immutable' ],
-      [ '/css/component-hover-cards.f8d67159.css',         'immutable' ],
-      [ '/css/component-outdated-version.1669dac3.css',    'immutable' ],
+      [ '/assets/actor-link-CHKNLRJ6.js',                  'immutable' ],
+      [ '/assets/branch-data-NQSuaxke.js',                 'immutable' ],
+      [ '/assets/breadcrumbs-P9Q8Sr8V.js',                 'immutable' ],
+      [ '/assets/chunky-array-CWqL2QBf.js',                'immutable' ],
+      [ '/assets/style-BAOwY-Kl.css',                      'immutable' ],
+      [ '/assets/who-va@2x-KiG_UkDd.jpg',                  'immutable' ],
+      [ '/assets/socio-economic@2x-DT8M7CaZ.jpg',          'immutable' ],
       [ '/fonts/icomoon.ttf',                              'revalidate' ],
       [ '/fonts/icomoon.ttf?',                             'revalidate' ],
       [ '/fonts/icomoon.ttf?ohpk4j',                       'immutable' ],
-      [ '/js/1272.6c131f2a.js',                            'immutable' ],
-      [ '/js/247.f8ae2d8d.js',                             'immutable' ],
-      [ '/js/3647.e6884fb5.js',                            'immutable' ],
-      [ '/js/9342.c7b5e54f.js',                            'immutable' ],
-      [ '/js/app.186f7291.js',                             'immutable' ],
-      [ '/js/chunk-vendors.37e8929b.js',                   'immutable' ],
-      [ '/js/component-feedback-button.0447c840.js',       'immutable' ],
-      [ '/js/component-home-config-section.04391182.js',   'immutable' ],
-      [ '/js/component-home.0f5945af.js',                  'immutable' ],
-      [ '/js/component-hover-cards.957b7e0e.js',           'immutable' ],
-      [ '/js/component-outdated-version.17283d89.js',      'immutable' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
@@ -454,23 +557,69 @@ describe('nginx config', () => {
     });
   });
 
+  describe('backend caching', () => {
+    [
+      [ '/v1/foo',                   'passthrough' ],
+      [ '/v1/foo/bar/baz',           'passthrough' ]
+    ].forEach(([ path, expectedCacheStrategy ]) => {
+      [ 'GET', 'HEAD' ].forEach(method => {
+        it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+          // when
+          const res = await fetchHttps(path, { method });
+
+          // then
+          assert.equal(res.status, 200);
+
+          // and
+          assertCacheStrategyApplied(res, expectedCacheStrategy);
+        });
+      });
+    });
+
+    it('should return cache headers from the backend', async () => {
+      // when
+      const res = await fetchHttps('/v1/projects');
+
+      // then
+      assert.equal(res.status, 200);
+
+      // and
+      assert.equal(res.headers.get('Cache-Control'), 'private, max-age=3600');
+      assert.equal(res.headers.get('Vary'), 'Cookie');
+    });
+  });
+
   describe('enketo caching', () => {
     [
-      [ '/-/preview/some-id',                            'single-use' ],
-      [ '/-/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
-      [ '/-/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
-      [ '/-/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable' ],
-      [ '/-/css/theme-kobo.css',                         'revalidate' ],
-      [ '/-/js/build/enketo-webform.js',                 'revalidate' ],
-      [ '/-/js/build/chunks/chunk-BKEADX6Q.js',          'immutable' ],
-      [ '/-/js/build/chunks/chunk-Q3Q473PS.js',          'immutable' ],
-      [ '/-/js/build/chunks/chunk-3RPRB7E5.js',          'immutable' ],
-      [ '/-/css/theme-kobo.print.css',                   'revalidate' ],
-      [ '/-/images/icon_180x180.png',                    'revalidate' ],
-      [ '/-/images/favicon.ico',                         'revalidate' ],
-      [ '/-/locales/build/en/translation-combined.json', 'revalidate' ],
-      [ '/-/transform/xform/some-id',                    'single-use' ],
-      [ '/-/submission/max-size/some-id',                'single-use' ],
+      [ '/-/preview/some-id',                              'single-use' ],
+      [ '/-/fonts/OpenSans-Bold-webfont.woff',             'revalidate' ],
+      [ '/-/fonts/OpenSans-Regular-webfont.woff',          'revalidate' ],
+      [ '/-/fonts/fontawesome-webfont.woff?v=4.6.2',       'immutable'  ],
+      [ '/-/css/theme-kobo.css',                           'revalidate' ],
+      [ '/-/js/build/enketo-webform.js',                   'revalidate' ],
+      [ '/-/js/build/chunks/chunk-BKEADX6Q.js',            'immutable'  ],
+      [ '/-/js/build/chunks/chunk-Q3Q473PS.js',            'immutable'  ],
+      [ '/-/js/build/chunks/chunk-3RPRB7E5.js',            'immutable'  ],
+      [ '/-/css/theme-kobo.print.css',                     'revalidate' ],
+      [ '/-/images/icon_180x180.png',                      'revalidate' ],
+      [ '/-/images/favicon.ico',                           'revalidate' ],
+      [ '/-/locales/build/en/translation-combined.json',   'revalidate' ],
+      [ '/-/transform/xform/some-id',                      'single-use' ],
+      [ '/-/submission/max-size/some-id',                  'single-use' ],
+      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ], // offline Form
+      [ '/-/x/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
+      [ '/-/x/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
+      [ '/-/x/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable'  ],
+      [ '/-/x/css/theme-kobo.css',                         'revalidate' ],
+      [ '/-/x/js/build/enketo-webform.js',                 'revalidate' ],
+      [ '/-/x/js/build/chunks/chunk-BKEADX6Q.js',          'immutable'  ],
+      [ '/-/x/js/build/chunks/chunk-Q3Q473PS.js',          'immutable'  ],
+      [ '/-/x/js/build/chunks/chunk-3RPRB7E5.js',          'immutable'  ],
+      [ '/-/x/css/theme-kobo.print.css',                   'revalidate' ],
+      [ '/-/x/images/icon_180x180.png',                    'revalidate' ],
+      [ '/-/x/images/favicon.ico',                         'revalidate' ],
+      [ '/-/x/locales/build/en/translation-combined.json', 'revalidate' ],
+      [ '/-/x/offline-app-worker.js',                      'revalidate' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
@@ -484,7 +633,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, expectedCacheStrategy);
           // and
-          assertCommonHeaders(res);
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
 
@@ -500,7 +649,7 @@ describe('nginx config', () => {
           // and
           assertCacheStrategyApplied(res, 'single-use');
           // and
-          assertCommonHeaders(res);
+          assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
     });
@@ -623,20 +772,34 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
       assert.equal(res.headers.get('Cache-Control'), 'no-cache');
       assert.equal(res.headers.get('Vary'), 'Accept-Encoding');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
+      assert.ok(
+        res.headers.get('Last-Modified') || res.headers.get('ETag'),
+        'Revalidation requires at least one of Last-Modified & ETag headers',
+      );
       break;
     case 'single-use':
       assert.equal(res.headers.get('Cache-Control'), 'no-store');
       assert.equal(res.headers.get('Vary'), '*');
       assert.equal(res.headers.get('Pragma'), 'no-cache');
       break;
+    case 'passthrough':
+      assert.isFalse(res.headers.has('Cache-Control'));
+      assert.isFalse(res.headers.has('Vary'));
+      assert.isFalse(res.headers.has('Pragma'));
+      break;
     default: throw new Error(`Unrecognised cache strategy: ${expectedCacheStrategy}`);
   }
 }
 
-function assertCommonHeaders(res) {
+function assertSecurityHeaders(res, { csp }) {
   assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-  assert.ok(res.headers.get('Content-Security-Policy-Report-Only'));
+
+
+  const expectedCsp = contentSecurityPolicies[csp];
+  if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
+  const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
+  assert.deepEqual(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
 }
