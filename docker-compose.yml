@@ -109,7 +109,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v3.0.0'
+    image: 'ghcr.io/getodk/pyxform-http:v4.0.0'
     restart: always
   secrets:
     volumes:
