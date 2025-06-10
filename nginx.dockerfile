@@ -1,9 +1,8 @@
-FROM node:22.12.0-slim AS intermediate
+FROM node:22.16.0-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
-        gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./ ./
@@ -28,12 +27,13 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 
 RUN mkdir -p /usr/share/odk/nginx/
 
-COPY files/nginx/setup-odk.sh /scripts/
-RUN chmod +x /scripts/setup-odk.sh
+COPY files/nginx/setup-odk.sh \
+     files/shared/envsub.awk \
+     /scripts/
 
 COPY files/nginx/redirector.conf /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
-
+COPY files/nginx/robots.txt /usr/share/nginx/html
 COPY --from=intermediate client/dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
 
