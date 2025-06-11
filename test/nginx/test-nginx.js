@@ -8,11 +8,20 @@ const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
   'restrictive': {
     'default-src': none,
+    'connect-src': [
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
+    'img-src': 'https://translate.google.com',
     'report-uri':  '/csp-report',
   },
   'central-frontend': {
     'default-src':    none,
-    'connect-src':    self,
+    'connect-src': [
+      self,
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+    ],
     'font-src':       self,
     'frame-src':      [
       self,
@@ -37,6 +46,8 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://fonts.gstatic.com/',
       'https://fonts.googleapis.com/',
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
     ],
     'font-src': [
       self,
@@ -52,6 +63,7 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://maps.googleapis.com/maps/',
       'https://tile.openstreetmap.org/',
+      'https://translate.google.com',
     ],
     'manifest-src': none,
     'media-src': [
@@ -242,7 +254,7 @@ describe('nginx config', () => {
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketo-id'
+    '/-/edit/enketoid'
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
