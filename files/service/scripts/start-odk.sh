@@ -20,6 +20,10 @@ export SENTRY_TAGS
 echo "running migrations.."
 node ./lib/bin/run-migrations
 
+# Logs based on SENTRY_RELEASE and SENTRY_TAGS env variables
+echo "logging server upgrade.."
+node ./lib/bin/log-upgrade
+
 echo "starting cron.."
 cron -f &
 
