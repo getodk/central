@@ -35,6 +35,16 @@ app.get('/v1/projects', (_, res) => {
   res.send('OK');
 });
 
+const redirectGenerator = (req, res) => {
+  requests.push({ method:req.method, path:req.originalUrl });
+  const { status } = req.params;
+  const { location } = req.query;
+  log('/generate-redirect', { params:req.params, query:req.query });
+  res.redirect(Number.parseInt(status, 10), location);
+};
+app.get('/v1/generate-redirect/:status', redirectGenerator);
+app.get('/-/generate-redirect/:status', redirectGenerator);
+
 [
   'delete',
   'get',
