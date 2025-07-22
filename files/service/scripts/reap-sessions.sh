@@ -1,5 +1,5 @@
-#!/bin/bash -eu
-set -o pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 shopt -s inherit_errexit
 
 cd /usr/odk
