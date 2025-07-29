@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: postgres14.dockerfile
+    shm_size: 512m
     volumes:
       - postgres14:/var/lib/odk/postgresql/14
     environment:
