@@ -80,6 +80,9 @@ describe('postgres14', () => {
 
       // when
       await vacuum();
+
+      // then
+      // no error was thrown
     });
 
     it('should fail with 1 million rows', async function() {
@@ -99,6 +102,7 @@ describe('postgres14', () => {
         caught = err;
       }
 
+      // then
       assert.isDefined(caught, 'An error should have been thrown while vacuuming, but it completed successfully');
       assert.match(caught.message, /^could not resize shared memory segment ".*" to \d+ bytes: No space left on device$/);
     });
