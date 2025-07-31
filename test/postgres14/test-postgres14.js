@@ -72,7 +72,7 @@ describe('postgres14', () => {
       console.log(`vac:`, await client.query(`VACUUM (VERBOSE, PARALLEL 2) ${table}`));
     }
 
-    it('should succeed with ___ pages to update', async () => {
+    it('should succeed with 500 rows', async () => {
       // given
       await rowsExist(500);
       // and
