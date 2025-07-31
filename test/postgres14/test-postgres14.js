@@ -82,7 +82,7 @@ describe('postgres14', () => {
       await vacuum();
     });
 
-    it('should fail with ___ pages to update', async function() {
+    it('should fail with 1 million rows', async function() {
       this.timeout(30_000); // TODO make this double a reasonable run on CI
 
       // given
