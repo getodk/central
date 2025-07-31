@@ -1,0 +1,23 @@
+services:
+  postgres14:
+    build:
+      context: ../..
+      dockerfile: postgres14.dockerfile
+    # shm_size needs to be large enough to start the DB and run a small test, but small
+    # enough to be exhausted by a larger test.  This took some guessing.
+    shm_size: 10k
+    # Couldn't get it working in GHA without host network-mode )¬;
+    # FIXME not ideal, as it complicates running locally.
+    network_mode: host
+    volumes:
+      - postgres14:/var/lib/odk/postgresql/14
+    environment:
+      POSTGRES_USER: odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DB: odk
+volumes:
+  postgres14:
+    #driver_opts:
+    #  type: tmpfs
+    #  device: tmpfs
+    #  o: "size=128m"
