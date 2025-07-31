@@ -83,10 +83,10 @@ describe('postgres14', () => {
     });
 
     it('should fail with 1 million rows', async function() {
-      this.timeout(30_000); // TODO make this double a reasonable run on CI
+      this.timeout(30_000);
 
       // given
-      await rowsExist(1_000_000); // TODO make this as low as possible to fail on CI
+      await rowsExist(1_000_000);
       // and
       await generateChurn();
 
