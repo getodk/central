@@ -17,7 +17,3 @@ services:
       POSTGRES_DB: odk
 volumes:
   postgres14:
-    #driver_opts:
-    #  type: tmpfs
-    #  device: tmpfs
-    #  o: "size=128m"
