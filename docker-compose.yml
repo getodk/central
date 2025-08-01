@@ -75,6 +75,7 @@ services:
       - S3_ACCESS_KEY=${S3_ACCESS_KEY:-}
       - S3_SECRET_KEY=${S3_SECRET_KEY:-}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
+      - PGAPPNAME=${PGAPPNAME:-odkcentral}
     command: [ "wait-for-it", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
     restart: always
     logging:
