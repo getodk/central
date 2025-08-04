@@ -1,10 +1,10 @@
-#!/bin/bash -eu
-set -o pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
-expectedShebang=$'#!/bin/bash -eu\nset -o pipefail\nshopt -s inherit_errexit\n'
+expectedShebang=$'#!/usr/bin/env bash\nset -euo pipefail\nshopt -s inherit_errexit\n'
 
 scriptFiles="$(cat <(git grep -El '^#!.*sh\b') <(git ls-files | grep -E '.sh$') | sort -u)"
 
