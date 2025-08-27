@@ -233,6 +233,14 @@ describe('nginx config', () => {
     { description: 'new submission - enketoId contains thanks',
       request: `/-/okaythanksokay`,
       expected: `f/okaythanksokay/new` },
+
+    { description: '/single appended to the URL that expects authenticated user (not a public link)',
+      request: `/-/single/${enketoId}`,
+      expected: `f/${enketoId}/new/single` },
+
+    { description: '/single removed from the public link to make it multiple submission Form',
+      request: `/-/${enketoId}?st=${sessionToken}`,
+      expected: `f/${enketoId}/multiple?st=${sessionToken}` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {

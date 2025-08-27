@@ -59,6 +59,16 @@ map $cache_strategy $cache_header_vary {
   default      "*";
 }
 
+map $arg_st $enketo_multiple_suffix {
+  default "/new";
+  ~.+     "/multiple";
+}
+
+map $arg_st $enketo_single_suffix {
+  default "/new/single";
+  ~.+     "";
+}
+
 server {
   listen 443 ssl;
   server_name ${DOMAIN};
@@ -94,7 +104,9 @@ server {
   # Following are the locations that serve a Form and these are redirected to the frontend:
   location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link, public
-    return 301 "/f/$enketoId$is_args$args";
+    # If 'st' query parameter is not present, redirect to protected route with single only
+    # end-of-form behavior (/new/single)
+    return 301 "/f/$enketoId$enketo_single_suffix$is_args$args";
   }
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
@@ -105,7 +117,8 @@ server {
   # we don't want them to be redirected to central-frontend
   location ~ "^/-/(?!thanks$|connection$|login$|logout$|api$|preview$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
-    return 301 "/f/$enketoId/new$is_args$args";
+    # If 'st' query parameter is present, redirect to /multiple route for public access
+    return 301 "/f/$enketoId$enketo_multiple_suffix$is_args$args";
   }
   # To read single submission cookies
   location = /-/single/check-submitted {
