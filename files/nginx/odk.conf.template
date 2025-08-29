@@ -59,26 +59,19 @@ map $cache_strategy $cache_header_vary {
   default      "*";
 }
 
-map $args $args_without_single {
-  ~^single=[^&]*&?(.*)$ $1;
-  ~^(.*)&single=[^&]*&?(.*)$ $1&$2;
-  ~^(.*)&single=[^&]*$ $1;
-  default $args;
-}
-
-map $args_without_single $is_args_without_single {
+map $args $qp_deliminator {
   ~.+ "&";
-  default "";
+  default "?";
 }
 
 map $arg_st $redirect_non_single_prefix {
-  ~.+     "?single=false$is_args_without_single$args_without_single";
-  default "/new$is_args$args";
+  ~.+     "${is_args}${args}${qp_deliminator}single=false";
+  default "/new${is_args}${args}";
 }
 
 map $arg_st $redirect_single_prefix {
-  ~.+     "$is_args$args";
-  default "/new?single=true$is_args_without_single$args_without_single";
+  ~.+     "${is_args}${args}";
+  default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
 server {
@@ -117,7 +110,7 @@ server {
   location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link, public
     # If 'st' query parameter is not present, redirect to protected route with single only
-    # end-of-form behavior (/new/single)
+    # end-of-form behavior (/new?single=true)
     return 301 "/f/$enketoId$redirect_single_prefix";
   }
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
@@ -129,7 +122,7 @@ server {
   # we don't want them to be redirected to central-frontend
   location ~ "^/-/(?!thanks$|connection$|login$|logout$|api$|preview$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
-    # If 'st' query parameter is present, redirect to /multiple route for public access
+    # If 'st' query parameter is present, add ?single=false for public access
     return 301 "/f/$enketoId$redirect_non_single_prefix";
   }
   # To read single submission cookies

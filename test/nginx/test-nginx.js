@@ -240,7 +240,7 @@ describe('nginx config', () => {
 
     { description: '/single removed from the public link to make it multiple submission Form',
       request: `/-/${enketoId}?st=${sessionToken}`,
-      expected: `f/${enketoId}?single=false&st=${sessionToken}` },
+      expected: `f/${enketoId}?st=${sessionToken}&single=false` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
