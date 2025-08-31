@@ -22,6 +22,17 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo > dist/assets/socio-economic@2x-DT8M7CaZ.jpg
   echo > dist/fonts/icomoon.ttf
 
+  generateFile() {
+    local name="$1"
+    local size="$2"
+
+    for ((x="$size"; x>0; x-=16)); do
+      printf 0123456789abcdef >> dist/"$name"
+    done
+  }
+
+  generateFile 10k-file.txt 10240
+
   exit
 else
   npm clean-install --no-audit --fund=false --update-notifier=false

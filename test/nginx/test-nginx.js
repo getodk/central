@@ -113,6 +113,42 @@ describe('nginx config', () => {
     assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
   });
 
+  describe('response compression (Content-Encoding)', () => {
+    [
+      'gzip',
+    ].forEach(format => {
+      it(`should support ${format} for big files`, async () => {
+        // given
+        const headers = { 'Accept-Encoding':format };
+
+        // when
+        const res = await fetchHttps('/10k-file.txt', { headers });
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(res.headers.get('Content-Encoding'), format);
+      });
+    });
+
+    [
+      'br',
+      'deflate',
+      'zstd',
+    ].forEach(format => {
+      it(`should not support ${format} for big files`, async () => {
+        // given
+        const headers = { 'Accept-Encoding':format };
+
+        // when
+        const res = await fetchHttps('/10k-file.txt', { headers });
+
+        // then
+        assert.equal(res.status, 200);
+        assert.isNull(res.headers.get('Content-Encoding'));
+      });
+    });
+  });
+
   it('should serve generated client-config.json', async () => {
     // when
     const res = await fetchHttps('/client-config.json');
