@@ -1,0 +1,17 @@
+{
+  "name": "odk-central-tests",
+  "scripts": {
+    "lint": "ESLINT_USE_FLAT_CONFIG=false npx eslint --cache .",
+    "test:postgres14": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test-postgres14.js",
+    "test": "npm run lint && npm run test:postgres14"
+  },
+  "dependencies": {
+    "chai": "^5.2.0",
+    "eslint": "^9.28.0",
+    "mocha": "^11.6.0",
+    "pg": "^8.16.3"
+  },
+  "volta": {
+    "node": "22.17.1"
+  }
+}
