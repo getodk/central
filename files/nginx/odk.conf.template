@@ -81,10 +81,12 @@ server {
   client_max_body_size 100m;
 
   gzip on;
+  gzip_comp_level 5;
   gzip_vary on;
-  gzip_min_length 1280;
+  gzip_min_length 1024;
   gzip_http_version 1.1;
-  gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
+  gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml text/csv image/svg+xml;
+  gzip_proxied any;
 
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
