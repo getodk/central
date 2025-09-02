@@ -60,7 +60,8 @@ map $cache_strategy $cache_header_vary {
 }
 
 server {
-  listen 443 ssl;
+  listen 443 quic reuseport;
+  listen 443 ssl http2;
   server_name ${DOMAIN};
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
@@ -75,6 +76,7 @@ server {
 
   server_tokens off;
 
+  add_header Alt-Svc 'h3=":443"; ma=86400; persist=1' always;
   add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
   include /usr/share/odk/nginx/common-headers.conf;
 
