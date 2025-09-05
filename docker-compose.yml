@@ -45,7 +45,7 @@ services:
       - enketo
     volumes:
       - secrets:/etc/secrets
-      - /data/transfer:/data/transfer
+      - ${DATA_DIR:-./data/transfer}:/data/transfer
     environment:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
