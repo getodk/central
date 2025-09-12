@@ -49,6 +49,11 @@ To learn how to run such a stack in production, please take a look at [our Digit
 
 We aim to use the latest [active LTS version of Node.js](https://github.com/nodejs/release/blob/main/README.md#release-schedule). This means that we generally update the major Node version used across all Central components once a year. Each time we do a Central release, we update to the latest version within the active LTS line. Node updates are done near the end of the release cycle but before regression testing.
 
+## Help & Support
+- 📖 [Documentation](https://docs.getodk.org/central-intro/)
+- 💬 [ODK Forum](https://forum.getodk.org)
+- 🚀 [Releases](https://github.com/getodk/central/releases)
+
 ## License
 
 All of ODK Central is licensed under the [Apache 2.0](https://raw.githubusercontent.com/getodk/central/master/LICENSE) License.
