@@ -19,9 +19,13 @@ If you are looking for help, please take a look at the [Documentation Website](h
 
 We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Ideas board](https://forum.getodk.org/c/ideas) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/CONTRIBUTING.md)), or both. To set up a development environment, first follow the [Backend instructions](https://github.com/getodk/central-backend#setting-up-a-development-environment) and then optionally the [Frontend instructions](https://github.com/getodk/central-frontend#setting-up-your-development-environment).
 
-### Branches
 
-The `master` branch of this repository is a stable branch that users clone when they install Central in production. The `next` branch reflects ongoing development for the next version of Central. Note that this differs from the `central-backend` and `central-frontend` repositories, where `master` is the development branch. If you create a PR to this repository, please target the `next` branch unless you are only changing documentation like the readme.
+### Branches
+- `master` — stable production branch.
+- `next` — active development for the next release.
+
+Note: in `central-backend` and `central-frontend` the `master` branch is used for development.  
+For this repo, **target `next` for code PRs**; target `master` for documentation-only changes.
 
 ### Services
 
@@ -44,6 +48,11 @@ To learn how to run such a stack in production, please take a look at [our Digit
 ## Node.js version
 
 We aim to use the latest [active LTS version of Node.js](https://github.com/nodejs/release/blob/main/README.md#release-schedule). This means that we generally update the major Node version used across all Central components once a year. Each time we do a Central release, we update to the latest version within the active LTS line. Node updates are done near the end of the release cycle but before regression testing.
+
+## Help & Support
+- 📖 [Documentation](https://docs.getodk.org/central-intro/)
+- 💬 [ODK Forum](https://forum.getodk.org)
+- 🚀 [Releases](https://github.com/getodk/central/releases)
 
 ## License
 
