@@ -100,7 +100,7 @@ server {
   gzip_vary on;
   gzip_min_length 1024;
   gzip_http_version 1.1;
-  gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml text/csv image/svg+xml;
+  gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml application/xml text/csv image/svg+xml;
   gzip_proxied any;
 
   # Enketo Configuration.
