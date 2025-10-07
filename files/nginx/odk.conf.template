@@ -76,6 +76,7 @@ map $arg_st $redirect_single_prefix {
 
 server {
   listen 443 ssl;
+  http2 on;
   server_name ${DOMAIN};
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
