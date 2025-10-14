@@ -12,16 +12,15 @@ fi
   < /usr/share/odk/nginx/client-config.json.template \
   > /usr/share/nginx/html/client-config.json
 
-# Generate self-signed keys for the incorrect (catch-all) HTTPS listener. This
-# cert should never be seen by legitimate users, but it needs to be X.509 v3
-# have subjectAltName and be reasonably valid to work with SSL scanners.
+# Generate self-signed keys for the incorrect (catch-all) HTTPS listener.  This
+# cert should never be seen by legitimate users, so it's not a big deal that
+# it's self-signed and won't expire for 1,000 years.
 mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -newkey rsa:2048 \
     -subj "/CN=invalid.local" \
-    -addext "subjectAltName=DNS:invalid.local" \
     -keyout /etc/nginx/ssl/nginx.default.key \
     -out    /etc/nginx/ssl/nginx.default.crt \
-    -days 3650
+    -days 365000
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
