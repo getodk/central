@@ -21,6 +21,7 @@
         }
       }
     },
+    "sessionLifetime": ${SESSION_LIFETIME},
     "xlsform": {
       "host": "pyxform",
       "port": 80
