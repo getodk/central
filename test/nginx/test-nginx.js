@@ -572,6 +572,44 @@ describe('nginx config', () => {
       });
     });
   });
+
+  describe('/csp-report', () => {
+    // This initial test is the control - Sentry will reject requests
+    // made directly to their IP address.
+    it('upstream should reject requests by IP address', async () => {
+      // given
+      let caught;
+
+      // when
+      try {
+        await fetch('https://127.0.0.1');
+      } catch(err) {
+        caught = err;
+      }
+
+      // then
+      assert.isOk(caught);
+      assert.instanceOf(caught, TypeError);
+      assert.equal(caught.message, 'fetch failed');
+      // and
+      assert.isOk(caught.cause);
+      assert.equal(caught.cause.name, 'SocketError');
+      assert.equal(caught.cause.message, 'other side closed');
+    });
+
+    it('should forward requests to Sentry, verbatim', async () => {
+      // when
+      const res = await fetchHttps('/csp-report', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ hiya:'sentry' }),
+      });
+
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+    });
+  });
 });
 
 function fetchHttp(path, options) {
