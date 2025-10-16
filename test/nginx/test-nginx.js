@@ -594,7 +594,7 @@ describe('nginx config', () => {
       // and
       assert.isOk(caught.cause);
       // The cause seems to differ based on unknown factors:
-      assert.match(caught.cause.toString(), /^(SocketError: other side closed)|(Error: ECONNREFUSED 127.0.0.1:443)$/);
+      assert.match(caught.cause.toString(), /^(SocketError: other side closed)|(Error: connect ECONNREFUSED 127.0.0.1:443)$/);
     });
 
     it('should forward requests to Sentry, verbatim', async () => {
