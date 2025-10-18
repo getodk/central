@@ -573,10 +573,10 @@ describe('nginx config', () => {
     });
   });
 
-  describe('/csp-report', () => {
+  describe('CSP reports', () => {
     // This initial test is the control - Sentry will reject requests
     // made directly to their IP address.
-    it('upstream should reject requests by IP address', async () => {
+    it('upstream (Sentry) should reject requests by IP address', async () => {
       // given
       let caught;
 
@@ -597,12 +597,12 @@ describe('nginx config', () => {
       assert.match(caught.cause.toString(), /^(SocketError: other side closed)|(Error: connect ECONNREFUSED 127.0.0.1:443)$/);
     });
 
-    it('should forward requests to Sentry, verbatim', async () => {
+    it('/csp-report should successfully forward requests to Sentry', async () => {
       // when
       const res = await fetchHttps('/csp-report', {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ hiya:'sentry' }),
+        body: JSON.stringify({}),
       });
 
       // then
