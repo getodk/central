@@ -20,6 +20,7 @@ services:
       - "443:443"
     environment:
       - MODE=https
+      - HTTPS_HOST=o-fake-dsn.ingest.sentry.io
       - PORT=443
   nginx:
     build:
