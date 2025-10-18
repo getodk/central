@@ -12,9 +12,18 @@ services:
       - central
     ports:
       - 5432:5432
+    environment:
+      POSTGRES_USER: jubilant
+      POSTGRES_PASSWORD: jubilant
+      POSTGRES_DB: jubilant
   postgres:
     profiles:
       - central
+    environment:
+      PGUSER: jubilant
+      POSTGRES_INITDB_ARGS: -U jubilant
+      POSTGRES_PASSWORD: jubilant
+      POSTGRES_DB: jubilant
     image: debian:bullseye
     command: /bin/sh -c 'mkdir -p /var/lib/postgresql/14/data && touch /var/lib/postgresql/14/.postgres14-upgrade-successful'
   mail:
