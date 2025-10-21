@@ -1,3 +1,4 @@
+const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
@@ -574,27 +575,47 @@ describe('nginx config', () => {
   });
 
   describe('CSP reports', () => {
-    // This initial test is the control - Sentry will reject requests
-    // made directly to their IP address.
-    it('upstream (Sentry) should reject requests by IP address', async () => {
-      // given
-      let caught;
+    describe('Sentry behaviour', () => {
+      // These tests are a control to demonstrate that the local fake Sentry is
+      // behaving similarly to sentry.io.
 
-      // when
-      try {
-        await fetch('https://127.0.0.1');
-      } catch(err) {
-        caught = err;
-      }
+      const requestWithSniHost = servername => new Promise((resolve, reject) => {
+        const opts = { hostname:'127.0.0.1', servername };
 
-      // then
-      assert.isOk(caught);
-      assert.instanceOf(caught, TypeError);
-      assert.equal(caught.message, 'fetch failed');
-      // and
-      assert.isOk(caught.cause);
-      // The cause seems to differ based on unknown factors:
-      assert.match(caught.cause.toString(), /^(SocketError: other side closed)|(Error: connect ECONNREFUSED 127.0.0.1:443)$/);
+        const req = https.request(opts, res => {
+          res.on('data', () => {}); // ensure response stream is consumed
+          res.on('end', resolve);
+          res.on('error', reject);
+        });
+
+        req.on('error', reject);
+
+        req.end();
+      });
+
+      it('should accept requests with correct SNI host', async () => {
+        // when
+        await requestWithSniHost('o-fake-dsn.ingest.sentry.io');
+
+        // then
+        // No error was thrown :¬)
+      });
+
+      it('should reject requests without SNI host', async () => {
+        // given
+        let caught;
+
+        // when
+        try {
+          await requestWithSniHost(undefined);
+        } catch(err) {
+          caught = err;
+        }
+
+        // then
+        assert.isOk(caught);
+        assert.equal(caught.code, 'ECONNRESET');
+      });
     });
 
     it('/csp-report should successfully forward requests to Sentry', async () => {
