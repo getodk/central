@@ -67,7 +67,7 @@ const server = (() => {
       console.error(`Unrecognised mode: '${mode}'; should be one of http, https.  Cannot start server.`);
       process.exit(1);
   }
-});
+})();
 
 server.listen(port, () => {
   log(`Listening with ${mode} on port: ${port}`, server === app);
