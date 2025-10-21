@@ -60,35 +60,39 @@ app.get('/v1/projects', (_, res) => {
 }));
 
 const server = (() => {
-  if(mode === 'http') {
-    return app;
-  } else if(mode === 'https') {
-    if(!httpsHost) throw new Error('Env var HTTPS_HOST is required for MODE=https');
-
-    const { readFileSync } = require('node:fs');
-    const { createServer } = require('node:https');
-    const { createSecureContext } = require('node:tls');
-
-    const pem = name => readFileSync(`${name}.pem`, 'utf8');
-    const creds = name => ({ key:pem(`${name}-key`), cert:pem(`${name}-cert`) });
-
-    const goodCreds = creds('good');
-
-    const opts = {
-      ...creds('bad'),
-      SNICallback: (servername, cb) => {
-        if(servername !== httpsHost) return cb(new Error(`Unexpected SNI host: ${servername}`));
-        cb(null, createSecureContext(goodCreds));
-      },
-    };
-
-    return createServer(opts, app);
-  } else {
-    console.error(`Unrecognised mode: '${mode}'; should be one of http, https.  Cannot start server.`);
-    process.exit(1);
+  switch(mode) {
+    case 'http':  return app;
+    case 'https': return initHttpsServer();
+    default:
+      console.error(`Unrecognised mode: '${mode}'; should be one of http, https.  Cannot start server.`);
+      process.exit(1);
   }
-})();
+});
 
 server.listen(port, () => {
   log(`Listening with ${mode} on port: ${port}`, server === app);
 });
+
+
+function initHttpsServer() {
+  if(!httpsHost) throw new Error('Env var HTTPS_HOST is required for MODE=https');
+
+  const { readFileSync } = require('node:fs');
+  const { createServer } = require('node:https');
+  const { createSecureContext } = require('node:tls');
+
+  const pem = name => readFileSync(`${name}.pem`, 'utf8');
+  const creds = name => ({ key:pem(`${name}-key`), cert:pem(`${name}-cert`) });
+
+  const goodCreds = creds('good');
+
+  const opts = {
+    ...creds('bad'),
+    SNICallback: (servername, cb) => {
+      if(servername !== httpsHost) return cb(new Error(`Unexpected SNI host: ${servername}`));
+      cb(null, createSecureContext(goodCreds));
+    },
+  };
+
+  return createServer(opts, app);
+}
