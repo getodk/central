@@ -85,9 +85,8 @@ function initHttpsServer() {
 
   const encoding = 'utf8';
 
-  const pem = path => readFileSync(path, { encoding });
   const creds = commonName => {
-    const keyPath = `${commonName}-key.pem`;
+    const keyPath  = `${commonName}-key.pem`;
     const certPath = `${commonName}-cert.pem`;
 
     execSync(
