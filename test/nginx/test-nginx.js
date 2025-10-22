@@ -414,7 +414,14 @@ describe('nginx config', () => {
         // seems to support this format.
         const validUntil = new Date(validUntilRaw);
         assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
+
         assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
+
+        // spread subject to avoid https://github.com/mochajs/mocha/issues/5505
+        assert.deepEqual({ ...certificate.subject }, {
+          CN: 'invalid.local', // required for www.ssllabs.com/ssltest
+        });
+
         socket.end();
       } catch(err) {
         socket.destroy(err);
