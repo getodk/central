@@ -4,7 +4,9 @@ const { assert } = require('chai');
 
 const none = `'none'`;
 const self = `'self'`;
+const unsafeHashes = `'unsafe-hashes'`;
 const unsafeInline = `'unsafe-inline'`;
+const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 const contentSecurityPolicies = {
   'restrictive': {
     'default-src': none,
@@ -106,11 +108,11 @@ const contentSecurityPolicies = {
     'object-src': none,
     'script-src': [
       self,
-      `'wasm-unsafe-eval'`,
+      wasmUnsafeEval,
     ],
     'style-src': [
       self,
-      unsafeInline,
+      unsafeHashes,
     ],
     'style-src-attr': unsafeInline,
   },
