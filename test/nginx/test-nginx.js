@@ -87,6 +87,33 @@ const contentSecurityPolicies = {
     'style-src-attr': unsafeInline,
     'report-uri': '/csp-report',
   },
+  'web-forms': {
+    'default-src': 'none',
+    'connect-src': [
+      self,
+      'https://translate.google.com',
+      'https://translate.googleapis.com',
+      'https://s3-server.example.test',
+    ],
+    'font-src': [
+      self,
+      'data:',
+    ],
+    'frame-src': self,
+    'img-src': '* data:',
+    'manifest-src': none,
+    'media-src': none,
+    'object-src': none,
+    'script-src': [
+      self,
+      `'wasm-unsafe-eval'`,
+    ],
+    'style-src': [
+      self,
+      unsafeInline,
+    ],
+    'style-src-attr': unsafeInline,
+  },
 };
 
 describe('nginx config', () => {
@@ -370,6 +397,21 @@ describe('nginx config', () => {
     const body = await res.json();
     // then
     assert.equal(body['x-forwarded-proto'], 'https');
+  });
+
+  [
+    '/projects/1/forms/MarkdownExamples/preview?webforms=true',
+    '/projects/2/forms/mediaTest/preview?webforms=true',
+  ].forEach(path => {
+    it(`should not add Content Security Policy restrictions for webforms path: ${path}`, async () => {
+      // when
+      const res = await fetchHttps(path);
+
+      // then
+      assert.equal(res.status, 200);
+      // and
+      assertSecurityHeaders(res, { csp:'web-forms' });
+    });
   });
 
   it('should reject HTTP requests with incorrect host header supplied', async () => {
