@@ -401,18 +401,36 @@ describe('nginx config', () => {
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 
-  [
-    '/projects/1/forms/MarkdownExamples/preview?webforms=true',
-    '/projects/2/forms/mediaTest/preview?webforms=true',
-  ].forEach(path => {
-    it(`should not add Content Security Policy restrictions for webforms path: ${path}`, async () => {
-      // when
-      const res = await fetchHttps(path);
+  describe.only('web-forms Content-Security-Policy special handling', () => {
+    [
+      '/projects/1/forms/MarkdownExamples/preview?webforms=true',
+      '/projects/2/forms/mediaTest/preview?webforms=true',
+    ].forEach(path => {
+      it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
 
-      // then
-      assert.equal(res.status, 200);
-      // and
-      assertSecurityHeaders(res, { csp:'web-forms' });
+        // then
+        assert.equal(res.status, 200);
+        // and
+        assertSecurityHeaders(res, { csp:'web-forms' });
+      });
+    });
+
+    [
+      '/projects/1/forms/MarkdownExamples?webforms=true', // no /preview
+      '/projects/1/forms/preview/preview?webforms=true',  // form named "preview"
+      '/projects/1/forms/preview/perview?webforms=true',  // misspelt preview
+    ].forEach(path => {
+      it(`should not add specific Content Security Policy restrictions for fake webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
+
+        // then
+        assert.equal(res.status, 200);
+        // and
+        assertSecurityHeaders(res, { csp:'central-frontend' });
+      });
     });
   });
 
