@@ -427,7 +427,7 @@ describe('nginx config', () => {
       '/projects/1/forms/preview/perview?webforms=true', // misspelt preview
       '/projects/3/forms/preview?webforms=true', // form named "preview", but not the actual preview path
     ].forEach(path => {
-      it(`should not add specific Content Security Policy restrictions for fake webforms path: ${path}`, async () => {
+      it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
         // when
         const res = await fetchHttps(path);
 
