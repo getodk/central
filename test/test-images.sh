@@ -37,7 +37,9 @@ check_path() {
   done
 }
 
-echo 'SSL_TYPE=selfsign
+echo '
+S3_SERVER=
+SSL_TYPE=selfsign
 DOMAIN=local
 SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
