@@ -186,7 +186,6 @@ server {
     try_files $uri $uri/ /index.html;
 
     add_header Content-Security-Policy-Report-Only $frontend_csp_header;
-    #add_header Content-Security-Policy-Report-Only "default-src $uri?webforms=$arg_webforms";
     include /usr/share/odk/nginx/common-headers.conf;
   }
 
