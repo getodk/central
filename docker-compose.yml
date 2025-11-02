@@ -92,6 +92,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
+      - S3_SERVER=${S3_SERVER:-}
       - SSL_TYPE=${SSL_TYPE:-letsencrypt}
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
