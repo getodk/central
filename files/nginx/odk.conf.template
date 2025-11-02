@@ -175,8 +175,11 @@ server {
     proxy_read_timeout 2m;
   }
 
+  # Custom handling for form previews.
+  # Added to allow webforms CSP header to be set correctly.
   location ~ ^/projects/\d+/forms/[^/]*/preview$ {
     alias /usr/share/nginx/html/index.html;
+
     add_header Content-Security-Policy-Report-Only $frontend_csp_header;
     include /usr/share/odk/nginx/common-headers.conf;
   }
