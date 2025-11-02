@@ -24,6 +24,7 @@ services:
       - enketo
     environment:
       - DOMAIN=odk-nginx.example.test
+      - S3_SERVER=https://s3-server.example.test
       - SENTRY_KEY=example-sentry-key
       - SENTRY_ORG_SUBDOMAIN=example-sentry-org-subdomain
       - SENTRY_PROJECT=example-sentry-project
