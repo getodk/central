@@ -12,7 +12,7 @@ map "$uri::webforms::$arg_webforms" $frontend_csp_header {
   # They are included here to ease interpretation of violation reports.
   default
       "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
-  ~^/projects/\d+/forms/[^/]*/PVIEW::webforms::true$
+  ~^/projects/\d+/forms/[^/]*/preview::webforms::true$
       "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com ${S3_SERVER}; font-src 'self' data:; frame-src 'self'; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-hashes'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
 }
 
@@ -175,7 +175,7 @@ server {
     proxy_read_timeout 2m;
   }
 
-  location ~ /PVIEW {
+  location ~ ^/projects/\d+/forms/[^/]*/preview$ {
     alias /usr/share/nginx/html/index.html;
     add_header Content-Security-Policy-Report-Only $frontend_csp_header;
     include /usr/share/odk/nginx/common-headers.conf;

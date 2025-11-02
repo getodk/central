@@ -402,11 +402,11 @@ describe('nginx config', () => {
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 
-  describe.only('web-forms Content-Security-Policy special handling', () => {
+  describe('web-forms Content-Security-Policy special handling', () => {
     [
-      '/projects/1/forms/MarkdownExamples/PVIEW?webforms=true',
-      '/projects/2/forms/mediaTest/PVIEW?webforms=true',
-      '/projects/3/forms/PVIEW/PVIEW?webforms=true',
+      '/projects/1/forms/MarkdownExamples/preview?webforms=true',
+      '/projects/2/forms/mediaTest/preview?webforms=true',
+      '/projects/3/forms/preview/preview?webforms=true',
     ].forEach(path => {
       it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
@@ -420,12 +420,12 @@ describe('nginx config', () => {
     });
 
     [
-      '/projects/1/forms/MarkdownExamples/PVIEW', // webforms not present
-      '/projects/1/forms/MarkdownExamples/PVIEW?webforms=false', // webforms=false
-      '/projects/1/forms/MarkdownExamples/PVIEW?_webforms=false', // webforms not present
-      '/projects/1/forms/MarkdownExamples?webforms=true', // no /PVIEW
-      '/projects/1/forms/PVIEW/perview?webforms=true', // misspelt PVIEW
-      '/projects/3/forms/PVIEW?webforms=true', // form named "PVIEW", but not the actual preview path
+      '/projects/1/forms/MarkdownExamples/preview', // webforms not present
+      '/projects/1/forms/MarkdownExamples/preview?webforms=false', // webforms=false
+      '/projects/1/forms/MarkdownExamples/preview?_webforms=false', // webforms not present
+      '/projects/1/forms/MarkdownExamples?webforms=true', // no /preview
+      '/projects/1/forms/preview/perview?webforms=true', // misspelt preview
+      '/projects/3/forms/preview?webforms=true', // form named "preview", but not the actual preview path
     ].forEach(path => {
       it(`should not add specific Content Security Policy restrictions for fake webforms path: ${path}`, async () => {
         // when
