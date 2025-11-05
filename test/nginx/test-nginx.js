@@ -403,10 +403,17 @@ describe('nginx config', () => {
   });
 
   describe('web-forms Content-Security-Policy special handling', () => {
+    // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
-      '/projects/1/forms/MarkdownExamples/preview?webforms=true',
-      '/projects/2/forms/mediaTest/preview?webforms=true',
-      '/projects/3/forms/preview/preview?webforms=true',
+      '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1/forms/some_xml_form_id/preview',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/preview',
+      '/f/anything',
+
+      // longer project id, shorter form ID
+      '/projects/99999/forms/_/submissions/new',
     ].forEach(path => {
       it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
@@ -420,12 +427,28 @@ describe('nginx config', () => {
     });
 
     [
-      '/projects/1/forms/MarkdownExamples/preview', // webforms not present
-      '/projects/1/forms/MarkdownExamples/preview?webforms=false', // webforms=false
-      '/projects/1/forms/MarkdownExamples/preview?_webforms=false', // webforms not present
-      '/projects/1/forms/MarkdownExamples?webforms=true', // no /preview
-      '/projects/1/forms/preview/perview?webforms=true', // misspelt preview
-      '/projects/3/forms/preview?webforms=true', // form named "preview", but not the actual preview path
+      '/projects/1/forms/MarkdownExamples', // no /preview
+      '/projects/1/forms/preview/perview', // misspelt preview
+      '/projects/3/forms/preview', // form named "preview", but not the actual preview path
+
+      // invalid project ids
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
+
+      // invalid form IDs
+      '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1/forms/some_xml_form_id/preview',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/preview',
+
+      // invalid submission ID
+      '/projects/1/forms/some_xml_form_id/submissions/00000not-0a00-real-uuid-000000000000/edit',
+
+      // no counter-tests for /f/, because currently all valid /f/* URLs in frontend are for form display
     ].forEach(path => {
       it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
         // when
