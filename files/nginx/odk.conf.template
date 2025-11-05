@@ -7,26 +7,6 @@ server {
   return 421;
 }
 
-#map "$host" $webforms_csp_header {
-#  # Rules set to 'none' here would fallback to default-src if excluded.
-#  # They are included here to ease interpretation of violation reports.
-#  default "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com ${S3_SERVER}; font-src 'self' data:; frame-src 'self'; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-hashes'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
-#}
-
-#map "$host" $webform_path_regex {
-#  default "^(/projects/\d+/forms/[^/]*(/draft)?/(preview|/submissions/new))$";
-#}
-#
-#map "$request_method::$uri" $frontend_csp_header {
-#  # Rules set to 'none' here would fallback to default-src if excluded.
-#  # They are included here to ease interpretation of violation reports.
-#  default                                                    "default 1 $request_method::$uri";
-#  ~"$webform_path_regex"                                     "default 2 $request_method::$uri";
-#  ~^GET::/projects/\d+/forms/[^/]*(/draft)?/submissions/new$ "default 3 $request_method::$uri";
-#  ~^GET::/projects/\d+/forms/[^/]*/submissions/[\/]*/edit$   "default 4 $request_method::$uri";
-#  ~^GET::/f/.*                                               "default 5 $request_method::$uri";
-#}
-
 map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config.json$ "revalidate";
