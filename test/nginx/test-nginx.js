@@ -113,6 +113,42 @@ describe('nginx config', () => {
     assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
   });
 
+  describe('response compression (Content-Encoding)', () => {
+    [
+      'gzip',
+    ].forEach(format => {
+      it(`should support ${format} for big files`, async () => {
+        // given
+        const headers = { 'Accept-Encoding':format };
+
+        // when
+        const res = await fetchHttps('/10k-file.txt', { headers });
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(res.headers.get('Content-Encoding'), format);
+      });
+    });
+
+    [
+      'br',
+      'deflate',
+      'zstd',
+    ].forEach(format => {
+      it(`should not support ${format} for big files`, async () => {
+        // given
+        const headers = { 'Accept-Encoding':format };
+
+        // when
+        const res = await fetchHttps('/10k-file.txt', { headers });
+
+        // then
+        assert.equal(res.status, 200);
+        assert.isNull(res.headers.get('Content-Encoding'));
+      });
+    });
+  });
+
   it('should serve generated client-config.json', async () => {
     // when
     const res = await fetchHttps('/client-config.json');
@@ -233,6 +269,14 @@ describe('nginx config', () => {
     { description: 'new submission - enketoId contains thanks',
       request: `/-/okaythanksokay`,
       expected: `f/okaythanksokay/new` },
+
+    { description: '/single appended to the URL that expects authenticated user (not a public link)',
+      request: `/-/single/${enketoId}`,
+      expected: `f/${enketoId}/new?single=true` },
+
+    { description: '/single removed from the public link to make it multiple submission Form',
+      request: `/-/${enketoId}?st=${sessionToken}`,
+      expected: `f/${enketoId}?st=${sessionToken}&single=false` },
   ];
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
@@ -370,7 +414,14 @@ describe('nginx config', () => {
         // seems to support this format.
         const validUntil = new Date(validUntilRaw);
         assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
+
         assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
+
+        // spread subject to avoid https://github.com/mochajs/mocha/issues/5505
+        assert.deepEqual({ ...certificate.subject }, {
+          CN: 'invalid.local', // required for www.ssllabs.com/ssltest
+        });
+
         socket.end();
       } catch(err) {
         socket.destroy(err);
@@ -603,6 +654,8 @@ describe('nginx config', () => {
       [ '/-/transform/xform/some-id',                      'single-use' ],
       [ '/-/submission/max-size/some-id',                  'single-use' ],
       [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH',            'revalidate' ], // offline Form
+      [ '/-/x/0n1W082ZWvx1O7XDsmHNqfwSrIjeeIH?st=ieLWu5eDOZlx5LgYmigfSVo2tDVAyca3gaZs%24t3qJcPBLJmrnmzkzw5rH9pl%21OaJ',
+                                                           'revalidate' ], // offline public Form
       [ '/-/x/fonts/OpenSans-Bold-webfont.woff',           'revalidate' ],
       [ '/-/x/fonts/OpenSans-Regular-webfont.woff',        'revalidate' ],
       [ '/-/x/fonts/fontawesome-webfont.woff?v=4.6.2',     'immutable'  ],

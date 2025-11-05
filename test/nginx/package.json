@@ -6,8 +6,11 @@
     "test": "npm run lint && npm run test:nginx"
   },
   "dependencies": {
-    "chai": "^4.5.0",
-    "eslint": "^9.23.0",
-    "mocha": "^10.7.3"
+    "chai": "^5.2.0",
+    "eslint": "^9.28.0",
+    "mocha": "^11.6.0"
+  },
+  "volta": {
+    "node": "22.21.0"
   }
 }

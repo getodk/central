@@ -35,7 +35,7 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/-(/x)?/js/build/chunks/     "immutable";
   ~^(GET|HEAD)::/-(/x)?/js/build/            "revalidate";
   ~^(GET|HEAD)::/-(/x)?/locales/             "revalidate";
-  ~^(GET|HEAD)::/-/x/[a-zA-Z0-9]+$           "revalidate";
+  ~^(GET|HEAD)::/-/x/[a-zA-Z0-9]+            "revalidate";
   ~^(GET|HEAD)::/-/x/offline-app-worker\.js$ "revalidate";
 
   default "single-use";
@@ -59,8 +59,24 @@ map $cache_strategy $cache_header_vary {
   default      "*";
 }
 
+map $args $qp_deliminator {
+  ~.+ "&";
+  default "?";
+}
+
+map $arg_st $redirect_non_single_prefix {
+  ~.+     "${is_args}${args}${qp_deliminator}single=false";
+  default "/new${is_args}${args}";
+}
+
+map $arg_st $redirect_single_prefix {
+  ~.+     "${is_args}${args}";
+  default "/new${is_args}${args}${qp_deliminator}single=true";
+}
+
 server {
   listen 443 ssl;
+  http2 on;
   server_name ${DOMAIN};
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
@@ -81,10 +97,12 @@ server {
   client_max_body_size 100m;
 
   gzip on;
+  gzip_comp_level 6;
   gzip_vary on;
-  gzip_min_length 1280;
+  gzip_min_length 1024;
   gzip_http_version 1.1;
-  gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml text/csv;
+  gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml application/xml text/csv image/svg+xml;
+  gzip_proxied any;
 
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
@@ -94,7 +112,9 @@ server {
   # Following are the locations that serve a Form and these are redirected to the frontend:
   location ~ "^/-/single/(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link, public
-    return 301 "/f/$enketoId$is_args$args";
+    # If 'st' query parameter is not present, redirect to protected route with single only
+    # end-of-form behavior (/new?single=true)
+    return 301 "/f/$enketoId$redirect_single_prefix";
   }
   location ~ "^/-/preview/(?<enketoId>[a-zA-Z0-9]+)$" {
     # preview link
@@ -105,7 +125,8 @@ server {
   # we don't want them to be redirected to central-frontend
   location ~ "^/-/(?!thanks$|connection$|login$|logout$|api$|preview$)(?<enketoId>[a-zA-Z0-9]+)$" {
     # Form fill link (non-public), or Draft
-    return 301 "/f/$enketoId/new$is_args$args";
+    # If 'st' query parameter is present, add ?single=false for public access
+    return 301 "/f/$enketoId$redirect_non_single_prefix";
   }
   # To read single submission cookies
   location = /-/single/check-submitted {
