@@ -412,6 +412,9 @@ describe('nginx config', () => {
       '/projects/1/forms/some_xml_form_id/draft/preview',
       '/f/anything',
 
+      // invalid submission ID - currently not checking for valid UUIDs
+      '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
+
       // longer project id, shorter form ID
       '/projects/99999/forms/_/submissions/new',
     ].forEach(path => {
@@ -438,8 +441,11 @@ describe('nginx config', () => {
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
 
-      // invalid submission ID
-      '/projects/1/forms/some_xml_form_id/submissions/00000not-0a00-real-uuid-000000000000/edit',
+      // missing project id
+      '/projects//forms/some_xml_form_id/submissions/new',
+
+      // missing form id
+      '/projects/1/forms//preview',
 
       // no counter-tests for /f/, because currently all valid /f/* URLs in frontend are for form display
     ].forEach(path => {
