@@ -438,13 +438,6 @@ describe('nginx config', () => {
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
 
-      // invalid form IDs
-      '/projects/1/forms/some_xml_form_id/submissions/new',
-      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
-      '/projects/1/forms/some_xml_form_id/preview',
-      '/projects/1/forms/some_xml_form_id/draft/submissions/new',
-      '/projects/1/forms/some_xml_form_id/draft/preview',
-
       // invalid submission ID
       '/projects/1/forms/some_xml_form_id/submissions/00000not-0a00-real-uuid-000000000000/edit',
 

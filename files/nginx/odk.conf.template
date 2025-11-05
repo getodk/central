@@ -7,13 +7,18 @@ server {
   return 421;
 }
 
-map "$uri::webforms::$arg_webforms" $frontend_csp_header {
+map "$host" $webforms_csp_header {
+  default "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com ${S3_SERVER}; font-src 'self' data:; frame-src 'self'; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-hashes'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+}
+
+map "$request_method::$uri" $frontend_csp_header {
   # Rules set to 'none' here would fallback to default-src if excluded.
   # They are included here to ease interpretation of violation reports.
-  default
-      "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
-  ~^/projects/\d+/forms/[^/]*/preview::webforms::true$
-      "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com ${S3_SERVER}; font-src 'self' data:; frame-src 'self'; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-hashes'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+  default "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+  ~^GET::/projects/\d+/forms/[^/]*(/draft)?/preview$         $webforms_csp_header;
+  ~^GET::/projects/\d+/forms/[^/]*(/draft)?/submissions/new$ $webforms_csp_header;
+  ~^GET::/projects/\d+/forms/[^/]*/submissions/[\/]*/edit$   $webforms_csp_header;
+  ~^GET::/f/.*                                               $webforms_csp_header;
 }
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
