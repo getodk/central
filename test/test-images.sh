@@ -54,7 +54,7 @@ check_path 180 / 'ODK Central'
 log "  Frontend started OK."
 
 log "Verifying backend..."
-check_path 2 /v1/projects '[]'
+check_path 2 /v1/projects '{"message":"Could not authenticate with the provided credentials.","code":401.2}'
 log "  Backend started OK."
 
 log "Verifying enketo..."
