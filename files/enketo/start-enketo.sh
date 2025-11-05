@@ -4,7 +4,6 @@ shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
-log "Checking secrets exist..."
 assert_size() {
   local f="$1"
   local expectedSize="$2"
@@ -25,9 +24,14 @@ assert_size() {
     exit 1
   fi
 }
-assert_size /etc/secrets/enketo-secret       64
-assert_size /etc/secrets/enketo-less-secret  32
-assert_size /etc/secrets/enketo-api-key     128
+if [[ "${ENKETO_SECRETS-}" = "danger-insecure" ]]; then
+  log "Skipping secrets check."
+else
+  log "Checking secrets exist..."
+  assert_size /etc/secrets/enketo-secret       64
+  assert_size /etc/secrets/enketo-less-secret  32
+  assert_size /etc/secrets/enketo-api-key     128
+fi
 
 CONFIG_PATH=${ENKETO_SRC_DIR}/config/config.json
 log "Generating enketo configuration..."

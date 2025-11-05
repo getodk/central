@@ -17,7 +17,7 @@ fi
 # it's self-signed and won't expire for 1,000 years.
 mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -newkey rsa:2048 \
-    -subj "/" \
+    -subj "/CN=invalid.local" \
     -keyout /etc/nginx/ssl/nginx.default.key \
     -out    /etc/nginx/ssl/nginx.default.crt \
     -days 365000

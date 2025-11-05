@@ -48,6 +48,7 @@ services:
       - enketo_redis_main
     environment:
       - ENV=DEV
+      - ENKETO_SECRETS=danger-insecure
     extra_hosts:
     - "${DOMAIN}:host-gateway"
     ports:
