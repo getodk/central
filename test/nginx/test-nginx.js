@@ -447,6 +447,9 @@ describe('nginx config', () => {
       // missing form id
       '/projects/1/forms//preview',
 
+      // missing submission ID
+      '/projects/1/forms/some_xml_form_id/submissions//edit',
+
       // no counter-tests for /f/, because currently all valid /f/* URLs in frontend are for form display
     ].forEach(path => {
       it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
