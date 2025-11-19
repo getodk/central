@@ -186,7 +186,6 @@ describe('nginx config', () => {
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
-    [ '/blank.html',  /^\n$/ ],
     [ '/favicon.ico', /^\n$/ ],
   ].forEach(([ path, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
@@ -320,15 +319,22 @@ describe('nginx config', () => {
     });
   });
 
-  it('should serve blank page on /-/single/check-submitted', async () => {
-    // when
-    const res = await fetchHttps('/-/single/check-submitted');
+  describe('blank.html', () => {
+    [
+      '/blank.html',
+      '/-/single/check-submitted',
+    ].forEach(path => {
+      it(`should serve blank page on ${path}`, async () => {
+        // when
+        const res = await fetchHttps('/-/single/check-submitted');
 
-    // then
-    assert.equal(res.status, 200);
-    assert.isEmpty((await res.text()).trim());
-    assertSecurityHeaders(res, { csp:'disallow-all' });
-    await assertEnketoReceivedNoRequests();
+        // then
+        assert.equal(res.status, 200);
+        assert.isEmpty((await res.text()).trim());
+        assertSecurityHeaders(res, { csp:'disallow-all' });
+        await assertEnketoReceivedNoRequests();
+      });
+    });
   });
 
   it('/v1/... should forward to backend', async () => {
