@@ -172,7 +172,6 @@ server {
     add_header Content-Security-Policy-Report-Only "default-src 'none'";
     include /usr/share/odk/nginx/common-headers.conf;
   }
-
   location = /blank.html {
     try_files $uri @blank.html;
   }
