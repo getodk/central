@@ -326,11 +326,12 @@ describe('nginx config', () => {
     ].forEach(path => {
       it(`should serve blank page on ${path}`, async () => {
         // when
-        const res = await fetchHttps('/-/single/check-submitted');
+        const res = await fetchHttps(path);
 
         // then
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
+        assert.equal(res.headers.get('Content-Type'), 'text/html');
         assertSecurityHeaders(res, { csp:'disallow-all' });
         await assertEnketoReceivedNoRequests();
       });
