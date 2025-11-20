@@ -1,3 +1,4 @@
+const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
@@ -588,6 +589,64 @@ describe('nginx config', () => {
           assertSecurityHeaders(res, { csp:'enketo' });
         });
       });
+    });
+  });
+
+  describe('CSP reports', () => {
+    describe('Sentry behaviour', () => {
+      // These tests are a control to demonstrate that the local fake Sentry is
+      // behaving similarly to sentry.io.
+
+      const requestWithSniHost = servername => new Promise((resolve, reject) => {
+        const opts = { hostname:'127.0.0.1', servername };
+
+        const req = https.request(opts, res => {
+          res.on('data', () => {}); // ensure response stream is consumed
+          res.on('end', resolve);
+          res.on('error', reject);
+        });
+
+        req.on('error', reject);
+
+        req.end();
+      });
+
+      it('should accept requests with correct SNI host', async () => {
+        // when
+        await requestWithSniHost('o-fake-dsn.ingest.sentry.io');
+
+        // then
+        // No error was thrown :¬)
+      });
+
+      it('should reject requests without SNI host', async () => {
+        // given
+        let caught;
+
+        // when
+        try {
+          await requestWithSniHost(undefined);
+        } catch(err) {
+          caught = err;
+        }
+
+        // then
+        assert.isOk(caught);
+        assert.equal(caught.code, 'ECONNRESET');
+      });
+    });
+
+    it('/csp-report should successfully forward requests to Sentry', async () => {
+      // when
+      const res = await fetchHttps('/csp-report', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
     });
   });
 });
