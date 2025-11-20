@@ -417,9 +417,11 @@ describe('nginx config', () => {
     // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
       '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/new/offline',
       '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
       '/projects/1/forms/some_xml_form_id/preview',
       '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline',
       '/projects/1/forms/some_xml_form_id/draft/preview',
       '/f/anything',
 
