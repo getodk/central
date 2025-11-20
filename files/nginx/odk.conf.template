@@ -130,8 +130,7 @@ server {
   }
   # To read single submission cookies
   location = /-/single/check-submitted {
-    alias /usr/share/nginx/html/blank.html;
-    default_type text/html;
+    try_files $uri @blank.html;
   }
 
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
@@ -174,6 +173,17 @@ server {
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com ${S3_SERVER}; font-src 'self' data:; frame-src 'self'; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-hashes'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
 
     include /usr/share/odk/nginx/common-headers.conf;
+  }
+
+  location @blank.html {
+    root /usr/share/nginx/html;
+    try_files /blank.html =404;
+
+    add_header Content-Security-Policy-Report-Only "default-src 'none'";
+    include /usr/share/odk/nginx/common-headers.conf;
+  }
+  location = /blank.html {
+    try_files $uri @blank.html;
   }
 
   location / {
