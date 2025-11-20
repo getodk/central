@@ -7,7 +7,7 @@ const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const contentSecurityPolicies = {
-  'restrictive': {
+  'backend-default': {
     'default-src': none,
     'connect-src': [
       'https://translate.google.com',
@@ -37,6 +37,9 @@ const contentSecurityPolicies = {
     'style-src-attr': unsafeInline,
     'worker-src':     'data:',
     'report-uri':     '/csp-report',
+  },
+  'disallow-all': {
+    'default-src': none,
   },
   enketo: {
     'default-src': none,
@@ -184,7 +187,6 @@ describe('nginx config', () => {
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
-    [ '/blank.html',  /^\n$/ ],
     [ '/favicon.ico', /^\n$/ ],
   ].forEach(([ path, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
@@ -318,15 +320,23 @@ describe('nginx config', () => {
     });
   });
 
-  it('should serve blank page on /-/single/check-submitted', async () => {
-    // when
-    const res = await fetchHttps('/-/single/check-submitted');
+  describe('blank.html', () => {
+    [
+      '/blank.html',
+      '/-/single/check-submitted',
+    ].forEach(path => {
+      it(`should serve blank page on ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
 
-    // then
-    assert.equal(res.status, 200);
-    assert.isEmpty((await res.text()).trim());
-    assertSecurityHeaders(res, { csp:'restrictive' });
-    await assertEnketoReceivedNoRequests();
+        // then
+        assert.equal(res.status, 200);
+        assert.isEmpty((await res.text()).trim());
+        assert.equal(res.headers.get('Content-Type'), 'text/html');
+        assertSecurityHeaders(res, { csp:'disallow-all' });
+        await assertEnketoReceivedNoRequests();
+      });
+    });
   });
 
   it('/v1/... should forward to backend', async () => {
@@ -336,7 +346,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'backend-default' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -348,7 +358,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'backend-default' });
 
     // when
     const body = await res.json();
@@ -366,7 +376,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'backend-default' });
 
     // when
     const body = await res.json();
