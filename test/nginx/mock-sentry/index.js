@@ -2,10 +2,9 @@ const { execSync } = require('node:child_process');
 
 const express = require('express');
 
-const port = process.env.PORT || 80;
-const mode = process.env.MODE || 'http';
+const port = process.env.PORT || 443;
 const httpsHost = process.env.HTTPS_HOST;
-const log = (...args) => console.log('[mock-http-server]', ...args);
+const log = (...args) => console.log('[mock-sentry]', ...args);
 
 const requests = [];
 
@@ -26,29 +25,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enketo express returns response with Vary and Cache-Control headers
-app.use('/-/', (req, res, next) => {
-  res.set('Vary', 'Accept-Encoding');
-  res.set('Cache-Control', 'public, max-age=0');
-  next();
-});
-
-app.get('/health',      (req, res) => res.send('OK'));
-app.get('/request-log', (req, res) => res.json(requests));
-app.get('/reset',       (req, res) => {
-  requests.length = 0;
-  res.json('OK');
-});
-
-app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
-
-// Central-Backend can set Cache headers and those should have highest precedence
-app.get('/v1/projects', (_, res) => {
-  res.set('Vary', 'Cookie');
-  res.set('Cache-Control', 'private, max-age=3600');
-  res.send('OK');
-});
-
 [
   'delete',
   'get',
@@ -62,21 +38,6 @@ app.get('/v1/projects', (_, res) => {
 }));
 
 const server = (() => {
-  switch(mode) {
-    case 'http':  return app;
-    case 'https': return initHttpsServer();
-    default:
-      console.error(`Unrecognised mode: '${mode}'; should be one of http, https.  Cannot start server.`);
-      process.exit(1);
-  }
-})();
-
-server.listen(port, () => {
-  log(`Listening with ${mode} on port: ${port}`, server === app);
-});
-
-
-function initHttpsServer() {
   if(!httpsHost) throw new Error('Env var HTTPS_HOST is required for MODE=https');
 
   const { readFileSync } = require('node:fs');
@@ -120,4 +81,8 @@ function initHttpsServer() {
   };
 
   return createServer(opts, app);
-}
+})();
+
+server.listen(port, () => {
+  log(`Listening with ${mode} on port: ${port}`, server === app);
+});
