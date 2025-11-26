@@ -9,35 +9,40 @@ const log = (...args) => console.log('[mock-sentry]', ...args);
 const requests = [];
 
 const app = express();
+app.use(express.json());
+app.get('/request-log', (req, res) => res.json(requests));
+app.get('/reset',       (req, res) => {
+  requests.length = 0;
+  res.json('OK');
+});
+app.use('/api', (req, res, next) => {
+  log(new Date(), req.method, req.originalUrl);
 
-app.use((req, res, next) => {
-  console.log(new Date(), req.method, req.originalUrl);
-
-  if(!req.socket.encrypted) return next(new Error('req.socket.encrypted was falsy'));
+  if(!req.socket.encrypted) throw new Error('req.socket.encrypted was falsy');
 
   const certificate = req.socket.getCertificate();
-  if(certificate) {
+  if(!certificate) {
+    log('No certificate provided.  That seems weird.  TODO either throw here, or explain why this is expected.');
+  } else {
     if(certificate.subject.CN !== httpsHost) {
       // try to simulate an SNI / connection error
       console.log('Bad HTTPS cert used; destroying connection...');
       return req.socket.destroy();
     }
   }
+
   next();
 });
-
-app.get('/request-log', (req, res) => res.json(requests));
-[
-  'delete',
-  'get',
-  'patch',
-  'post',
-  'put',
-  // TODO add more methods as required
-].forEach(method => app[method]('/{*splat}', (req, res) => {
-  requests.push({ method:req.method, path:req.originalUrl });
+app.get('/api/check-cert', (req, res) => {
   res.send('OK');
-}));
+});
+app.post('/api/example-sentry-project/security/', (req, res) => {
+  if(req.query.sentry_key !== 'example-sentry-key') throw new Error('bad sentry key!');
+
+  requests.push(req.body);
+
+  res.send('OK');
+});
 
 const server = (() => {
   if(!httpsHost) throw new Error('Env var HTTPS_HOST is required for MODE=https');

@@ -593,12 +593,16 @@ describe('nginx config', () => {
   });
 
   describe('CSP reports', () => {
+    beforeEach(() => Promise.all([
+      resetSentryMock(),
+    ]));
+
     describe('Sentry behaviour', () => {
       // These tests are a control to demonstrate that the local fake Sentry is
       // behaving similarly to sentry.io.
 
       const requestWithSniHost = servername => new Promise((resolve, reject) => {
-        const opts = { hostname:'127.0.0.1', servername };
+        const opts = { hostname:'127.0.0.1', servername, path:'/api/check-cert' };
 
         const req = https.request(opts, res => {
           res.on('data', () => {}); // ensure response stream is consumed
@@ -650,8 +654,39 @@ describe('nginx config', () => {
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
       // and
-      assertSentryReceived( { example:1 });
+      await assertSentryReceived({ example:1 });
     });
+
+    async function resetSentryMock() {
+      const res = await requestSentryMock('/reset');
+      assert.isTrue(res.ok);
+    }
+    async function assertSentryReceived(...expectedRequests) {
+      const { ok, body } = await requestSentryMock('/request-log');
+      assert.isTrue(ok);
+      assert.deepEqual(expectedRequests, JSON.parse(body));
+    }
+    function requestSentryMock(path) {
+      return new Promise((resolve, reject) => {
+        const req = https.request(
+          { path, servername:'o-fake-dsn.ingest.sentry.io' },
+          res => {
+            let body = '';
+            res.on('data', data => body += data); // ensure response stream is consumed
+            res.on('end', () => {
+              try {
+                resolve({ ok:res.statusCode === 200, body });
+              } catch(err) {
+                reject(err);
+              }
+            });
+            res.on('error', reject);
+          },
+        );
+        req.on('error', reject);
+        req.end();
+      });
+    }
   });
 });
 
@@ -698,12 +733,6 @@ function resetEnketoMock() {
 
 function resetBackendMock() {
   return resetMock(8383);
-}
-
-async function assertSentryReceived(...expectedRequests) {
-  const res = await request('https://localhost/request-log');
-  assert.isTrue(res.ok);
-  assert.deepEqual(expectedRequests, await res.json());
 }
 
 async function resetMock(port) {
