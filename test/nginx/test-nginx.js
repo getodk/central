@@ -700,8 +700,8 @@ function resetBackendMock() {
   return resetMock(8383);
 }
 
-function assertSentryReceived(...expectedRequests) {
-  const res = await request(`https://localhost/request-log`);
+async function assertSentryReceived(...expectedRequests) {
+  const res = await request('https://localhost/request-log');
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
 }
