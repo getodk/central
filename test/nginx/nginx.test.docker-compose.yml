@@ -15,7 +15,7 @@ services:
       - PORT=8383
   sentry-mock:
     build:
-      dockerfile: mock-http-service.dockerfile
+      dockerfile: mock-sentry.dockerfile
     ports:
       - "443:443"
     environment:
