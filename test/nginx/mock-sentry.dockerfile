@@ -7,6 +7,6 @@ RUN apt-get update \
 
 WORKDIR /workspace
 
-COPY ./mock-http-server .
+COPY ./mock-sentry .
 RUN npm clean-install
 ENTRYPOINT ["npm", "run", "start"]
