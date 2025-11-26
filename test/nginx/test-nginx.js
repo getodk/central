@@ -619,20 +619,22 @@ describe('nginx config', () => {
         // No error was thrown :¬)
       });
 
-      it('should reject requests without SNI host', async () => {
-        // given
-        let caught;
+      [ undefined, 'bad.example.test' ].forEach(servername => {
+        it(`should reject requests with SNI host: ${servername}`, async () => {
+          // given
+          let caught;
 
-        // when
-        try {
-          await requestWithSniHost(undefined);
-        } catch(err) {
-          caught = err;
-        }
+          // when
+          try {
+            await requestWithSniHost(undefined);
+          } catch(err) {
+            caught = err;
+          }
 
-        // then
-        assert.isOk(caught);
-        assert.equal(caught.code, 'ECONNRESET');
+          // then
+          assert.isOk(caught);
+          assert.equal(caught.code, 'ECONNRESET');
+        });
       });
     });
 
