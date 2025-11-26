@@ -593,27 +593,19 @@ describe('nginx config', () => {
   });
 
   describe('CSP reports', () => {
+    // servername is used to send
+    // See: https://nodejs.org/api/https.html#new-agentoptions
+
     beforeEach(() => Promise.all([
       resetSentryMock(),
     ]));
 
-    describe('Sentry behaviour', () => {
+    describe('Sentry behaviour with unexpected SNI values', () => {
       // These tests are a control to demonstrate that the local fake Sentry is
-      // behaving similarly to sentry.io.
-
-      const requestWithSniHost = servername => new Promise((resolve, reject) => {
-        const opts = { hostname:'127.0.0.1', servername, path:'/api/check-cert' };
-
-        const req = https.request(opts, res => {
-          res.on('data', () => {}); // ensure response stream is consumed
-          res.on('end', resolve);
-          res.on('error', reject);
-        });
-
-        req.on('error', reject);
-
-        req.end();
-      });
+      // behaving similarly to sentry.io, which rejects requests which contain
+      // an unexpected hostname in the Server Name Indiciation (SNI) extension
+      // during TLS/HTTPS handshake.
+      // See: https://en.wikipedia.org/wiki/Server_Name_Indication
 
       it('should accept requests with correct SNI host', async () => {
         // when
@@ -640,6 +632,22 @@ describe('nginx config', () => {
           assert.equal(caught.code, 'ECONNRESET');
         });
       });
+
+      function requestWithSniHost(servername) {
+        return new Promise((resolve, reject) => {
+          const opts = { servername, path:'/api/check-cert' };
+
+          const req = https.request(opts, res => {
+            res.on('data', () => {}); // ensure response stream is consumed
+            res.on('end', resolve);
+            res.on('error', reject);
+          });
+
+          req.on('error', reject);
+
+          req.end();
+        });
+      }
     });
 
     it('/csp-report should successfully forward requests to Sentry', async () => {
