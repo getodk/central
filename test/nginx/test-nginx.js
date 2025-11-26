@@ -593,9 +593,6 @@ describe('nginx config', () => {
   });
 
   describe('CSP reports', () => {
-    // servername is used to send
-    // See: https://nodejs.org/api/https.html#new-agentoptions
-
     beforeEach(() => Promise.all([
       resetSentryMock(),
     ]));
@@ -609,20 +606,20 @@ describe('nginx config', () => {
 
       it('should accept requests with correct SNI host', async () => {
         // when
-        await requestWithSniHost('o-fake-dsn.ingest.sentry.io');
+        await requestSentryMock({ servername:'o-fake-dsn.ingest.sentry.io' });
 
         // then
         // No error was thrown :¬)
       });
 
-      [ undefined, 'bad.example.test' ].forEach(servername => {
-        it(`should reject requests with SNI host: ${servername}`, async () => {
+      [ '', 'bad.example.test' ].forEach(servername => {
+        it(`should reject requests with SNI host: "${servername}"`, async () => {
           // given
           let caught;
 
           // when
           try {
-            await requestWithSniHost(undefined);
+            await requestSentryMock({ servername });
           } catch(err) {
             caught = err;
           }
@@ -632,22 +629,6 @@ describe('nginx config', () => {
           assert.equal(caught.code, 'ECONNRESET');
         });
       });
-
-      function requestWithSniHost(servername) {
-        return new Promise((resolve, reject) => {
-          const opts = { servername, path:'/api/check-cert' };
-
-          const req = https.request(opts, res => {
-            res.on('data', () => {}); // ensure response stream is consumed
-            res.on('end', resolve);
-            res.on('error', reject);
-          });
-
-          req.on('error', reject);
-
-          req.end();
-        });
-      }
     });
 
     it('/csp-report should successfully forward requests to Sentry', async () => {
@@ -666,24 +647,31 @@ describe('nginx config', () => {
     });
 
     async function resetSentryMock() {
-      const res = await requestSentryMock('/reset');
-      assert.isTrue(res.ok);
+      const res = await requestSentryMock({ path:'/reset' });
+      assert.equal(res.status, 200);
     }
     async function assertSentryReceived(...expectedRequests) {
-      const { ok, body } = await requestSentryMock('/request-log');
-      assert.isTrue(ok);
+      const { status, body } = await requestSentryMock({ path:'/request-log' });
+      assert.equal(status, 200);
       assert.deepEqual(expectedRequests, JSON.parse(body));
     }
-    function requestSentryMock(path) {
+    function requestSentryMock(opts) {
+      // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
+      const {
+        method = 'GET',
+        path = '/api/check-cert',
+        servername = 'o-fake-dsn.ingest.sentry.io',
+      } = opts;
+
       return new Promise((resolve, reject) => {
         const req = https.request(
-          { path, servername:'o-fake-dsn.ingest.sentry.io' },
+          { method, path, servername },
           res => {
             let body = '';
             res.on('data', data => body += data); // ensure response stream is consumed
             res.on('end', () => {
               try {
-                resolve({ ok:res.statusCode === 200, body });
+                resolve({ status:res.statusCode, body });
               } catch(err) {
                 reject(err);
               }
