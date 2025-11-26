@@ -7,7 +7,7 @@ const httpsHost = process.env.HTTPS_HOST;
 const log = (...args) => console.log('[mock-sentry]', ...args);
 
 const events = [];
-const logErrorEvent(error) {
+const logErrorEvent = error => {
   log('ERROR', error);
   events.push({ error });
 }
