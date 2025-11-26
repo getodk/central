@@ -26,6 +26,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/request-log', (req, res) => res.json(requests));
 [
   'delete',
   'get',

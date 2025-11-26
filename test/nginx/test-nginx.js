@@ -643,12 +643,14 @@ describe('nginx config', () => {
       const res = await fetchHttps('/csp-report', {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ example:1 }),
       });
 
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
+      // and
+      assertSentryReceived( { example:1 });
     });
   });
 });
@@ -696,6 +698,12 @@ function resetEnketoMock() {
 
 function resetBackendMock() {
   return resetMock(8383);
+}
+
+function assertSentryReceived(...expectedRequests) {
+  const res = await request(`https://localhost/request-log`);
+  assert.isTrue(res.ok);
+  assert.deepEqual(expectedRequests, await res.json());
 }
 
 async function resetMock(port) {
