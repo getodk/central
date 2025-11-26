@@ -6,13 +6,13 @@ const port = process.env.PORT || 443;
 const httpsHost = process.env.HTTPS_HOST;
 const log = (...args) => console.log('[mock-sentry]', ...args);
 
-const requests = [];
+const reports = [];
 
 const app = express();
 app.use(express.json());
-app.get('/request-log', (req, res) => res.json(requests));
+app.get('/report-log', (req, res) => res.json(reports));
 app.get('/reset',       (req, res) => {
-  requests.length = 0;
+  reports.length = 0;
   res.json('OK');
 });
 app.use('/api', (req, res, next) => {
@@ -41,7 +41,7 @@ app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   if(req.query.sentry_key !== 'example-sentry-key') throw new Error('bad sentry key!');
 
-  requests.push(req.body);
+  reports.push(req.body);
 
   res.send('OK');
 });

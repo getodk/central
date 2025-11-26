@@ -651,7 +651,7 @@ describe('nginx config', () => {
       assert.equal(res.status, 200);
     }
     async function assertSentryReceived(...expectedRequests) {
-      const { status, body } = await requestSentryMock({ path:'/request-log' });
+      const { status, body } = await requestSentryMock({ path:'/report-log' });
       assert.equal(status, 200);
       assert.deepEqual(expectedRequests, JSON.parse(body));
     }
