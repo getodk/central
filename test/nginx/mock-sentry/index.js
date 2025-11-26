@@ -82,6 +82,8 @@ const server = (() => {
 
   const opts = {
     ...creds('default'),
+    // SNICallback is called IFF the client sends an SNI extension in the TLS handshake.
+    // See: https://nodejs.org/api/tls.html#tlscreateserveroptions-secureconnectionlistener
     SNICallback: (servername, cb) => {
       if(servername !== httpsHost) {
         const error = `SNICallback: rejecting unexpected servername: ${servername}`;
