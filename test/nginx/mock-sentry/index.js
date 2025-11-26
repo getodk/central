@@ -6,32 +6,29 @@ const port = process.env.PORT || 443;
 const httpsHost = process.env.HTTPS_HOST;
 const log = (...args) => console.log('[mock-sentry]', ...args);
 
-const reports = [];
+const events = [];
 
 const app = express();
 app.use(express.json());
-app.get('/report-log', (req, res) => res.json(reports));
+app.get('/event-log', (req, res) => res.json(events));
 app.get('/reset',       (req, res) => {
-  reports.length = 0;
+  events.length = 0;
   res.json('OK');
 });
 app.use('/api', (req, res, next) => {
   log(new Date(), req.method, req.originalUrl);
 
-  if(!req.socket.encrypted) throw new Error('req.socket.encrypted was falsy');
+  if(!req.socket.encrypted) fatalError('req.socket.encrypted was falsy');
 
   const certificate = req.socket.getCertificate();
-  if(!certificate) {
-    log(`
-      !!! No certificate found at all.
-      !!! This is completely unexpected.  Server will be terminated immediately.
-    `);
-    process.exit(1);
-  }
+  if(!certificate) fatalError('No certificate found at all.');
 
-  if(certificate.subject.CN !== httpsHost) {
+  const { CN } = certificate.subject;
+  if(CN !== httpsHost) {
+    const error = `Server cert had unexpected CN: '${CN}'`;
+    events.push({ error });
+    log(error);
     // try to simulate an SNI / connection error
-    console.log('Bad HTTPS cert used; destroying connection...');
     return req.socket.destroy();
   }
 
@@ -41,7 +38,7 @@ app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   if(req.query.sentry_key !== 'example-sentry-key') throw new Error('bad sentry key!');
 
-  reports.push(req.body);
+  events.push({ report:req.body });
 
   res.send('OK');
 });
@@ -82,9 +79,14 @@ const server = (() => {
   const goodCreds = creds(httpsHost);
 
   const opts = {
-    ...creds('localhost'),
+    ...creds('default'),
     SNICallback: (servername, cb) => {
-      if(servername !== httpsHost) return cb(new Error(`Unexpected SNI host: ${servername}`));
+      if(servername !== httpsHost) {
+        const error = `SNICallback: rejecting unexpected servername: ${servername}`;
+        log(error);
+        events.push({ error });
+        return cb(new Error(error));
+      }
       cb(null, createSecureContext(goodCreds));
     },
   };
@@ -95,3 +97,11 @@ const server = (() => {
 server.listen(port, () => {
   log(`Listening with HTTPS on port: ${port}`);
 });
+
+function fatalError(description) {
+  log(`
+    !!! ${description}
+    !!! This is completely unexpected.  Server will be terminated immediately.
+  `);
+  process.exit(1);
+}

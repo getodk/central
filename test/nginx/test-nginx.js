@@ -612,7 +612,25 @@ describe('nginx config', () => {
         // No error was thrown :¬)
       });
 
-      [ '', 'bad.example.test' ].forEach(servername => {
+      it('should reject requests without SNI host', async () => {
+        // given
+        let caught;
+
+        // when
+        try {
+          await requestSentryMock({ servername:'' });
+        } catch(err) {
+          caught = err;
+        }
+
+        // then
+        assert.isOk(caught);
+        assert.equal(caught.code, 'ECONNRESET');
+        // and
+        await assertSentryReceived({ error:`Server cert had unexpected CN: 'default'` });
+      });
+
+      [ 'bad.example.test' ].forEach(servername => {
         it(`should reject requests with SNI host: "${servername}"`, async () => {
           // given
           let caught;
@@ -627,6 +645,8 @@ describe('nginx config', () => {
           // then
           assert.isOk(caught);
           assert.equal(caught.code, 'ECONNRESET');
+          // and
+          await assertSentryReceived({ error:`SNICallback: rejecting unexpected servername: ${servername}` });
         });
       });
     });
@@ -643,7 +663,7 @@ describe('nginx config', () => {
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
       // and
-      await assertSentryReceived({ example:1 });
+      await assertSentryReceived({ report:{ example:1 } });
     });
 
     async function resetSentryMock() {
@@ -651,7 +671,7 @@ describe('nginx config', () => {
       assert.equal(res.status, 200);
     }
     async function assertSentryReceived(...expectedRequests) {
-      const { status, body } = await requestSentryMock({ path:'/report-log' });
+      const { status, body } = await requestSentryMock({ path:'/event-log' });
       assert.equal(status, 200);
       assert.deepEqual(expectedRequests, JSON.parse(body));
     }
