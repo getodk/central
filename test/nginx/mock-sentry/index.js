@@ -7,6 +7,10 @@ const httpsHost = process.env.HTTPS_HOST;
 const log = (...args) => console.log('[mock-sentry]', ...args);
 
 const events = [];
+const logErrorEvent(error) {
+  log('ERROR', error);
+  events.push({ error });
+}
 
 const app = express();
 app.use(express.json());
@@ -25,9 +29,7 @@ app.use('/api', (req, res, next) => {
 
   const { CN } = certificate.subject;
   if(CN !== httpsHost) {
-    const error = `Server cert had unexpected CN: '${CN}'`;
-    events.push({ error });
-    log(error);
+    logErrorEvent(`Server cert had unexpected CN: '${CN}'`);
     // try to simulate an SNI / connection error
     return req.socket.destroy();
   }
@@ -83,8 +85,7 @@ const server = (() => {
     SNICallback: (servername, cb) => {
       if(servername !== httpsHost) {
         const error = `SNICallback: rejecting unexpected servername: ${servername}`;
-        log(error);
-        events.push({ error });
+        logErrorEvent(error);
         return cb(new Error(error));
       }
       cb(null, createSecureContext(goodCreds));
