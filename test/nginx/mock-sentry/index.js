@@ -84,5 +84,5 @@ const server = (() => {
 })();
 
 server.listen(port, () => {
-  log(`Listening with ${mode} on port: ${port}`, server === app);
+  log(`Listening with HTTPS on port: ${port}`);
 });
