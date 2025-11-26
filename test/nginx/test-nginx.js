@@ -692,7 +692,7 @@ describe('nginx config', () => {
           { method, path, servername },
           res => {
             let body = '';
-            res.on('data', data => body += data); // ensure response stream is consumed
+            res.on('data', data => body += data);
             res.on('end', () => {
               try {
                 resolve({ status:res.statusCode, body });
