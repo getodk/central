@@ -1,4 +1,8 @@
 const { execSync } = require('node:child_process');
+const { readFileSync } = require('node:fs');
+const { createServer } = require('node:https');
+const { createSecureContext } = require('node:tls');
+
 
 const express = require('express');
 
@@ -47,10 +51,6 @@ app.post('/api/example-sentry-project/security/', (req, res) => {
 
 const server = (() => {
   if(!httpsHost) throw new Error('Env var HTTPS_HOST is required for MODE=https');
-
-  const { readFileSync } = require('node:fs');
-  const { createServer } = require('node:https');
-  const { createSecureContext } = require('node:tls');
 
   const encoding = 'utf8';
 
