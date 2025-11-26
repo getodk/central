@@ -12,14 +12,15 @@ const app = express();
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
-  if(req.socket.encrypted) {
-    const certificate = req.socket.getCertificate();
-    if(certificate) {
-      if(certificate.subject.CN !== httpsHost) {
-        // try to simulate an SNI / connection error
-        console.log('Bad HTTPS cert used; destroying connection...');
-        return req.socket.destroy();
-      }
+
+  if(!req.socket.encrypted) return next(new Error('req.socket.encrypted was falsy'));
+
+  const certificate = req.socket.getCertificate();
+  if(certificate) {
+    if(certificate.subject.CN !== httpsHost) {
+      // try to simulate an SNI / connection error
+      console.log('Bad HTTPS cert used; destroying connection...');
+      return req.socket.destroy();
     }
   }
   next();
