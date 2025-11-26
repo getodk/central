@@ -37,9 +37,7 @@ app.use('/api', (req, res, next) => {
 
   next();
 });
-app.get('/api/check-cert', (req, res) => {
-  res.send('OK');
-});
+app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   if(req.query.sentry_key !== 'example-sentry-key') throw new Error('bad sentry key!');
 
