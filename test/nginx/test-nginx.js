@@ -684,7 +684,6 @@ describe('nginx config', () => {
     function requestSentryMock(opts) {
       // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
       const {
-        method = 'GET',
         path = '/api/check-cert',
         servername = 'o-fake-dsn.ingest.sentry.io',
       } = opts;
