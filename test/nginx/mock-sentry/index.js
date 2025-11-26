@@ -22,13 +22,17 @@ app.use('/api', (req, res, next) => {
 
   const certificate = req.socket.getCertificate();
   if(!certificate) {
-    log('No certificate provided.  That seems weird.  TODO either throw here, or explain why this is expected.');
-  } else {
-    if(certificate.subject.CN !== httpsHost) {
-      // try to simulate an SNI / connection error
-      console.log('Bad HTTPS cert used; destroying connection...');
-      return req.socket.destroy();
-    }
+    log(`
+      !!! No certificate found at all.
+      !!! This is completely unexpected.  Server will be terminated immediately.
+    `);
+    process.exit(1);
+  }
+
+  if(certificate.subject.CN !== httpsHost) {
+    // try to simulate an SNI / connection error
+    console.log('Bad HTTPS cert used; destroying connection...');
+    return req.socket.destroy();
   }
 
   next();
