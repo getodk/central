@@ -10,7 +10,7 @@ const events = [];
 const logErrorEvent = error => {
   log('ERROR', error);
   events.push({ error });
-}
+};
 
 const app = express();
 app.use(express.json());
