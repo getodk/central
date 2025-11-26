@@ -693,13 +693,7 @@ describe('nginx config', () => {
           res => {
             let body = '';
             res.on('data', data => body += data);
-            res.on('end', () => {
-              try {
-                resolve({ status:res.statusCode, body });
-              } catch(err) {
-                reject(err);
-              }
-            });
+            res.on('end', () => resolve({ status:res.statusCode, body }));
             res.on('error', reject);
           },
         );
