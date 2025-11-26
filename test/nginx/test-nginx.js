@@ -597,7 +597,7 @@ describe('nginx config', () => {
       resetSentryMock(),
     ]));
 
-    it('/csp-report should successfully forward requests to Sentry', async () => {
+    it('POST /csp-report should forward requests to Sentry', async () => {
       // when
       const res = await fetchHttps('/csp-report', {
         method: 'POST',
