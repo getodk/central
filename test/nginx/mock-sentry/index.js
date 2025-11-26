@@ -42,7 +42,11 @@ app.use('/api', (req, res, next) => {
 });
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
-  if(req.query.sentry_key !== 'example-sentry-key') throw new Error('bad sentry key!');
+  const { sentry_key } = req.query;
+  if(sentry_key !== 'example-sentry-key') {
+    logError(`Bad sentry API key received: '${sentry_key}'`);
+    return res.sendStatus(403);
+  }
 
   events.push({ report:req.body });
 
