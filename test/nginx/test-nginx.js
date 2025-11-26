@@ -597,6 +597,21 @@ describe('nginx config', () => {
       resetSentryMock(),
     ]));
 
+    it('/csp-report should successfully forward requests to Sentry', async () => {
+      // when
+      const res = await fetchHttps('/csp-report', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ example:1 }),
+      });
+
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+      // and
+      await assertSentryReceived({ report:{ example:1 } });
+    });
+
     describe('Sentry behaviour with unexpected SNI values', () => {
       // These tests are a control to demonstrate that the local fake Sentry is
       // behaving similarly to sentry.io, which rejects requests which contain
@@ -649,21 +664,6 @@ describe('nginx config', () => {
           await assertSentryReceived({ error:`SNICallback: rejecting unexpected servername: ${servername}` });
         });
       });
-    });
-
-    it('/csp-report should successfully forward requests to Sentry', async () => {
-      // when
-      const res = await fetchHttps('/csp-report', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ example:1 }),
-      });
-
-      // then
-      assert.equal(res.status, 200);
-      assert.equal(await res.text(), 'OK');
-      // and
-      await assertSentryReceived({ report:{ example:1 } });
     });
 
     async function resetSentryMock() {
