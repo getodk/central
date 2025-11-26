@@ -614,9 +614,9 @@ describe('nginx config', () => {
 
     describe('Sentry behaviour with unexpected SNI values', () => {
       // These tests are a control to demonstrate that the local fake Sentry is
-      // behaving similarly to sentry.io, which rejects requests which contain
-      // an unexpected hostname in the Server Name Indiciation (SNI) extension
-      // during TLS/HTTPS handshake.
+      // behaving similarly to sentry.io, which rejects requests which do not
+      // include a Server Name Indiciation (SNI) extension during TLS/HTTPS.
+      // We also test for an unexpected value in the SNI extension.
       // See: https://en.wikipedia.org/wiki/Server_Name_Indication
 
       it('should accept requests with correct SNI host', async () => {
