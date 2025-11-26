@@ -690,7 +690,7 @@ describe('nginx config', () => {
 
       return new Promise((resolve, reject) => {
         const req = https.request(
-          { method, path, servername },
+          { path, servername },
           res => {
             let body = '';
             res.on('data', data => body += data);
