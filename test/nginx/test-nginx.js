@@ -678,7 +678,9 @@ describe('nginx config', () => {
     }
 
     // This function makes DIRECT requests to sentry-mock.  IRL these requests
-    // would be performed by nginx when a client POSTs to /csp-report.
+    // would be performed by nginx when a client POSTs to /csp-report.  This
+    // function is for used in test setup/assertions, except when confirming the
+    // behaviour of the mock Sentry implementation.
     function requestSentryMock(opts) {
       // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
       const {
