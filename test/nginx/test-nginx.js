@@ -670,11 +670,15 @@ describe('nginx config', () => {
       const res = await requestSentryMock({ path:'/reset' });
       assert.equal(res.status, 200);
     }
+
     async function assertSentryReceived(...expectedRequests) {
       const { status, body } = await requestSentryMock({ path:'/event-log' });
       assert.equal(status, 200);
       assert.deepEqual(expectedRequests, JSON.parse(body));
     }
+
+    // This function makes DIRECT requests to sentry-mock.  IRL these requests
+    // would be performed by nginx when a client POSTs to /csp-report.
     function requestSentryMock(opts) {
       // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
       const {
