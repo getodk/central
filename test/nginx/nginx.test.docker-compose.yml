@@ -37,6 +37,7 @@ services:
       - o-fake-dsn.ingest.sentry.io:host-gateway
     environment:
       - DOMAIN=odk-nginx.example.test
+      - S3_SERVER=https://s3-server.example.test
       - SENTRY_KEY=example-sentry-key
       - SENTRY_ORG_SUBDOMAIN=o-fake-dsn
       - SENTRY_PROJECT=example-sentry-project
