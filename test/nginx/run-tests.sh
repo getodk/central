@@ -39,4 +39,15 @@ wait_for_http_response 5 localhost:9000 421
 
 npm run test:nginx
 
+log "Linting nginx config with gixy-ng..."
+# see: https://github.com/dvershinin/gixy
+docker_compose exec nginx bash -euc '
+apt update
+apt install -y python3-venv
+python3 -m venv .venv
+. .venv/bin/activate
+pip install gixy-ng
+gixy -lll
+'
+
 log "Completed OK."
