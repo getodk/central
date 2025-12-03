@@ -30,10 +30,6 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 });
 
 const contentSecurityPolicies = {
-  'backend-default': allowGoogleTranslate({
-    'default-src': none,
-    'report-uri':  '/csp-report',
-  }),
   'backend-unmodified': {
     'default-src': 'NOTE:FROM-BACKEND',
   },
@@ -61,6 +57,10 @@ const contentSecurityPolicies = {
     'default-src': none,
     'report-uri':  '/csp-report',
   },
+  'disallow-all-except-standard-plugins': allowGoogleTranslate({
+    'default-src': none,
+    'report-uri':  '/csp-report',
+  }),
   enketo: allowGoogleTranslate({
     'default-src': none,
     'connect-src': [
@@ -350,7 +350,7 @@ describe('nginx config', () => {
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
         assert.equal(res.headers.get('Content-Type'), 'text/html');
-        assertSecurityHeaders(res, { csp:'disallow-all' });
+        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
         await assertEnketoReceivedNoRequests();
       });
     });
@@ -363,7 +363,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'backend-default' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -385,7 +385,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'backend-default' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
 
     // when
     const body = await res.json();
@@ -403,7 +403,7 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'backend-default' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
 
     // when
     const body = await res.json();

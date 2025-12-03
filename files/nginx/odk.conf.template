@@ -163,7 +163,7 @@ server {
 
   location ~ ^/v\d {
     proxy_hide_header Content-Security-Policy-Report-Only;
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
 
     include /usr/share/odk/nginx/common-headers.conf;
     include /usr/share/odk/nginx/backend.conf;
@@ -173,7 +173,7 @@ server {
     root /usr/share/nginx/html;
     try_files /blank.html =404;
 
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
     include /usr/share/odk/nginx/common-headers.conf;
   }
   location = /blank.html {
