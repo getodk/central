@@ -1,30 +1,46 @@
 const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
-const { assert } = require('chai');
+
+const deepEqualInAnyOrder = require('deep-equal-in-any-order');
+const chai = require('chai');
+chai.use(deepEqualInAnyOrder);
+const { assert } = chai;
 
 const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
+
+const asArray = val => {
+  if (val == null) return [];
+  if (Array.isArray(val)) return val;
+  return [val];
+};
+const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => ({
+  ...others,
+  'connect-src': [
+    ...asArray(connectSrc),
+    'https://translate.google.com',
+    'https://translate.googleapis.com',
+  ],
+  'img-src': [
+    ...asArray(imgSrc),
+    'https://translate.google.com',
+  ],
+});
+
 const contentSecurityPolicies = {
-  'backend-default': {
+  'backend-default': allowGoogleTranslate({
     'default-src': none,
-    'connect-src': [
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
-    ],
-    'img-src': 'https://translate.google.com',
     'report-uri':  '/csp-report',
-  },
+  }),
   'backend-unmodified': {
     'default-src': 'NOTE:FROM-BACKEND',
   },
-  'central-frontend': {
+  'central-frontend': allowGoogleTranslate({
     'default-src':    none,
     'connect-src': [
       self,
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
     ],
     'font-src':       self,
     'frame-src':      [
@@ -40,11 +56,11 @@ const contentSecurityPolicies = {
     'style-src-attr': unsafeInline,
     'worker-src':     'data:',
     'report-uri':     '/csp-report',
-  },
+  }),
   'disallow-all': {
     'default-src': none,
   },
-  enketo: {
+  enketo: allowGoogleTranslate({
     'default-src': none,
     'connect-src': [
       self,
@@ -54,8 +70,6 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://fonts.gstatic.com/',
       'https://fonts.googleapis.com/',
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
     ],
     'font-src': [
       self,
@@ -71,7 +85,6 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://maps.googleapis.com/maps/',
       'https://tile.openstreetmap.org/',
-      'https://translate.google.com',
     ],
     'manifest-src': none,
     'media-src': [
@@ -94,7 +107,7 @@ const contentSecurityPolicies = {
     ],
     'style-src-attr': unsafeInline,
     'report-uri': '/csp-report',
-  },
+  }),
 };
 
 describe('nginx config', () => {
@@ -863,5 +876,5 @@ function assertSecurityHeaders(res, { csp }) {
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
   const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.deepEqual(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assert.deepEqualInAnyOrder(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
 }
