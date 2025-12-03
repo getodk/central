@@ -59,6 +59,7 @@ const contentSecurityPolicies = {
   }),
   'disallow-all': {
     'default-src': none,
+    'report-uri':  '/csp-report',
   },
   enketo: allowGoogleTranslate({
     'default-src': none,
