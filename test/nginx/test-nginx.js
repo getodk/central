@@ -16,6 +16,9 @@ const contentSecurityPolicies = {
     'img-src': 'https://translate.google.com',
     'report-uri':  '/csp-report',
   },
+  'backend-unmodified': {
+    'default-src': 'NOTE:FROM-BACKEND',
+  },
   'central-frontend': {
     'default-src':    none,
     'connect-src': [
@@ -351,6 +354,16 @@ describe('nginx config', () => {
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
+  });
+
+  it('/oidc/callback should serve Content-Security-Policy from backend', async () => {
+    // when
+    const res = await fetchHttps('/v1/oidc/callback');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'OK');
+    assertSecurityHeaders(res, { csp:'backend-unmodified' });
   });
 
   it('should set x-forwarded-proto header to "https"', async () => {
