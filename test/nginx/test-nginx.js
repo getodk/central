@@ -19,15 +19,15 @@ const asArray = val => {
 };
 const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => ({
   ...others,
-  'connect-src': [
-    ...asArray(connectSrc),
+  'connect-src': (connectSrc ?? '').includes('https:')
+    ? asArray(connectSrc)
+    : [...asArray(connectSrc),
     'https://translate.google.com',
     'https://translate.googleapis.com',
   ],
-  'img-src': [
-    ...asArray(imgSrc),
-    'https://translate.google.com',
-  ],
+  'img-src': (imgSrc ?? '').includes('https:')
+    ? asArray(imgSrc)
+    : [...asArray(imgSrc), 'https://translate.google.com'],
 });
 
 const contentSecurityPolicies = {
