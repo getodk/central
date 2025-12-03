@@ -173,7 +173,7 @@ server {
     root /usr/share/nginx/html;
     try_files /blank.html =404;
 
-    add_header Content-Security-Policy-Report-Only "default-src 'none'";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
     include /usr/share/odk/nginx/common-headers.conf;
   }
   location = /blank.html {

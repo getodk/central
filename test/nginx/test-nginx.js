@@ -43,6 +43,7 @@ const contentSecurityPolicies = {
   },
   'disallow-all': {
     'default-src': none,
+    'report-uri':  '/csp-report',
   },
   enketo: {
     'default-src': none,
