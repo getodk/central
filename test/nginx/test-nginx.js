@@ -445,6 +445,7 @@ describe('nginx config', () => {
     // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
       '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/new?fake=true&query=false&param=2',
       '/projects/1/forms/some_xml_form_id/submissions/new/offline',
       '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
       '/projects/1/forms/some_xml_form_id/preview',
@@ -452,6 +453,7 @@ describe('nginx config', () => {
       '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline',
       '/projects/1/forms/some_xml_form_id/draft/preview',
       '/f/anything',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
 
       // invalid submission ID - currently not checking for valid UUIDs
       '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
