@@ -451,7 +451,7 @@ describe('nginx config', () => {
 
         // then
         assert.equal(res.status, 200);
-        // and
+        assert.equal(await res.text(), '<div id="app"></div>\n');
         assertSecurityHeaders(res, { csp:'web-forms' });
       });
     });
