@@ -44,14 +44,14 @@ const contentSecurityPolicies = {
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        '* data:',
+    'img-src':        'https: data:',
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
     'script-src':     self,
     'style-src':      self,
     'style-src-attr': unsafeInline,
-    'worker-src':     'data:',
+    'worker-src':     'blob:',
     'report-uri':     '/csp-report',
   }),
   'disallow-all': {
@@ -115,14 +115,14 @@ const contentSecurityPolicies = {
     'default-src': none,
     'connect-src': [
       self,
-      'https://s3-server.example.test',
+      'https:',
     ],
     'font-src': [
       self,
       'data:',
     ],
     'frame-src': self,
-    'img-src': '* data:',
+    'img-src': 'https: blob: data:',
     'manifest-src': none,
     'media-src': none,
     'object-src': none,
@@ -132,9 +132,11 @@ const contentSecurityPolicies = {
     ],
     'style-src': [
       self,
-      unsafeHashes,
+      unsafeInline,
     ],
-    'style-src-attr': unsafeInline,
+    'worker-src': [
+      'blob:'
+    ],
     'report-uri': '/csp-report',
   }),
 };
