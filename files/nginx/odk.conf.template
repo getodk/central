@@ -169,8 +169,7 @@ server {
     include /usr/share/odk/nginx/backend.conf;
   }
 
-  # Custom handling for form previews.
-  # Added to allow webforms CSP header to be set correctly.
+  # Allow webforms CSP header to be set correctly.
   location ~^(/f/)|(/projects/\d+/forms/[^/]*/(((draft/)?(preview|submissions/new(/offline)?))|(submissions/[^/]*/edit))$) {
     alias /usr/share/nginx/html/index.html;
 
