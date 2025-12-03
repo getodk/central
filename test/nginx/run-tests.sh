@@ -40,9 +40,8 @@ wait_for_http_response 5 localhost:9000 421
 npm run test:nginx
 
 log "Linting nginx config with gixy-ng..."
-# see:
-# * https://github.com/dvershinin/gixy
-# * https://pypi.org/project/gixy-ng/
+# gixy-ng is a maintained fork of gixy: https://github.com/dvershinin/gixy
+# For version updates, see: https://pypi.org/project/gixy-ng/#history
 docker_compose exec nginx bash -euc '
   apt update
   apt install -y python3-venv
