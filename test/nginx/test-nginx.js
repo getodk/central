@@ -10,6 +10,7 @@ const { assert } = chai;
 const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
+const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 
 const asArray = val => {
   if (val == null) return [];
@@ -105,6 +106,33 @@ const contentSecurityPolicies = {
       unsafeInline,
       self,
       'https://fonts.googleapis.com/css',
+    ],
+    'style-src-attr': unsafeInline,
+    'report-uri': '/csp-report',
+  }),
+
+  'web-forms': allowGoogleTranslate({
+    'default-src': none,
+    'connect-src': [
+      self,
+      'https://s3-server.example.test',
+    ],
+    'font-src': [
+      self,
+      'data:',
+    ],
+    'frame-src': self,
+    'img-src': '* data:',
+    'manifest-src': none,
+    'media-src': none,
+    'object-src': none,
+    'script-src': [
+      self,
+      wasmUnsafeEval,
+    ],
+    'style-src': [
+      self,
+      unsafeHashes,
     ],
     'style-src-attr': unsafeInline,
     'report-uri': '/csp-report',
@@ -409,6 +437,70 @@ describe('nginx config', () => {
     const body = await res.json();
     // then
     assert.equal(body['x-forwarded-proto'], 'https');
+  });
+
+  describe('web-forms Content-Security-Policy special handling', () => {
+    // See https://github.com/getodk/central/pull/1467 for relevant paths
+    [
+      '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1/forms/some_xml_form_id/preview',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/draft/preview',
+      '/f/anything',
+
+      // invalid submission ID - currently not checking for valid UUIDs
+      '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
+
+      // longer project id, shorter form ID
+      '/projects/99999/forms/_/submissions/new',
+    ].forEach(path => {
+      it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assertSecurityHeaders(res, { csp:'web-forms' });
+      });
+    });
+
+    [
+      '/projects/1/forms/MarkdownExamples', // no /preview
+      '/projects/1/forms/preview/perview', // misspelt preview
+      '/projects/3/forms/preview', // form named "preview", but not the actual preview path
+
+      // invalid project ids
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
+
+      // missing project id
+      '/projects//forms/some_xml_form_id/submissions/new',
+
+      // missing form id
+      '/projects/1/forms//preview',
+
+      // missing submission ID
+      '/projects/1/forms/some_xml_form_id/submissions//edit',
+
+      // no counter-tests for /f/, because currently all valid /f/* URLs in frontend are for form display
+    ].forEach(path => {
+      it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assertSecurityHeaders(res, { csp:'central-frontend' });
+      });
+    });
   });
 
   it('should reject HTTP requests with incorrect host header supplied', async () => {
