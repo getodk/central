@@ -1,3 +1,4 @@
+const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 const { assert } = require('chai');
@@ -16,6 +17,9 @@ const contentSecurityPolicies = {
     ],
     'img-src': 'https://translate.google.com',
     'report-uri':  '/csp-report',
+  },
+  'backend-unmodified': {
+    'default-src': 'NOTE:FROM-BACKEND',
   },
   'central-frontend': {
     'default-src':    none,
@@ -382,6 +386,16 @@ describe('nginx config', () => {
     );
   });
 
+  it('/oidc/callback should serve Content-Security-Policy from backend', async () => {
+    // when
+    const res = await fetchHttps('/v1/oidc/callback');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'OK');
+    assertSecurityHeaders(res, { csp:'backend-unmodified' });
+  });
+
   it('should set x-forwarded-proto header to "https"', async () => {
     // when
     const res = await fetchHttps('/v1/reflect-headers');
@@ -683,6 +697,118 @@ describe('nginx config', () => {
         });
       });
     });
+  });
+
+  describe('CSP reports', () => {
+    beforeEach(() => Promise.all([
+      resetSentryMock(),
+    ]));
+
+    it('POST /csp-report should forward requests to Sentry', async () => {
+      // when
+      const res = await fetchHttps('/csp-report', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ example:1 }),
+      });
+
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+      // and
+      await assertSentryReceived({ report:{ example:1 } });
+    });
+
+    describe('Sentry behaviour with unexpected SNI values', () => {
+      // These tests are a control to demonstrate that the local fake Sentry is
+      // behaving similarly to sentry.io, which rejects requests which do not
+      // include a Server Name Indiciation (SNI) extension during TLS/HTTPS.
+      // We also test for an unexpected value in the SNI extension.
+      // See: https://en.wikipedia.org/wiki/Server_Name_Indication
+
+      it('should accept requests with correct SNI host', async () => {
+        // when
+        await requestSentryMock({ servername:'o-fake-dsn.ingest.sentry.io' });
+
+        // then
+        // No error was thrown :¬)
+      });
+
+      it('should reject requests without SNI host', async () => {
+        // given
+        let caught;
+
+        // when
+        try {
+          await requestSentryMock({ servername:'' });
+        } catch(err) {
+          caught = err;
+        }
+
+        // then
+        assert.isOk(caught);
+        assert.equal(caught.code, 'ECONNRESET');
+        // and
+        await assertSentryReceived({ error:`Server cert had unexpected CN: 'default'` });
+      });
+
+      [ 'bad.example.test' ].forEach(servername => {
+        it(`should reject requests with SNI host: "${servername}"`, async () => {
+          // given
+          let caught;
+
+          // when
+          try {
+            await requestSentryMock({ servername });
+          } catch(err) {
+            caught = err;
+          }
+
+          // then
+          assert.isOk(caught);
+          assert.equal(caught.code, 'ECONNRESET');
+          // and
+          await assertSentryReceived({ error:`SNICallback: rejecting unexpected servername: ${servername}` });
+        });
+      });
+    });
+
+    async function resetSentryMock() {
+      const res = await requestSentryMock({ path:'/reset' });
+      assert.equal(res.status, 200);
+    }
+
+    async function assertSentryReceived(...expectedRequests) {
+      const { status, body } = await requestSentryMock({ path:'/event-log' });
+      assert.equal(status, 200);
+      assert.deepEqual(expectedRequests, JSON.parse(body));
+    }
+
+    // This function makes DIRECT requests to sentry-mock.  IRL these requests
+    // would be performed by nginx when a client POSTs to /csp-report.  This
+    // function is for used in test setup/assertions, except when confirming the
+    // behaviour of the mock Sentry implementation.
+    function requestSentryMock(opts) {
+      // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
+      const {
+        path = '/api/check-cert',
+        servername = 'o-fake-dsn.ingest.sentry.io',
+      } = opts;
+
+      return new Promise((resolve, reject) => {
+        const req = https.request(
+          { path, servername },
+          res => {
+            let body = '';
+            res.on('data', data => body += data);
+            res.on('end', () => resolve({ status:res.statusCode, body }));
+            res.on('error', reject);
+          },
+        );
+        req.on('error', reject);
+        req.end();
+      });
+    }
   });
 });
 
