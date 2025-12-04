@@ -444,21 +444,33 @@ describe('nginx config', () => {
     // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
       '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/new/',
       '/projects/1/forms/some_xml_form_id/submissions/new?fake=true&query=false&param=2',
+      '/projects/1/forms/some_xml_form_id/submissions/new/?fake=true&query=false&param=2',
       '/projects/1/forms/some_xml_form_id/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/submissions/new/offline/',
       '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit/',
       '/projects/1/forms/some_xml_form_id/preview',
+      '/projects/1/forms/some_xml_form_id/preview/',
       '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/',
       '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline/',
       '/projects/1/forms/some_xml_form_id/draft/preview',
+      '/projects/1/forms/some_xml_form_id/draft/preview/',
       '/f/anything',
+      '/f/anything/',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
 
       // invalid submission ID - currently not checking for valid UUIDs
       '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
+      '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit/',
 
       // longer project id, shorter form ID
       '/projects/99999/forms/_/submissions/new',
+      '/projects/99999/forms/_/submissions/new/',
     ].forEach(path => {
       it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
@@ -478,19 +490,27 @@ describe('nginx config', () => {
 
       // invalid project ids
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new/',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit/',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview/',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new/',
       '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview/',
 
       // missing project id
       '/projects//forms/some_xml_form_id/submissions/new',
+      '/projects//forms/some_xml_form_id/submissions/new/',
 
       // missing form id
       '/projects/1/forms//preview',
+      '/projects/1/forms//preview/',
 
       // missing submission ID
       '/projects/1/forms/some_xml_form_id/submissions//edit',
+      '/projects/1/forms/some_xml_form_id/submissions//edit/',
 
       // no counter-tests for /f/, because currently all valid /f/* URLs in frontend are for form display
     ].forEach(path => {
