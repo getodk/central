@@ -44,7 +44,7 @@ const contentSecurityPolicies = {
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        'https: data:',
+    'img-src':        '* data:',
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
