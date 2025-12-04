@@ -17,18 +17,20 @@ const asArray = val => {
   if (Array.isArray(val)) return val;
   return [val];
 };
-const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => ({
-  ...others,
-  'connect-src': connectSrc?.includes('https:')
-    ? asArray(connectSrc)
-    : [...asArray(connectSrc),
+const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => {
+  connectSrc = asArray(connectSrc);
+  if(!connectSrc.includes('https:')) connectSrc.push(
     'https://translate.google.com',
     'https://translate.googleapis.com',
-  ],
-  'img-src': imgSrc?.includes('https:')
-    ? asArray(imgSrc)
-    : [...asArray(imgSrc), 'https://translate.google.com'],
-});
+  );
+
+  imgSrc = asArray(imgSrc);
+  if(!imgSrc.includes('https:')) imgSrc.push(
+    'https://translate.google.com',
+  );
+
+  return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
+};
 
 const contentSecurityPolicies = {
   'backend-unmodified': {
@@ -121,7 +123,10 @@ const contentSecurityPolicies = {
       'data:',
     ],
     'frame-src': self,
-    'img-src': 'https: blob:',
+    'img-src': [
+      'blob:',
+      'https:',
+    ],
     'manifest-src': none,
     'media-src': none,
     'object-src': none,
