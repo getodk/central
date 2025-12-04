@@ -28,7 +28,6 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
     'https://translate.google.com',
   );
 
-
   return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
 };
 
