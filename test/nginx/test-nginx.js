@@ -110,7 +110,6 @@ const contentSecurityPolicies = {
     'style-src-attr': unsafeInline,
     'report-uri': '/csp-report',
   }),
-
   'web-forms': allowGoogleTranslate({
     'default-src': none,
     'connect-src': [
