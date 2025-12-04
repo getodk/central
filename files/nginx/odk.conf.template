@@ -183,7 +183,7 @@ server {
     try_files $uri $uri/ /index.html;
 
     # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data: https://translate.google.com; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; worker-src data:; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
