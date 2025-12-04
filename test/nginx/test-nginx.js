@@ -51,7 +51,7 @@ const contentSecurityPolicies = {
     'script-src':     self,
     'style-src':      self,
     'style-src-attr': unsafeInline,
-    'worker-src':     'data:',
+    'worker-src':     'blob:',
     'report-uri':     '/csp-report',
   }),
   'disallow-all': {
