@@ -76,7 +76,7 @@ map $arg_st $redirect_single_prefix {
 }
 
 # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
-# Note: using $request_uri here remains reliable while percent-encodings are not
+# Note: using $request_uri here remains safe while percent-encodings are not
 # normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
 map $request_uri $central_frontend_csp {
   # Web Forms CSP for /f/... and /projects/.../forms/... routes
