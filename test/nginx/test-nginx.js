@@ -16,18 +16,20 @@ const asArray = val => {
   if (Array.isArray(val)) return val;
   return [val];
 };
-const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => ({
-  ...others,
-  'connect-src': [
-    ...asArray(connectSrc),
+const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => {
+  connectSrc = asArray(connectSrc);
+  if(!connectSrc.includes('https:')) connectSrc.push(
     'https://translate.google.com',
     'https://translate.googleapis.com',
-  ],
-  'img-src': [
-    ...asArray(imgSrc),
+  );
+
+  imgSrc = asArray(imgSrc);
+  if(!imgSrc.includes('https:')) imgSrc.push(
     'https://translate.google.com',
-  ],
-});
+  );
+
+  return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
+};
 
 const contentSecurityPolicies = {
   'backend-unmodified': {
@@ -43,7 +45,10 @@ const contentSecurityPolicies = {
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        '* data:',
+    'img-src': [
+      'data:',
+      'https:',
+    ],
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
