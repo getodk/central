@@ -1,42 +1,73 @@
+const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
-const { assert } = require('chai');
+
+const deepEqualInAnyOrder = require('deep-equal-in-any-order');
+const chai = require('chai');
+chai.use(deepEqualInAnyOrder);
+const { assert } = chai;
 
 const none = `'none'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
+const wasmUnsafeEval = `'wasm-unsafe-eval'`;
+
+const asArray = val => {
+  if (val == null) return [];
+  if (Array.isArray(val)) return val;
+  return [val];
+};
+const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...others }) => {
+  connectSrc = asArray(connectSrc);
+  if(!connectSrc.includes('https:')) connectSrc.push(
+    'https://translate.google.com',
+    'https://translate.googleapis.com',
+  );
+
+  imgSrc = asArray(imgSrc);
+  if(!imgSrc.includes('https:')) imgSrc.push(
+    'https://translate.google.com',
+  );
+
+  return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
+};
+
 const contentSecurityPolicies = {
-  'restrictive': {
-    'default-src': none,
-    'connect-src': [
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
-    ],
-    'img-src': 'https://translate.google.com',
-    'report-uri':  '/csp-report',
+  'backend-unmodified': {
+    'default-src': 'NOTE:FROM-BACKEND',
   },
-  'central-frontend': {
+  'central-frontend': allowGoogleTranslate({
     'default-src':    none,
     'connect-src': [
       self,
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
     ],
     'font-src':       self,
     'frame-src':      [
       self,
       'https://getodk.github.io/central/news.html',
     ],
-    'img-src':        '* data:',
+    'img-src': [
+      'data:',
+      'https:',
+    ],
     'manifest-src':   none,
     'media-src':      none,
     'object-src':     none,
     'script-src':     self,
     'style-src':      self,
     'style-src-attr': unsafeInline,
+    'worker-src':     'blob:',
     'report-uri':     '/csp-report',
+  }),
+  'disallow-all': {
+    'default-src': none,
+    'report-uri':  '/csp-report',
   },
-  enketo: {
+  'disallow-all-except-standard-plugins': allowGoogleTranslate({
+    'default-src': none,
+    'report-uri':  '/csp-report',
+  }),
+  enketo: allowGoogleTranslate({
     'default-src': none,
     'connect-src': [
       self,
@@ -46,8 +77,6 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://fonts.gstatic.com/',
       'https://fonts.googleapis.com/',
-      'https://translate.google.com',
-      'https://translate.googleapis.com',
     ],
     'font-src': [
       self,
@@ -63,7 +92,6 @@ const contentSecurityPolicies = {
       'https://maps.gstatic.com/mapfiles/',
       'https://maps.googleapis.com/maps/',
       'https://tile.openstreetmap.org/',
-      'https://translate.google.com',
     ],
     'manifest-src': none,
     'media-src': [
@@ -86,7 +114,38 @@ const contentSecurityPolicies = {
     ],
     'style-src-attr': unsafeInline,
     'report-uri': '/csp-report',
-  },
+  }),
+  'web-forms': allowGoogleTranslate({
+    'default-src': none,
+    'connect-src': [
+      self,
+      'https:',
+    ],
+    'font-src': [
+      self,
+      'data:',
+    ],
+    'frame-src': none,
+    'img-src': [
+      'blob:',
+      'https:',
+    ],
+    'manifest-src': none,
+    'media-src': none,
+    'object-src': none,
+    'script-src': [
+      self,
+      wasmUnsafeEval,
+    ],
+    'style-src': [
+      self,
+      unsafeInline,
+    ],
+    'worker-src': [
+      'blob:'
+    ],
+    'report-uri': '/csp-report',
+  }),
 };
 
 describe('nginx config', () => {
@@ -182,7 +241,6 @@ describe('nginx config', () => {
   [
     [ '/index.html',  /<div id="app"><\/div>/ ],
     [ '/version.txt', /^versions:/ ],
-    [ '/blank.html',  /^\n$/ ],
     [ '/favicon.ico', /^\n$/ ],
   ].forEach(([ path, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
@@ -316,15 +374,23 @@ describe('nginx config', () => {
     });
   });
 
-  it('should serve blank page on /-/single/check-submitted', async () => {
-    // when
-    const res = await fetchHttps('/-/single/check-submitted');
+  describe('blank.html', () => {
+    [
+      '/blank.html',
+      '/-/single/check-submitted',
+    ].forEach(path => {
+      it(`should serve blank page on ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
 
-    // then
-    assert.equal(res.status, 200);
-    assert.isEmpty((await res.text()).trim());
-    assertSecurityHeaders(res, { csp:'restrictive' });
-    await assertEnketoReceivedNoRequests();
+        // then
+        assert.equal(res.status, 200);
+        assert.isEmpty((await res.text()).trim());
+        assert.equal(res.headers.get('Content-Type'), 'text/html');
+        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
+        await assertEnketoReceivedNoRequests();
+      });
+    });
   });
 
   it('/v1/... should forward to backend', async () => {
@@ -334,11 +400,21 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
+  });
+
+  it('/oidc/callback should serve Content-Security-Policy from backend', async () => {
+    // when
+    const res = await fetchHttps('/v1/oidc/callback');
+
+    // then
+    assert.equal(res.status, 200);
+    assert.equal(await res.text(), 'OK');
+    assertSecurityHeaders(res, { csp:'backend-unmodified' });
   });
 
   it('should set x-forwarded-proto header to "https"', async () => {
@@ -346,7 +422,7 @@ describe('nginx config', () => {
     const res = await fetchHttps('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
 
     // when
     const body = await res.json();
@@ -364,12 +440,100 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'restrictive' });
+    assertSecurityHeaders(res, { csp:'disallow-all' });
 
     // when
     const body = await res.json();
     // then
     assert.equal(body['x-forwarded-proto'], 'https');
+  });
+
+  describe('web-forms Content-Security-Policy special handling', () => {
+    // See https://github.com/getodk/central/pull/1467 for relevant paths
+    [
+      '/projects/1/forms/some_xml_form_id/submissions/new',
+      '/projects/1/forms/some_xml_form_id/submissions/new/',
+      '/projects/1/forms/some_xml_form_id/submissions/new?fake=true&query=false&param=2',
+      '/projects/1/forms/some_xml_form_id/submissions/new/?fake=true&query=false&param=2',
+      '/projects/1/forms/some_xml_form_id/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/submissions/new/offline/',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit/',
+      '/projects/1/forms/some_xml_form_id/preview',
+      '/projects/1/forms/some_xml_form_id/preview/',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline',
+      '/projects/1/forms/some_xml_form_id/draft/submissions/new/offline/',
+      '/projects/1/forms/some_xml_form_id/draft/preview',
+      '/projects/1/forms/some_xml_form_id/draft/preview/',
+      '/f/anything',
+      '/f/anything/',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+
+      // invalid submission ID - currently not checking for valid UUIDs
+      '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
+      '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit/',
+
+      // longer project id, shorter form ID
+      '/projects/99999/forms/_/submissions/new',
+      '/projects/99999/forms/_/submissions/new/',
+    ].forEach(path => {
+      it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assertSecurityHeaders(res, { csp:'web-forms' });
+      });
+    });
+
+    [
+      '/projects/1/forms/MarkdownExamples', // no /preview
+      '/projects/1/forms/preview/perview', // misspelt preview
+      '/projects/3/forms/preview', // form named "preview", but not the actual preview path
+
+      // invalid project ids
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/new/',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/submissions/00000000-0000-0000-0000-000000000000/edit/',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/preview/',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/submissions/new/',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview',
+      '/projects/1-not-just-a-number-1/forms/some_xml_form_id/draft/preview/',
+
+      // missing project id
+      '/projects//forms/some_xml_form_id/submissions/new',
+      '/projects//forms/some_xml_form_id/submissions/new/',
+
+      // missing form id
+      '/projects/1/forms//preview',
+      '/projects/1/forms//preview/',
+
+      // missing submission ID
+      '/projects/1/forms/some_xml_form_id/submissions//edit',
+      '/projects/1/forms/some_xml_form_id/submissions//edit/',
+
+      // all /f/* should be valid
+      '/f',
+      '/f/',
+    ].forEach(path => {
+      it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
+        // when
+        const res = await fetchHttps(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assertSecurityHeaders(res, { csp:'central-frontend' });
+      });
+    });
   });
 
   it('should reject HTTP requests with incorrect host header supplied', async () => {
@@ -579,6 +743,118 @@ describe('nginx config', () => {
       });
     });
   });
+
+  describe('CSP reports', () => {
+    beforeEach(() => Promise.all([
+      resetSentryMock(),
+    ]));
+
+    it('POST /csp-report should forward requests to Sentry', async () => {
+      // when
+      const res = await fetchHttps('/csp-report', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ example:1 }),
+      });
+
+      // then
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), 'OK');
+      // and
+      await assertSentryReceived({ report:{ example:1 } });
+    });
+
+    describe('Sentry behaviour with unexpected SNI values', () => {
+      // These tests are a control to demonstrate that the local fake Sentry is
+      // behaving similarly to sentry.io, which rejects requests which do not
+      // include a Server Name Indiciation (SNI) extension during TLS/HTTPS.
+      // We also test for an unexpected value in the SNI extension.
+      // See: https://en.wikipedia.org/wiki/Server_Name_Indication
+
+      it('should accept requests with correct SNI host', async () => {
+        // when
+        await requestSentryMock({ servername:'o-fake-dsn.ingest.sentry.io' });
+
+        // then
+        // No error was thrown :¬)
+      });
+
+      it('should reject requests without SNI host', async () => {
+        // given
+        let caught;
+
+        // when
+        try {
+          await requestSentryMock({ servername:'' });
+        } catch(err) {
+          caught = err;
+        }
+
+        // then
+        assert.isOk(caught);
+        assert.equal(caught.code, 'ECONNRESET');
+        // and
+        await assertSentryReceived({ error:`Server cert had unexpected CN: 'default'` });
+      });
+
+      [ 'bad.example.test' ].forEach(servername => {
+        it(`should reject requests with SNI host: "${servername}"`, async () => {
+          // given
+          let caught;
+
+          // when
+          try {
+            await requestSentryMock({ servername });
+          } catch(err) {
+            caught = err;
+          }
+
+          // then
+          assert.isOk(caught);
+          assert.equal(caught.code, 'ECONNRESET');
+          // and
+          await assertSentryReceived({ error:`SNICallback: rejecting unexpected servername: ${servername}` });
+        });
+      });
+    });
+
+    async function resetSentryMock() {
+      const res = await requestSentryMock({ path:'/reset' });
+      assert.equal(res.status, 200);
+    }
+
+    async function assertSentryReceived(...expectedRequests) {
+      const { status, body } = await requestSentryMock({ path:'/event-log' });
+      assert.equal(status, 200);
+      assert.deepEqual(expectedRequests, JSON.parse(body));
+    }
+
+    // This function makes DIRECT requests to sentry-mock.  IRL these requests
+    // would be performed by nginx when a client POSTs to /csp-report.  This
+    // function is for used in test setup/assertions, except when confirming the
+    // behaviour of the mock Sentry implementation.
+    function requestSentryMock(opts) {
+      // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
+      const {
+        path = '/api/check-cert',
+        servername = 'o-fake-dsn.ingest.sentry.io',
+      } = opts;
+
+      return new Promise((resolve, reject) => {
+        const req = https.request(
+          { path, servername },
+          res => {
+            let body = '';
+            res.on('data', data => body += data);
+            res.on('end', () => resolve({ status:res.statusCode, body }));
+            res.on('error', reject);
+          },
+        );
+        req.on('error', reject);
+        req.end();
+      });
+    }
+  });
 });
 
 function fetchHttp(path, options) {
@@ -726,5 +1002,5 @@ function assertSecurityHeaders(res, { csp }) {
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
   const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.deepEqual(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assert.deepEqualInAnyOrder(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
 }

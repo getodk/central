@@ -37,6 +37,4 @@ wait_for_http_response 5 localhost:8005/health 200
 log "Waiting for nginx..."
 wait_for_http_response 5 localhost:9000 421
 
-npm run test:nginx
-
 log "Completed OK."
