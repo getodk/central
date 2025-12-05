@@ -125,7 +125,7 @@ const contentSecurityPolicies = {
       self,
       'data:',
     ],
-    'frame-src': self,
+    'frame-src': none,
     'img-src': [
       'blob:',
       'https:',
