@@ -75,6 +75,18 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
+# Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
+# Note: using $request_uri here remains safe while percent-encodings are not
+# normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
+map $request_uri $central_frontend_csp {
+  # Web Forms CSP for /f/... and /projects/.../forms/... routes
+  ~^/(?:f/[^/]+(?:/.*)?|projects/\d+/forms/[^/]+/(?:(?:draft/)?(?:preview|submissions/new(?:/offline)?)|submissions/[^/]+/edit)(?:/)?)(?:\?.*)?$
+    "default-src 'none'; connect-src 'self' https:; font-src 'self' data:; frame-src 'none'; img-src blob: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
+
+  default
+    "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
+}
+
 server {
   listen 443 ssl;
   http2 on;
@@ -182,8 +194,7 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
-    # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "$central_frontend_csp";
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
