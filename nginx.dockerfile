@@ -1,4 +1,4 @@
-FROM node:22.21.0-slim AS intermediate
+FROM node:22.21.1-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -32,6 +32,7 @@ COPY files/nginx/setup-odk.sh \
      /scripts/
 
 COPY files/nginx/redirector.conf /usr/share/odk/nginx/
+COPY files/nginx/backend.conf /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
 COPY files/nginx/robots.txt /usr/share/nginx/html
 COPY --from=intermediate client/dist/ /usr/share/nginx/html

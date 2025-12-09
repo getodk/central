@@ -27,7 +27,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
   mail:
-    image: "registry.gitlab.com/egos-tech/smtp:1.1.1"
+    image: "registry.gitlab.com/egos-tech/smtp:1.1.5"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
@@ -55,6 +55,7 @@ services:
       - DB_HOST=${DB_HOST:-postgres14}
       - DB_USER=${DB_USER:-odk}
       - DB_PASSWORD=${DB_PASSWORD:-odk}
+      - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
       - DB_NAME=${DB_NAME:-odk}
       - DB_SSL=${DB_SSL:-null}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
@@ -137,7 +138,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:7.4.6
+    image: redis:7.4.7
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -146,7 +147,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:7.4.6
+    image: redis:7.4.7
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data

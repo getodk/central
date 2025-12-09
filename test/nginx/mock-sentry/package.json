@@ -1,0 +1,9 @@
+{
+  "name": "mock-http-server",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

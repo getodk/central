@@ -36,10 +36,12 @@ jobs:
         submodules: recursive
     - uses: actions/setup-node@v4
       with:
-        node-version: 22.21.0
+        node-version: 22.21.1
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && npm run lint
-    - run: cd test/nginx && ./run-tests.sh
+    - run: cd test/nginx && ./setup-tests.sh
+    - run: cd test/nginx && npm run test:nginx
+    - run: cd test/nginx && ./gixy.sh
 
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx
