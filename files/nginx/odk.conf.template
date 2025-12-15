@@ -1,5 +1,6 @@
 server {
   listen 443 default_server ssl;
+  server_tokens off;
 
   ssl_certificate /etc/nginx/ssl/nginx.default.crt;
   ssl_certificate_key /etc/nginx/ssl/nginx.default.key;
@@ -74,6 +75,18 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
+# Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
+# Note: using $request_uri here remains safe while percent-encodings are not
+# normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
+map $request_uri $central_frontend_csp {
+  # Web Forms CSP for /f/... and /projects/.../forms/... routes
+  ~^/(?:f/[^/]+(?:/.*)?|projects/\d+/forms/[^/]+/(?:(?:draft/)?(?:preview|submissions/new(?:/offline)?)|submissions/[^/]+/edit)(?:/)?)(?:\?.*)?$
+    "default-src 'none'; connect-src 'self' https:; font-src 'self' data:; frame-src 'none'; img-src blob: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
+
+  default
+    "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; worker-src blob:; report-uri /csp-report";
+}
+
 server {
   listen 443 ssl;
   http2 on;
@@ -130,8 +143,7 @@ server {
   }
   # To read single submission cookies
   location = /-/single/check-submitted {
-    alias /usr/share/nginx/html/blank.html;
-    default_type text/html;
+    try_files $uri @blank.html;
   }
 
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
@@ -146,38 +158,49 @@ server {
 
     # More lax CSP for enketo-express:
     # Google Maps API: https://developers.google.com/maps/documentation/javascript/content-security-policy
+    # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
+    proxy_hide_header Content-Security-Policy-Report-Only;
     add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/ https://translate.google.com https://translate.googleapis.com; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/ https://translate.google.com; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report";
-    #
-    # Rules set to 'none' here would fallback to default-src if excluded.
-    # They are included here to ease interpretation of violation reports.
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
   # End of Enketo Configuration.
 
-  location ~ ^/v\d {
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://service:8383;
-    proxy_redirect off;
+  location ~ ^/v\d+/oidc/callback$ {
+    include /usr/share/odk/nginx/common-headers.conf;
+    include /usr/share/odk/nginx/backend.conf;
+  }
 
-    # buffer requests, but not responses, so streaming out works.
-    proxy_request_buffering on;
-    proxy_buffering off;
-    proxy_read_timeout 2m;
+  location ~ ^/v\d {
+    proxy_hide_header Content-Security-Policy-Report-Only;
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
+
+    include /usr/share/odk/nginx/common-headers.conf;
+    include /usr/share/odk/nginx/backend.conf;
+  }
+
+  location @blank.html {
+    root /usr/share/nginx/html;
+    try_files /blank.html =404;
+
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
+    include /usr/share/odk/nginx/common-headers.conf;
+  }
+  location = /blank.html {
+    try_files $uri @blank.html;
   }
 
   location / {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
-    # Rules set to 'none' here would fallback to default-src if excluded.
-    # They are included here to ease interpretation of violation reports.
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src * data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "$central_frontend_csp";
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
 
   location /csp-report {
     proxy_pass https://${SENTRY_ORG_SUBDOMAIN}.ingest.sentry.io/api/${SENTRY_PROJECT}/security/?sentry_key=${SENTRY_KEY};
+    proxy_ssl_server_name on;
   }
 }
