@@ -17,6 +17,20 @@ services:
         node ./lib/bin/run-migrations
         npx nodemon --watch lib --watch config lib/bin/run-server.js
 
+  client-dev:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "8989:8989"
+    extra_hosts:
+      - "central-dev:host-gateway"
+    networks:
+      - default
+      - web
 volumes:
   service_node_modules:
   transfer_data:
