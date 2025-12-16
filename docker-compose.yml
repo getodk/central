@@ -12,6 +12,9 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
     restart: always
+    networks:
+      - default
+      - db_net
   postgres:
     platform: linux/amd64
     # This service upgrades from postgres 9.6 to 14.
@@ -28,6 +31,9 @@ services:
       POSTGRES_INITDB_ARGS: -U odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
+    networks:
+      - default
+      - db_net
   mail:
     image: "registry.gitlab.com/egos-tech/smtp:1.1.5"
     volumes:
@@ -86,6 +92,10 @@ services:
     restart: always
     logging:
       driver: local
+    networks:
+      - default
+      - db_net
+      - web
   nginx:
     platform: linux/amd64
     build:
@@ -116,6 +126,9 @@ services:
       driver: local
       options:
         max-file: "30"
+    networks:
+      - default
+      - web
   pyxform:
     image: 'ghcr.io/getodk/pyxform-http:v4.1.0'
     restart: always
@@ -159,9 +172,15 @@ services:
       - redis-server
       - /usr/local/etc/redis/redis.conf
     restart: always
+
 volumes:
   secrets:
   transfer:
   postgres14:
   enketo_redis_main:
   enketo_redis_cache:
+networks:
+  db_net:
+    external: true
+  web:
+    external: true
