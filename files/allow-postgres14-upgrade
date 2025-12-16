@@ -1,0 +1,2 @@
+This file signals that you have reviewed and approved the Postgres 9.6→14 upgrade image.
+If you are not performing an upgrade, you can leave this file empty.

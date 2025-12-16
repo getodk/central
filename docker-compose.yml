@@ -1,5 +1,6 @@
 services:
   postgres14:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: postgres14.dockerfile
@@ -12,6 +13,7 @@ services:
       POSTGRES_DB: odk
     restart: always
   postgres:
+    platform: linux/amd64
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
     build:
@@ -35,6 +37,7 @@ services:
       - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: service.dockerfile
@@ -84,6 +87,7 @@ services:
     logging:
       driver: local
   nginx:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: nginx.dockerfile

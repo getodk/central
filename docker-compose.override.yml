@@ -1,0 +1,22 @@
+services:
+  service:
+    # Mount backend source for live reload; keep node_modules in a named volume
+    volumes:
+      - ./server:/usr/odk:delegated
+      - service_node_modules:/usr/odk/node_modules
+      # Override the default /data/transfer bind to a local path so it works on macOS without extra file sharing
+      - ./data/transfer:/data/transfer
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
+        BASE_URL=$([ "${HTTPS_PORT:-443}" = "443" ] && echo "https://${DOMAIN}" || echo "https://${DOMAIN}:${HTTPS_PORT:-443}") \
+          /scripts/envsub.awk < /usr/share/odk/config.json.template > /usr/odk/config/local.json
+        node ./lib/bin/run-migrations
+        npx nodemon --watch lib --watch config lib/bin/run-server.js
+
+volumes:
+  service_node_modules:
+  transfer_data:
