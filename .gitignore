@@ -4,6 +4,18 @@
 /.env
 /version.txt
 
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+/logs/
+/tmp/
+/files/postgres14/backups/*
+!/files/postgres14/backups/.gitkeep
+/files/postgres14/backups/backup.log
+
 /files/postgres14/upgrade/*
 !/files/postgres14/upgrade/check-available-space
 

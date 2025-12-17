@@ -75,7 +75,10 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
-# Rate limiting zones: general API traffic and stricter auth endpoints.
+# Rate limiting zones:
+#   api_limit  -> general API traffic (/v*)
+#   auth_limit -> stricter for auth endpoints (/v*/sessions, app-user login)
+# Tune `rate` here for steady state; set `burst` (and optional `nodelay`) on per-location rules below.
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=20r/s;
 limit_req_zone $binary_remote_addr zone=auth_limit:5m rate=3r/s;
 
@@ -177,6 +180,7 @@ server {
 
   location ~ ^/v\d {
     # General API rate limit; allows short bursts for nightly peaks.
+    # Adjust burst to absorb spikes; add `nodelay` to drop instead of queue.
     limit_req zone=api_limit burst=200;
     proxy_hide_header Content-Security-Policy-Report-Only;
     add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
@@ -186,13 +190,15 @@ server {
   }
   location ~ ^/v\d+/sessions$ {
     # Stricter on auth endpoints to deter brute force.
-    limit_req zone=auth_limit burst=5;
+    # Adjust burst/rate; add `nodelay` to drop instead of queue.
+    limit_req zone=auth_limit burst=50;
     include /usr/share/odk/nginx/common-headers.conf;
     include /usr/share/odk/nginx/backend.conf;
   }
   location ~ ^/v\d+/projects/.*/app-users/login$ {
     # Stricter on app-user login.
-    limit_req zone=auth_limit burst=5;
+    # Adjust burst/rate; add `nodelay` to drop instead of queue.
+    limit_req zone=auth_limit burst=50;
     include /usr/share/odk/nginx/common-headers.conf;
     include /usr/share/odk/nginx/backend.conf;
   }
