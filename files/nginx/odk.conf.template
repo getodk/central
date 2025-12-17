@@ -75,6 +75,10 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
+# Rate limiting zones: general API traffic and stricter auth endpoints.
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=20r/s;
+limit_req_zone $binary_remote_addr zone=auth_limit:5m rate=3r/s;
+
 # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
 # Note: using $request_uri here remains safe while percent-encodings are not
 # normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
@@ -172,9 +176,23 @@ server {
   }
 
   location ~ ^/v\d {
+    # General API rate limit; allows short bursts for nightly peaks.
+    limit_req zone=api_limit burst=200;
     proxy_hide_header Content-Security-Policy-Report-Only;
     add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
 
+    include /usr/share/odk/nginx/common-headers.conf;
+    include /usr/share/odk/nginx/backend.conf;
+  }
+  location ~ ^/v\d+/sessions$ {
+    # Stricter on auth endpoints to deter brute force.
+    limit_req zone=auth_limit burst=5;
+    include /usr/share/odk/nginx/common-headers.conf;
+    include /usr/share/odk/nginx/backend.conf;
+  }
+  location ~ ^/v\d+/projects/.*/app-users/login$ {
+    # Stricter on app-user login.
+    limit_req zone=auth_limit burst=5;
     include /usr/share/odk/nginx/common-headers.conf;
     include /usr/share/odk/nginx/backend.conf;
   }
