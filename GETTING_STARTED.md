@@ -76,6 +76,8 @@ docker exec -i central-postgres14-1 psql -U odk -d odk < server/plan/sql/vg_app_
 
 # Start service and nginx
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.dev.yml --profile central up -d service nginx
+
+
 ```
 
 **Backend is now running at:** `https://central-dev`
@@ -92,6 +94,10 @@ docker compose --env-file .env exec service odk-cmd --email your@email.com user-
 
 # Promote to admin
 docker compose exec service odk-cmd --email your@email.com user-promote
+
+# Reset password
+docker compose exec service odk-cmd --email your@email.com user-set-password
+
 ```
 
 ---
