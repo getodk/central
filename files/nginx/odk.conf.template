@@ -190,11 +190,24 @@ server {
     try_files $uri @blank.html;
   }
 
-  location / {
+  location = /version.txt {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /index.html;
+    default_type text/plain;
+    try_files /version.txt =404;
 
-    add_header Content-Security-Policy-Report-Only "$central_frontend_csp";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
+    include /usr/share/odk/nginx/common-headers.conf;
+  }
+
+  location / {
+    # Dev: proxy everything (including HMR websocket paths) to the Vite server
+    # in the client-dev container so frontend + backend share the same origin.
+    proxy_pass http://client-dev:8989;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_cache off;
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
