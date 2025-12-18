@@ -151,7 +151,6 @@ server {
   location ~ ^/(?:-|enketo-passthrough)(?:/|$) {
     rewrite ^/enketo-passthrough(/.*)?$ /-$1 break;
     proxy_pass http://enketo:8005;
-    proxy_redirect off;
     proxy_set_header Host $host;
     proxy_hide_header Vary;
     proxy_hide_header Cache-Control;
