@@ -26,6 +26,9 @@ services:
   nginx:
     profiles:
       - none
+    build:
+      args:
+        SKIP_FRONTEND_BUILD: "1"
   pyxform:
     profiles:
       - central
