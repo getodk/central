@@ -98,7 +98,7 @@ server {
   listen 443 ssl;
   http2 on;
   # Allow an optional extra name (e.g., 10.0.2.2 for Android emulator) so SNI/Host match.
-  server_name ${DOMAIN} ${EXTRA_SERVER_NAME};
+  server_name ${DOMAIN} ${EXTRA_SERVER_NAME:-};
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
   ssl_certificate_key /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/privkey.pem;
