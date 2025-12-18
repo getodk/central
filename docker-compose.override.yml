@@ -27,7 +27,7 @@ services:
     ports:
       - "8989:8989"
     extra_hosts:
-      - "central-dev:host-gateway"
+      - "central.local:host-gateway"
     networks:
       - default
       - web

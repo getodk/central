@@ -35,16 +35,18 @@ cp .env.template .env
 
 Edit `.env` with these values:
 ```
-DOMAIN=central-dev
+DOMAIN=central.local
 SYSADMIN_EMAIL=you@example.com
 SSL_TYPE=selfsign
+# Optional: extra host/IP that should match TLS and nginx (e.g., Android emulator loopback)
+# EXTRA_SERVER_NAME=10.0.2.2
 ```
 
 ---
 
-## Step 3: Configure /etc/hosts
+## Step 3: Configure /etc/hosts (or local DNS)
 
-Add `central-dev` to your hosts file:
+Add `central.local` to your hosts file:
 
 ```bash
 sudo nano /etc/hosts
@@ -52,7 +54,7 @@ sudo nano /etc/hosts
 
 Add this line:
 ```
-127.0.0.1 central-dev
+127.0.0.1 central.local
 ```
 
 ---
@@ -79,7 +81,7 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-co
 
 ```
 
-**Backend is now running at:** `https://central-dev`
+**Backend is now running at:** `https://central.local`
 
 ---
 
@@ -101,18 +103,18 @@ docker compose exec service odk-cmd --email your@email.com user-set-password
 
 ---
 
-## Step 6: Start Frontend Development (HMR via https://central-dev)
+## Step 6: Start Frontend Development (HMR via https://central.local)
 
 ```bash
 cd central
 docker compose up -d client-dev
 ```
 
-Then open `https://central-dev` (accept the self-signed cert). Nginx proxies the frontend to the Vite dev server so HMR and API share one origin.
+Then open `https://central.local` (accept the self-signed cert). Nginx proxies the frontend to the Vite dev server so HMR and API share one origin.
 
 Diagram:
 ```
-Browser https://central-dev
+Browser https://central.local
         |
         v
    nginx (443)
@@ -127,8 +129,8 @@ client-dev:8989    service:8383 -> enketo:8005
 
 | Service | URL |
 |---------|-----|
-| Backend | `https://central-dev` |
-| Frontend Dev (HMR proxied) | `https://central-dev` |
+| Backend | `https://central.local` |
+| Frontend Dev (HMR proxied) | `https://central.local` |
 
 ---
 
@@ -144,11 +146,16 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-co
 - Access at `https://<DOMAIN>`; no client-dev container needed in this mode.
 
 ## How proxying and hostnames work
-- **UI (dev/HMR)**: `https://central-dev` → nginx → `client-dev:8989` (Vite). Websocket upgrade is enabled for HMR.
-- **API**: `https://central-dev/v1/...` → nginx → `service:8383` (Express backend).
-- **Enketo**: `https://central-dev/-/...` → nginx → `enketo:8005` (or Web Forms redirect).
+- **UI (dev/HMR)**: `https://central.local` → nginx → `client-dev:8989` (Vite). Websocket upgrade is enabled for HMR.
+- **API**: `https://central.local/v1/...` → nginx → `service:8383` (Express backend).
+- **Enketo**: `https://central.local/-/...` → nginx → `enketo:8005` (or Web Forms redirect).
 - **Change the hostname**: set `DOMAIN` in `.env` (affects nginx and backend config) and update `/etc/hosts`. For dev HMR, also ensure the host is allowed in `client/vite.config.js` (`allowedHosts`).
 - **Nginx configs**: [`files/nginx/odk.conf.template`](files/nginx/odk.conf.template) (main proxy served by `nginx` container), [`client/main.nginx.conf`](client/main.nginx.conf) (dev proxy inside `client-dev`).
+
+### Android emulator access (10.0.2.2)
+- The Android emulator reaches the host via `10.0.2.2`. Set `EXTRA_SERVER_NAME=10.0.2.2` in `.env` so nginx accepts that Host/SNI instead of returning 421.
+- Regenerate your local TLS cert with a SAN for both `central.local` and `10.0.2.2` (for example, `mkcert central.local 10.0.2.2`) and point `ssl_certificate`/`ssl_certificate_key` accordingly (handled automatically by the template when you rebuild/restart nginx).
+- Use `https://10.0.2.2` inside the emulator; your desktop browser can continue using `https://central.local`.
 
 ## Secrets (Enketo and others)
 - The `secrets` container writes secrets to `/etc/secrets` (e.g., `enketo-api-key`).

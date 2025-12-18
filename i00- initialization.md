@@ -42,14 +42,14 @@ git  config --get-regexp '^submodule\..*\.url$'
 cd central && cp .env.template .env
 ```
 
-DOMAIN=central-dev
+DOMAIN=central.local
 SYSADMIN_EMAIL=you@example.com
 SSL_TYPE=selfsign 
 
 (easier locally), and keep the    default ports.
 
 
--  Add 127.0.0.1 central-dev to /etc/hosts so the domain resolves.
+-  Add 127.0.0.1 central.local to /etc/hosts so the domain resolves.
 ```bash
 sudo nano /etc/hosts
 ```
@@ -84,9 +84,9 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-co
 
 ```
 
-- Hit https://central-dev (or http://central-dev if you switch SSL_TYPE to upstream/    customssl).
+- Hit https://central.local (or http://central.local if you switch SSL_TYPE to upstream/    customssl).
   
-  http://central-dev
+  http://central.local
 
 Edit backend files locally in central/server;  nodemon inside the container will reload on change.
 

@@ -9,7 +9,7 @@ PASSWORD = os.environ.get("CENTRAL_PASSWORD", "password@2026")
 
 
 class CentralUser(HttpUser):
-    host = "https://central-dev"
+    host = "https://central.local"
     wait_time = between(0, 0)  # hammer continuously
 
     @task(3)
