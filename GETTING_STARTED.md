@@ -40,6 +40,8 @@ SYSADMIN_EMAIL=you@example.com
 SSL_TYPE=selfsign
 # Optional: extra host/IP that should match TLS and nginx (e.g., Android emulator loopback)
 # EXTRA_SERVER_NAME=10.0.2.2
+#
+# If you leave EXTRA_SERVER_NAME unset, nginx now treats it as optional (no build errors).
 ```
 
 ---
