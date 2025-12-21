@@ -17,19 +17,19 @@ The VG implementation introduces:
 
 This fork tracks VG-specific customizations to the Central frontend and backend while keeping changes modular for easier rebasing onto upstream `master`. See the fork notes in each submodule, plus the detailed customization docs:
 
-* App user short-token UI notes: [`docs/vg-short-token-app-users.md`](docs/vg-short-token-app-users.md)
+* App user short-token UI notes: [`client/docs/vg-component-short-token-app-users.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/docs/vg-component-short-token-app-users.md)
 * Setup guide: [`GETTING_STARTED.md`](GETTING_STARTED.md)
 * Initialization notes: [`i00- initialization.md`](i00-%20initialization.md)
 
 
-* Backend notes: [`server/README.md`](server/README.md#fork-notes-vg-work)
-* Backend API behavior details: [`server/docs/vg_api.md`](server/docs/vg_api.md)
-* Backend core edits log: [`server/docs/vg_core_server_edits.md`](server/docs/vg_core_server_edits.md)
-* Backend test notes: [`server/docs/vg_tests.md`](server/docs/vg_tests.md)
+* Backend notes: [`server/README.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/README.md#fork-notes-vg-work)
+* Backend API behavior details: [`server/docs/vg_api.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_api.md)
+* Backend core edits log: [`server/docs/vg_core_server_edits.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_core_server_edits.md)
+* Backend test notes: [`server/docs/vg_tests.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_tests.md)
 
-* Frontend notes: [`client/README.md`](client/README.md#fork-notes-vg-work)
-* Frontend customization details: [`client/docs/vg_client_changes.md`](client/docs/vg_client_changes.md)
-* Frontend core edits log: [`client/docs/vg_core_client_edits.md`](client/docs/vg_core_client_edits.md)
+* Frontend notes: [`client/README.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/README.md#fork-notes-vg-work)
+* Frontend customization details: [`client/docs/vg_client_changes.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/docs/vg_client_changes.md)
+* Frontend core edits log: [`client/docs/vg_core_client_edits.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/docs/vg_core_client_edits.md)
 
 # ODK Central
 
