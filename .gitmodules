@@ -4,6 +4,3 @@
 [submodule "client"]
 	path = client
 	url = https://github.com/drguptavivek/central-frontend.git
-[submodule "standard-backend/central-backend"]
-	path = standard-backend/central-backend
-	url = https://github.com/drguptavivek/central-backend.git
