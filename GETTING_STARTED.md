@@ -10,6 +10,11 @@ This repo includes VG-specific customizations for app user authentication and se
 - [`client/docs/vg_core_client_edits.md`](client/docs/vg_core_client_edits.md)
 - [`client/docs/vg-component-short-token-app-users.md`](client/docs/vg-component-short-token-app-users.md)
 - [`server/docs/vg_api.md`](server/docs/vg_api.md)
+- [`server/docs/vg_overview.md`](server/docs/vg_overview.md)
+- [`server/docs/vg_user_behavior.md`](server/docs/vg_user_behavior.md)
+- [`server/docs/vg_settings.md`](server/docs/vg_settings.md)
+- [`server/docs/vg_implementation.md`](server/docs/vg_implementation.md)
+- [`server/docs/vg_installation.md`](server/docs/vg_installation.md)
 - [`server/docs/vg_core_server_edits.md`](server/docs/vg_core_server_edits.md)
 - [`server/docs/vg_tests.md`](server/docs/vg_tests.md)
 
@@ -87,7 +92,7 @@ docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-co
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.dev.yml --profile central run --rm service npm install
 
 # Apply database migrations
-docker exec -i central-postgres14-1 psql -U odk -d odk < server/plan/sql/vg_app_user_auth.sql
+docker exec -i central-postgres14-1 psql -U odk -d odk < server/docs/sql/vg_app_user_auth.sql
 
 # Start service and nginx
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.dev.yml --profile central up -d service nginx
@@ -338,7 +343,7 @@ docker exec -e PGPASSWORD=odk central-postgres14-1 psql -U odk -c "CREATE ROLE o
 docker exec -e PGPASSWORD=odk central-postgres14-1 psql -U odk -c "CREATE DATABASE odk_integration_test OWNER odk_test_user"
 
 # Apply migrations to test database
-docker exec -i central-postgres14-1 psql -U odk -d odk_integration_test < server/plan/sql/vg_app_user_auth.sql
+docker exec -i central-postgres14-1 psql -U odk -d odk_integration_test < server/docs/sql/vg_app_user_auth.sql
 ```
 
 ### Backend Unit Tests
@@ -434,7 +439,7 @@ docker exec -e PGPASSWORD=odk central-postgres14-1 psql -U odk -c "CREATE ROLE o
 
 docker exec -e PGPASSWORD=odk central-postgres14-1 psql -U odk -c "CREATE DATABASE odk_integration_test OWNER odk_test_user"
 
-docker exec -i central-postgres14-1 psql -U odk -d odk_integration_test < server/plan/sql/vg_app_user_auth.sql
+docker exec -i central-postgres14-1 psql -U odk -d odk_integration_test < server/docs/sql/vg_app_user_auth.sql
 
 docker compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.dev.yml --profile central exec service sh -lc 'cd /usr/odk  && NODE_CONFIG_ENV=test BCRYPT=insecure npx mocha --recursive test/integration/api/vg-app-user-auth.js'
 

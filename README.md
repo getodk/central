@@ -1,5 +1,6 @@
 # VG-FORK 
 
+This fork shifts App User authentication from long-lived embedded tokens to an explicit login/session model, adding short-lived bearer sessions, server-enforced TTL/caps, and safer QR provisioning; it also updates the admin UX and pairs with a compatible ODK Collect fork for field usage. API changes are scoped to new app-user auth/session endpoints (login, password reset/change, revoke/restore, activation) plus VG settings keys (`vg_app_user_session_ttl_days`, `vg_app_user_session_cap`); all other APIs remain unchanged. Sessions are capped per app user (default 3) and older sessions are automatically revoked on login when the cap is exceeded; TTL defaults to 3 days. Roles: project admins/managers can create/update app users, reset passwords, revoke sessions, and activate/deactivate; app users can only log in for tokens (not the web UI), change their own password, and revoke their own sessions.
 
 This document describes the technical implementation of the "VG App User Auth" system, which introduces username/password authentication and short-lived session tokens for App Users (Field Keys), replacing the legacy long-lived token model.
 
@@ -23,6 +24,11 @@ This fork tracks VG-specific customizations to the Central frontend and backend 
 
 
 * Backend notes: [`server/README.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/README.md#fork-notes-vg-work)
+* Backend overview: [`server/docs/vg_overview.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_overview.md)
+* Backend user behavior: [`server/docs/vg_user_behavior.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_user_behavior.md)
+* Backend settings: [`server/docs/vg_settings.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_settings.md)
+* Backend implementation: [`server/docs/vg_implementation.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_implementation.md)
+* Backend installation: [`server/docs/vg_installation.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_installation.md)
 * Backend API behavior details: [`server/docs/vg_api.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_api.md)
 * Backend core edits log: [`server/docs/vg_core_server_edits.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_core_server_edits.md)
 * Backend test notes: [`server/docs/vg_tests.md`](https://github.com/drguptavivek/central-backend/blob/vg-work/docs/vg_tests.md)
@@ -30,6 +36,12 @@ This fork tracks VG-specific customizations to the Central frontend and backend 
 * Frontend notes: [`client/README.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/README.md#fork-notes-vg-work)
 * Frontend customization details: [`client/docs/vg_client_changes.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/docs/vg_client_changes.md)
 * Frontend core edits log: [`client/docs/vg_core_client_edits.md`](https://github.com/drguptavivek/central-frontend/blob/vg-work/docs/vg_core_client_edits.md)
+
+
+## The server is suppoed to work with following ODK collect fork,
+
+* ODK Collect fork: [`drguptavivek/collect`](https://github.com/drguptavivek/collect)
+
 
 # ODK Central
 
