@@ -17,7 +17,7 @@ The VG implementation introduces:
 
 This fork tracks VG-specific customizations to the Central frontend and backend while keeping changes modular for easier rebasing onto upstream `master`. See the fork notes in each submodule, plus the detailed customization docs:
 
-* App user short-token UI notes: [`client/docs/vg-component-short-token-app-users.md`](client/docs/vg-component-short-token-app-users.md)
+* App user short-token UI notes: [`docs/vg-short-token-app-users.md`](docs/vg-short-token-app-users.md)
 * Setup guide: [`GETTING_STARTED.md`](GETTING_STARTED.md)
 * Initialization notes: [`i00- initialization.md`](i00-%20initialization.md)
 
