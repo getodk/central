@@ -1,4 +1,15 @@
 
+## VG fork customization docs
+
+This repo includes VG-specific customizations for app user authentication and settings. For details, see:
+
+- `client/docs/vg_client_changes.md`
+- `client/docs/vg_core_client_edits.md`
+- `client/docs/vg-component-short-token-app-users.md`
+- `server/docs/vg_api.md`
+- `server/docs/vg_core_server_edits.md`
+- `server/docs/vg_tests.md`
+
 ## SUBMODULES
    ../central/server is a git submodule
   (from .gitmodules: https://github.com/drguptavivek/
