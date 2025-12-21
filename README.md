@@ -1,19 +1,35 @@
 # VG-FORK 
 
+
+This document describes the technical implementation of the "VG App User Auth" system, which introduces username/password authentication and short-lived session tokens for App Users (Field Keys), replacing the legacy long-lived token model.
+
+## Overview
+
+Legacy ODK Central App Users rely on a long-lived API token (valid for 10+ years) embedded in the QR code. This poses a security risk if the QR code is compromised.
+
+The VG implementation introduces:
+-   **Username/Password Authentication**: App Users must log in to obtain a session token.
+-   **Short-Lived Tokens**: Session tokens have a configurable expiration (default 3 days).
+-   **Enhanced Management**: Support for phone numbers, password resets, and explicit revocation/restoration.
+
+
 ## Fork notes (vg-work)
 
 This fork tracks VG-specific customizations to the Central frontend and backend while keeping changes modular for easier rebasing onto upstream `master`. See the fork notes in each submodule, plus the detailed customization docs:
 
-* Frontend notes: [`client/README.md`](client/README.md#fork-notes-vg-work)
-* Backend notes: [`server/README.md`](server/README.md#fork-notes-vg-work)
-* Frontend customization details: [`client/docs/vg_client_changes.md`](client/docs/vg_client_changes.md)
-* Frontend core edits log: [`client/docs/vg_core_client_edits.md`](client/docs/vg_core_client_edits.md)
 * App user short-token UI notes: [`client/docs/vg-component-short-token-app-users.md`](client/docs/vg-component-short-token-app-users.md)
+* Setup guide: [`GETTING_STARTED.md`](GETTING_STARTED.md)
+* Initialization notes: [`i00- initialization.md`](i00-%20initialization.md)
+
+
+* Backend notes: [`server/README.md`](server/README.md#fork-notes-vg-work)
 * Backend API behavior details: [`server/docs/vg_api.md`](server/docs/vg_api.md)
 * Backend core edits log: [`server/docs/vg_core_server_edits.md`](server/docs/vg_core_server_edits.md)
 * Backend test notes: [`server/docs/vg_tests.md`](server/docs/vg_tests.md)
-* Setup guide: [`GETTING_STARTED.md`](GETTING_STARTED.md)
-* Initialization notes: [`i00- initialization.md`](i00-%20initialization.md)
+
+* Frontend notes: [`client/README.md`](client/README.md#fork-notes-vg-work)
+* Frontend customization details: [`client/docs/vg_client_changes.md`](client/docs/vg_client_changes.md)
+* Frontend core edits log: [`client/docs/vg_core_client_edits.md`](client/docs/vg_core_client_edits.md)
 
 # ODK Central
 
