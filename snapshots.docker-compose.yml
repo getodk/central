@@ -1,0 +1,7 @@
+services:
+  service:
+    build:
+      dockerfile: service.dockerfile
+  nginx:
+    build:
+      dockerfile: nginx.dockerfile
