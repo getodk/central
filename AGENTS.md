@@ -150,8 +150,14 @@ See server-side documentation in the server repo for details.
 
 ## Agent Workflow
 
-When working on tasks in this project, agents should follow this workflow:
+**At session start**:
+1. **Update KB submodule**: Pull latest knowledge and update pointer in parent project:
+   ```bash
+   git submodule update --remote agentic_kb
+   git add agentic_kb && git commit -m "Update: agentic_kb to latest" && git push
+   ```
 
-1. **Check KB first**: Search `agentic_kb/knowledge/` for relevant documentation on general topics (document automation, security compliance, etc.)
-2. **Follow project conventions**: Apply ODK Central-specific rules from sections above (VG customizations, modularity requirements, submodule workflows)
-3. **Document learnings**: Capture reusable general knowledge in the KB (see agentic_kb/KNOWLEDGE_CONVENTIONS.md), and project-specific knowledge in the appropriate docs/ directories
+**During work**:
+2. **Check KB first**: Search `agentic_kb/knowledge/` for relevant documentation on general topics (document automation, security compliance, etc.)
+3. **Follow project conventions**: Apply ODK Central-specific rules from sections above (VG customizations, modularity requirements, submodule workflows)
+4. **Document learnings**: Capture reusable general knowledge in the KB (see agentic_kb/KNOWLEDGE_CONVENTIONS.md), and project-specific knowledge in the appropriate docs/ directories
