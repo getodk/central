@@ -3,6 +3,55 @@
 This file captures local workflow conventions and key customizations for the
 `central` repo and its `client` and `server` submodules.
 
+## Knowledge Base Integration
+
+This project uses `agentic_kb` as a git submodule for reusable knowledge.
+
+**IMPORTANT**: Before answering questions, agents MUST:
+
+1. Check if the question relates to documented knowledge
+2. Search the KB using the patterns below
+3. Cite sources from KB when using its content
+
+### KB Search Patterns
+
+```bash
+# Tag search
+rg "#pandoc" agentic_kb/knowledge/
+rg "#docx" agentic_kb/knowledge/
+rg "#ooxml" agentic_kb/knowledge/
+rg "#iso27001" agentic_kb/knowledge/
+
+# Phrase search
+rg "page numbering" agentic_kb/knowledge/
+rg "ISO 27001" agentic_kb/knowledge/
+```
+
+### KB Vector Search (Optional)
+
+If vector search is set up:
+
+```bash
+uv run python agentic_kb/scripts/search.py "your query"
+uv run python agentic_kb/scripts/search.py "page numbering in pandoc" --min-score 0.8
+```
+
+### KB Scope and Rules
+
+- Submodule path: `agentic_kb/knowledge/`
+- Ignore `agentic_kb/.obsidian/` and `agentic_kb/.git/`
+- Treat KB content as authoritative
+- Cite sources using format: `<file path> -> <heading>`
+- If knowledge is missing, say: "Not found in KB" and suggest where to add it
+
+### Full KB Instructions
+
+For complete KB agent instructions, see: [agentic_kb/AGENTS.md](agentic_kb/AGENTS.md)
+
+For KB conventions and knowledge capture: [agentic_kb/KNOWLEDGE_CONVENTIONS.md](agentic_kb/KNOWLEDGE_CONVENTIONS.md)
+
+---
+
 ## Repos and Branch Policy
 
 - Work only on `vg-work` in all three repos:
@@ -96,3 +145,13 @@ See server-side documentation in the server repo for details.
 ### Central (meta repo)
 
 - Tracks `client` and `server` submodule pointers on `vg-work`.
+
+---
+
+## Agent Workflow
+
+When working on tasks in this project, agents should follow this workflow:
+
+1. **Check KB first**: Search `agentic_kb/knowledge/` for relevant documentation on general topics (document automation, security compliance, etc.)
+2. **Follow project conventions**: Apply ODK Central-specific rules from sections above (VG customizations, modularity requirements, submodule workflows)
+3. **Document learnings**: Capture reusable general knowledge in the KB (see agentic_kb/KNOWLEDGE_CONVENTIONS.md), and project-specific knowledge in the appropriate docs/ directories
