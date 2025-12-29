@@ -986,7 +986,7 @@ function request(url, { body, ...options }={}) {
       const req = getProtocolImplFrom(url).request(url, options, res => {
         res.on('error', reject);
 
-        const body = new Readable({ _read:() => {} });
+        const body = new Readable({ read:() => {} });
         res.on('error', err => body.destroy(err));
         res.on('data', data => body.push(data));
         res.on('end', () => body.push(null));
