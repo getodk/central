@@ -10,7 +10,7 @@ docker_compose() {
 
 lint_service() {
   local service="$1"
-  log "Linting $service config with gixy-ng..."
+  log "Linting nginx config with gixy-ng in: $service"
   # gixy-ng is a maintained fork of gixy: https://github.com/dvershinin/gixy
   # For version updates, see: https://pypi.org/project/gixy-ng/#history
   docker_compose exec "$service" bash -euc '
@@ -22,7 +22,7 @@ lint_service() {
     gixy -lll
   '
 
-  log "Config looks OK in $service."
+  log "Config looks OK in: $service"
 }
 
 lint_service nginx-ssl-selfsign
