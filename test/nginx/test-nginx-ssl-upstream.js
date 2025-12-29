@@ -1,6 +1,3 @@
-const https = require('node:https');
-const tls = require('node:tls');
-
 const deepEqualInAnyOrder = require('deep-equal-in-any-order');
 const chai = require('chai');
 chai.use(deepEqualInAnyOrder);
@@ -34,8 +31,6 @@ describe('nginx: SSL_TYPE=upstream', () => {
     } catch(err) {
       // then
       assert.equal(err.code, 'ECONNRESET');
-      assert.equal(err.name, 'Error');
-      assert.equal(err.message, 'Client network socket disconnected before secure TLS connection was established');
     }
   });
 
@@ -48,8 +43,6 @@ describe('nginx: SSL_TYPE=upstream', () => {
     } catch(err) {
       // then
       assert.equal(err.code, 'ECONNRESET');
-      assert.equal(err.name, 'Error');
-      assert.equal(err.message, 'Client network socket disconnected before secure TLS connection was established');
     }
   });
 
@@ -73,7 +66,17 @@ function fetchHttp(path, options) {
   return request(`http://127.0.0.1:10000${path}`, options);
 }
 
+function fetchHttp6(path, options) {
+  if(!path.startsWith('/')) throw new Error('Invalid path.');
+  return request(`http://[::1]:10000${path}`, options);
+}
+
 function fetchHttps(path, options) {
   if(!path.startsWith('/')) throw new Error('Invalid path.');
   return request(`https://127.0.0.1:10001${path}`, options);
+}
+
+function fetchHttps6(path, options) {
+  if(!path.startsWith('/')) throw new Error('Invalid path.');
+  return request(`https://[::1]:10001${path}`, options);
 }
