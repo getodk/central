@@ -57,9 +57,9 @@ else
     # no need for letsencrypt challenge reply or 80 to 443 redirection
     rm -f /etc/nginx/conf.d/redirector.conf
     # strip out all ssl_* directives
-    perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
+    perl -i -ne 's/listen 443.*/listen 80;/; print if ! /\bssl_/' /etc/nginx/conf.d/odk.conf
     # force https because we expect SSL upstream
-    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
+    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /usr/share/odk/nginx/backend.conf
     echo "starting nginx for upstream ssl..."
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection
