@@ -275,7 +275,7 @@ describe('nginx config', () => {
       fetchHttp6,
       apiFetch:  fetchHttp,
       apiFetch6: fetchHttp6,
-      forwardProtocol: 'http',
+      forwardProtocol: 'http', // maybe more efficient if this is always HTTPS
     });
 
     function fetchHttp(path, options) {
