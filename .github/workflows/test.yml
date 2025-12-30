@@ -44,7 +44,9 @@ jobs:
     - run: cd test/nginx && ./gixy.sh
 
     - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-upstream
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix service
     - if: always()

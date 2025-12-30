@@ -1,0 +1,30 @@
+services:
+  nginx:
+    build:
+      context: ../..
+      dockerfile: nginx.dockerfile
+      args:
+        SKIP_FRONTEND_BUILD: true
+    depends_on:
+      - service
+      - enketo
+      - sentry-mock
+    extra_hosts:
+      - o-fake-dsn.ingest.sentry.io:host-gateway
+    environment:
+      - DOMAIN=odk-nginx.example.test
+      - SENTRY_KEY=example-sentry-key
+      - SENTRY_ORG_SUBDOMAIN=o-fake-dsn
+      - SENTRY_PROJECT=example-sentry-project
+      - OIDC_ENABLED=false
+    volumes:
+      - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
+      - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
+      - ./files/nginx/dh.pem:/etc/dh/nginx.pem:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
+    restart: always
+    logging:
+      driver: local
+      options:
+        max-file: "30"
