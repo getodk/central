@@ -155,6 +155,8 @@ describe('nginx config', () => {
   ]));
 
   describe('SSL_TYPE=selfsign', () => {
+    const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(9000, 9001);
+
     it('HTTP should forward to HTTPS', async () => {
       // when
       const res = await fetchHttp('/');
@@ -223,29 +225,11 @@ describe('nginx config', () => {
       apiFetch6: fetchHttps6,
       forwardProtocol: 'https',
     });
-
-    function fetchHttp(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`http://127.0.0.1:9000${path}`, options);
-    }
-
-    function fetchHttp6(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`http://[::1]:9000${path}`, options);
-    }
-
-    function fetchHttps(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`https://127.0.0.1:9001${path}`, options);
-    }
-
-    function fetchHttps6(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`https://[::1]:9001${path}`, options);
-    }
   });
 
   describe('SSL_TYPE=upstream', () => {
+    const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(10000, 10001);
+
     it('should not respond to HTTPS requests (IPv4)', async () => {
       try {
         // when
@@ -275,28 +259,8 @@ describe('nginx config', () => {
       fetchHttp6,
       apiFetch:  fetchHttp,
       apiFetch6: fetchHttp6,
-      forwardProtocol: 'http', // maybe more efficient if this is always HTTPS
+      forwardProtocol: 'http', // it might be more efficient if this is always HTTPS
     });
-
-    function fetchHttp(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`http://127.0.0.1:10000${path}`, options);
-    }
-
-    function fetchHttp6(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`http://[::1]:10000${path}`, options);
-    }
-
-    function fetchHttps(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`https://127.0.0.1:10001${path}`, options);
-    }
-
-    function fetchHttps6(path, options) {
-      if(!path.startsWith('/')) throw new Error('Invalid path.');
-      return request(`https://[::1]:10001${path}`, options);
-    }
   });
 });
 
@@ -941,6 +905,30 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       });
     }
   });
+}
+
+function fetchFunctionsForPorts(httpPort, httpsPort) {
+  return { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 };
+
+  function fetchHttp(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`http://127.0.0.1:${httpPort}${path}`, options);
+  }
+
+  function fetchHttp6(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`http://[::1]:${httpPort}${path}`, options);
+  }
+
+  function fetchHttps(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`https://127.0.0.1:${httpsPort}${path}`, options);
+  }
+
+  function fetchHttps6(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`https://[::1]:${httpsPort}${path}`, options);
+  }
 }
 
 function assertEnketoReceivedNoRequests() {
