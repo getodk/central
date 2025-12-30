@@ -148,7 +148,7 @@ const contentSecurityPolicies = {
   }),
 };
 
-describe('nginx', () => {
+describe('nginx config', () => {
   beforeEach(() => Promise.all([
     resetEnketoMock(),
     resetBackendMock(),
