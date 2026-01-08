@@ -154,24 +154,117 @@ describe('nginx config', () => {
     resetBackendMock(),
   ]));
 
-  it('HTTP should forward to HTTPS', async () => {
-    // when
-    const res = await fetchHttp('/');
+  describe('SSL_TYPE=selfsign', () => {
+    const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(9000, 9001);
 
-    // then
-    assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
+    it('HTTP should forward to HTTPS', async () => {
+      // when
+      const res = await fetchHttp('/');
+
+      // then
+      assert.equal(res.status, 301);
+      assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
+    });
+
+    it('should forward HTTP to HTTPS (IPv6)', async () => {
+      // when
+      const res = await fetchHttp6('/');
+
+      // then
+      assert.equal(res.status, 301);
+      assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
+    });
+
+    it('should reject HTTPS requests with incorrect host header supplied', async () => {
+      // when
+      const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
+
+      // then
+      assert.equal(res.status, 421);
+    });
+
+    it('should reject HTTPS requests with incorrect host header supplied (IPv6)', async () => {
+      // when
+      const res = await fetchHttps6('/', { headers:{ host:'bad.example.com' } });
+
+      // then
+      assert.equal(res.status, 421);
+    });
+
+    it('should serve long-lived certificate to HTTPS requests with incorrect host header', () => new Promise((resolve, reject) => {
+      const socket = tls.connect(9001, { host:'localhost', servername:'bad.example.com', rejectUnauthorized:false }, () => {
+        try {
+          const certificate = socket.getPeerCertificate();
+          const validUntilRaw = certificate.valid_to;
+
+          // Dates look like RFC-822 format - probably direct output of `openssl`.  NodeJS Date.parse()
+          // seems to support this format.
+          const validUntil = new Date(validUntilRaw);
+          assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
+
+          assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
+
+          // spread subject to avoid https://github.com/mochajs/mocha/issues/5505
+          assert.deepEqual({ ...certificate.subject }, {
+            CN: 'invalid.local', // required for www.ssllabs.com/ssltest
+          });
+
+          socket.end();
+        } catch(err) {
+          socket.destroy(err);
+        }
+      });
+      socket.on('end', resolve);
+      socket.on('error', reject);
+    }));
+
+    standardTestSuite({
+      fetchHttp,
+      fetchHttp6,
+      apiFetch:  fetchHttps,
+      apiFetch6: fetchHttps6,
+      forwardProtocol: 'https',
+    });
   });
 
-  it('should forward HTTP to HTTPS (IPv6)', async () => {
-    // when
-    const res = await fetchHttp6('/');
+  describe('SSL_TYPE=upstream', () => {
+    const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(10000, 10001);
 
-    // then
-    assert.equal(res.status, 301);
-    assert.equal(res.headers.get('location'), 'https://odk-nginx.example.test/');
+    it('should not respond to HTTPS requests (IPv4)', async () => {
+      try {
+        // when
+        await fetchHttps('/version.txt');
+
+        assert.fail('should not have responded');
+      } catch(err) {
+        // then
+        assert.equal(err.code, 'ECONNRESET');
+      }
+    });
+
+    it('should not respond to HTTPS requests (IPv6)', async () => {
+      try {
+        // when
+        await fetchHttps6('/version.txt');
+
+        assert.fail('should not have responded');
+      } catch(err) {
+        // then
+        assert.equal(err.code, 'ECONNRESET');
+      }
+    });
+
+    standardTestSuite({
+      fetchHttp,
+      fetchHttp6,
+      apiFetch:  fetchHttp,
+      apiFetch6: fetchHttp6,
+      forwardProtocol: 'http', // it might be more efficient if this is always HTTPS
+    });
   });
+});
 
+function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forwardProtocol }) {
   describe('response compression (Content-Encoding)', () => {
     [
       'gzip',
@@ -181,7 +274,7 @@ describe('nginx config', () => {
         const headers = { 'Accept-Encoding':format };
 
         // when
-        const res = await fetchHttps('/10k-file.txt', { headers });
+        const res = await apiFetch('/10k-file.txt', { headers });
 
         // then
         assert.equal(res.status, 200);
@@ -199,7 +292,7 @@ describe('nginx config', () => {
         const headers = { 'Accept-Encoding':format };
 
         // when
-        const res = await fetchHttps('/10k-file.txt', { headers });
+        const res = await apiFetch('/10k-file.txt', { headers });
 
         // then
         assert.equal(res.status, 200);
@@ -210,7 +303,7 @@ describe('nginx config', () => {
 
   it('should serve generated client-config.json', async () => {
     // when
-    const res = await fetchHttps('/client-config.json');
+    const res = await apiFetch('/client-config.json');
 
     // then
     assert.equal(res.status, 200);
@@ -220,7 +313,7 @@ describe('nginx config', () => {
 
   it('should serve generated client-config.json (IPv6)', async () => {
     // when
-    const res = await fetchHttps6('/client-config.json');
+    const res = await apiFetch6('/client-config.json');
 
     // then
     assert.equal(res.status, 200);
@@ -230,7 +323,7 @@ describe('nginx config', () => {
 
   it('should serve robots.txt', async () => {
     // when
-    const res = await fetchHttps('/robots.txt');
+    const res = await apiFetch('/robots.txt');
 
     // then
     assert.equal(res.status, 200);
@@ -245,7 +338,7 @@ describe('nginx config', () => {
   ].forEach(([ path, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
-      const res = await fetchHttps(path);
+      const res = await apiFetch(path);
 
       // then
       assert.equal(res.status, 200);
@@ -263,7 +356,7 @@ describe('nginx config', () => {
   ].forEach(t => {
     it(`should forward to enketo; ${t.request}`, async () => {
       // when
-      const res = await fetchHttps(t.request);
+      const res = await apiFetch(t.request);
 
       // then
       assert.equal(res.status, 200);
@@ -284,7 +377,7 @@ describe('nginx config', () => {
   ].forEach(t => {
     it(`should not forward to enketo; ${t.request}`, async () => {
       // when
-      const res = await fetchHttps(t.request);
+      const res = await apiFetch(t.request);
 
       // then
       assert.equal(res.status, 200);
@@ -339,11 +432,11 @@ describe('nginx config', () => {
   enketoRedirectTestData.forEach(t => {
     it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
       // when
-      const res = await fetchHttps(t.request);
+      const res = await apiFetch(t.request);
 
       // then
       assert.equal(res.status, 301);
-      assert.equal(res.headers.get('location'), `https://odk-nginx.example.test/${t.expected}`);
+      assert.equal(res.headers.get('location'), `${forwardProtocol}://odk-nginx.example.test/${t.expected}`);
       // and
       await assertEnketoReceivedNoRequests();
     });
@@ -360,7 +453,7 @@ describe('nginx config', () => {
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
-      const res = await fetchHttps(request);
+      const res = await apiFetch(request);
 
       // then
       assert.equal(res.status, 200);
@@ -381,7 +474,7 @@ describe('nginx config', () => {
     ].forEach(path => {
       it(`should serve blank page on ${path}`, async () => {
         // when
-        const res = await fetchHttps(path);
+        const res = await apiFetch(path);
 
         // then
         assert.equal(res.status, 200);
@@ -395,7 +488,7 @@ describe('nginx config', () => {
 
   it('/v1/... should forward to backend', async () => {
     // when
-    const res = await fetchHttps('/v1/some/central-backend/path');
+    const res = await apiFetch('/v1/some/central-backend/path');
 
     // then
     assert.equal(res.status, 200);
@@ -409,7 +502,7 @@ describe('nginx config', () => {
 
   it('/oidc/callback should serve Content-Security-Policy from backend', async () => {
     // when
-    const res = await fetchHttps('/v1/oidc/callback');
+    const res = await apiFetch('/v1/oidc/callback');
 
     // then
     assert.equal(res.status, 200);
@@ -419,7 +512,7 @@ describe('nginx config', () => {
 
   it('should set x-forwarded-proto header to "https"', async () => {
     // when
-    const res = await fetchHttps('/v1/reflect-headers');
+    const res = await apiFetch('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
     assertSecurityHeaders(res, { csp:'disallow-all' });
@@ -432,7 +525,7 @@ describe('nginx config', () => {
 
   it('should override supplied x-forwarded-proto header', async () => {
     // when
-    const res = await fetchHttps('/v1/reflect-headers', {
+    const res = await apiFetch('/v1/reflect-headers', {
       headers: {
         'x-forwarded-proto': 'http',
       },
@@ -482,7 +575,7 @@ describe('nginx config', () => {
     ].forEach(path => {
       it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
-        const res = await fetchHttps(path);
+        const res = await apiFetch(path);
 
         // then
         assert.equal(res.status, 200);
@@ -526,7 +619,7 @@ describe('nginx config', () => {
     ].forEach(path => {
       it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
         // when
-        const res = await fetchHttps(path);
+        const res = await apiFetch(path);
 
         // then
         assert.equal(res.status, 200);
@@ -551,49 +644,6 @@ describe('nginx config', () => {
     // then
     assert.equal(res.status, 421);
   });
-
-  it('should reject HTTPS requests with incorrect host header supplied', async () => {
-    // when
-    const res = await fetchHttps('/', { headers:{ host:'bad.example.com' } });
-
-    // then
-    assert.equal(res.status, 421);
-  });
-
-  it('should reject HTTPS requests with incorrect host header supplied (IPv6)', async () => {
-    // when
-    const res = await fetchHttps6('/', { headers:{ host:'bad.example.com' } });
-
-    // then
-    assert.equal(res.status, 421);
-  });
-
-  it('should serve long-lived certificate to HTTPS requests with incorrect host header', () => new Promise((resolve, reject) => {
-    const socket = tls.connect(9001, { host:'localhost', servername:'bad.example.com', rejectUnauthorized:false }, () => {
-      try {
-        const certificate = socket.getPeerCertificate();
-        const validUntilRaw = certificate.valid_to;
-
-        // Dates look like RFC-822 format - probably direct output of `openssl`.  NodeJS Date.parse()
-        // seems to support this format.
-        const validUntil = new Date(validUntilRaw);
-        assert.isFalse(isNaN(validUntil), `Could not parse certificate's valid_to value as a date ('${validUntilRaw}')`);
-
-        assert.isAbove(validUntil.getFullYear(), 3000, 'The provided certificate expires too soon.');
-
-        // spread subject to avoid https://github.com/mochajs/mocha/issues/5505
-        assert.deepEqual({ ...certificate.subject }, {
-          CN: 'invalid.local', // required for www.ssllabs.com/ssltest
-        });
-
-        socket.end();
-      } catch(err) {
-        socket.destroy(err);
-      }
-    });
-    socket.on('end', resolve);
-    socket.on('error', reject);
-  }));
 
   describe('general caching', () => {
     [
@@ -623,7 +673,7 @@ describe('nginx config', () => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
           // when
-          const res = await fetchHttps(path, { method });
+          const res = await apiFetch(path, { method });
 
           // then
           assert.equal(res.status, 200);
@@ -635,7 +685,7 @@ describe('nginx config', () => {
       [ 'POST', 'PUT', 'DELETE' ].forEach(method => {
         it(`${method} ${path} should not be allowed`, async () => {
           // when
-          const res = await fetchHttps(path, { method });
+          const res = await apiFetch(path, { method });
 
           // then
           assert.equal(res.status, 405);
@@ -652,7 +702,7 @@ describe('nginx config', () => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
           // when
-          const res = await fetchHttps(path, { method });
+          const res = await apiFetch(path, { method });
 
           // then
           assert.equal(res.status, 200);
@@ -665,7 +715,7 @@ describe('nginx config', () => {
 
     it('should return cache headers from the backend', async () => {
       // when
-      const res = await fetchHttps('/v1/projects');
+      const res = await apiFetch('/v1/projects');
 
       // then
       assert.equal(res.status, 200);
@@ -713,7 +763,7 @@ describe('nginx config', () => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
           // when
-          const res = await fetchHttps(path, { method });
+          const res = await apiFetch(path, { method });
 
           // then
           assert.equal(res.status, 200);
@@ -729,7 +779,7 @@ describe('nginx config', () => {
       [ 'POST', 'PUT', 'DELETE' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: single-use`, async () => {
           // when
-          const res = await fetchHttps(path, { method });
+          const res = await apiFetch(path, { method });
 
           // then
           assert.equal(res.status, 200);
@@ -751,7 +801,7 @@ describe('nginx config', () => {
 
     it('POST /csp-report should forward requests to Sentry', async () => {
       // when
-      const res = await fetchHttps('/csp-report', {
+      const res = await apiFetch('/csp-report', {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
         body: JSON.stringify({ example:1 }),
@@ -855,26 +905,30 @@ describe('nginx config', () => {
       });
     }
   });
-});
-
-function fetchHttp(path, options) {
-  if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return request(`http://127.0.0.1:9000${path}`, options);
 }
 
-function fetchHttp6(path, options) {
-  if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return request(`http://[::1]:9000${path}`, options);
-}
+function fetchFunctionsForPorts(httpPort, httpsPort) {
+  return { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 };
 
-function fetchHttps(path, options) {
-  if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return request(`https://127.0.0.1:9001${path}`, options);
-}
+  function fetchHttp(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`http://127.0.0.1:${httpPort}${path}`, options);
+  }
 
-function fetchHttps6(path, options) {
-  if(!path.startsWith('/')) throw new Error('Invalid path.');
-  return request(`https://[::1]:9001${path}`, options);
+  function fetchHttp6(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`http://[::1]:${httpPort}${path}`, options);
+  }
+
+  function fetchHttps(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`https://127.0.0.1:${httpsPort}${path}`, options);
+  }
+
+  function fetchHttps6(path, options) {
+    if(!path.startsWith('/')) throw new Error('Invalid path.');
+    return request(`https://[::1]:${httpsPort}${path}`, options);
+  }
 }
 
 function assertEnketoReceivedNoRequests() {
@@ -920,7 +974,7 @@ function request(url, { body, ...options }={}) {
       const req = getProtocolImplFrom(url).request(url, options, res => {
         res.on('error', reject);
 
-        const body = new Readable({ _read: () => {} });
+        const body = new Readable({ read:() => {} });
         res.on('error', err => body.destroy(err));
         res.on('data', data => body.push(data));
         res.on('end', () => body.push(null));
