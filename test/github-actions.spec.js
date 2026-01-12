@@ -42,7 +42,7 @@ describe('github-actions', () => {
         [ 'Closes getodk/central#1, fixes: #2, and Resolves #3', 1, 2, 3 ],
         [ 'Closes: github.com/getodk/central/issues/4', 4 ],
         [ 'Closes: https://github.com/getodk/central/issues/5', 5 ],
-      ].forEach(([ commitText, ...expectedClosedIssues ], idx) => {
+      ].forEach(([ commitText, ...expectedClosedIssues ]) => {
         it(`should close issues: ${expectedClosedIssues} for commitText: ${JSON.stringify(commitText)}`, () => {
           assert.deepEqual(
             [...commitText.matchAll(issueRegex)].map(match => match[2]),
