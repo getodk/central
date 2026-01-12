@@ -2,14 +2,16 @@
   "name": "odk-central-tests",
   "scripts": {
     "lint": "ESLINT_USE_FLAT_CONFIG=false npx eslint --cache .",
-    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test-nginx.js",
-    "test": "npm run lint && npm run test:nginx"
+    "test:github-actions": "mocha ./github-actions.spec.js",
+    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha ./nginx/test-nginx.js",
+    "test": "npm run lint && npm run test:github-actions && npm run test:nginx"
   },
   "dependencies": {
     "chai": "^5.2.0",
     "deep-equal-in-any-order": "^2.1.0",
     "eslint": "^9.28.0",
-    "mocha": "^11.6.0"
+    "mocha": "^11.6.0",
+    "yaml": "^2.8.2"
   },
   "volta": {
     "node": "22.21.1"
