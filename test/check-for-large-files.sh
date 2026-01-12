@@ -3,7 +3,7 @@ set -o pipefail
 shopt -s inherit_errexit
 
 git ls-files -z \
-| xargs -0 ls -l \
+| xargs -0 ls -l -- \
 | awk '
   BEGIN {
     print "[check-for-large-files] Checking for large files...";
