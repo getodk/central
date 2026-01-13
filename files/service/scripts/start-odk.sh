@@ -39,25 +39,30 @@ get_cgroup_version() {
 }
 
 get_memory_limit() {
-  local cgroup_version
+  local cgroup_version memtot fallback_memtot
   cgroup_version=$(get_cgroup_version)
+  fallback_memtot=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')
 
   if [ "$cgroup_version" == "v2" ]; then
-    local memtot
-    memtot=$(cat /sys/fs/cgroup/memory.max)
-    if [ "$memtot" == "max" ]; then
-      # No cgroup memory limit; fallback to system's total memory
-      memtot=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')
+    if [ -r /sys/fs/cgroup/memory.max ]; then
+      memtot=$(cat /sys/fs/cgroup/memory.max)
+    else
+      memtot="max"
     fi
-    # Force memtot to be an integer (not scientific notation e+09)
-    printf "%.0f\n" "$memtot"
+    if [ "$memtot" == "max" ]; then
+      memtot=$fallback_memtot
+    fi
   else
     # cgroup v1
-    local memtot
-    memtot=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
-    # Force memtot to be an integer
-    printf "%.0f\n" "$memtot"
+    if [ -r /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
+      memtot=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
+    else
+      memtot=$fallback_memtot
+    fi
   fi
+
+  # Force memtot to be an integer (not scientific notation e+09)
+  printf "%.0f\n" "$memtot"
 }
 
 determine_worker_count() {
