@@ -27,29 +27,26 @@ node ./lib/bin/log-upgrade
 echo "starting cron.."
 cron -f &
 
-get_cgroup_version() {
-  # The max memory calculation is different between cgroup v1 & v2
-  local cgroup_type
-  cgroup_type=$(stat -fc %T /sys/fs/cgroup/)
-  if [ "$cgroup_type" == "cgroup2fs" ]; then
-    echo "v2"
-  else
-    echo "v1"
-  fi
+is_cgroup2() {
+  [ -f /sys/fs/cgroup/cgroup.controllers ]
 }
 
 get_memory_limit() {
-  local cgroup_version memtot fallback_memtot
-  cgroup_version=$(get_cgroup_version)
-  fallback_memtot=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')
+  local memtot fallback_memtot
 
-  if [ "$cgroup_version" == "v2" ]; then
+  if [ -r /proc/meminfo ]; then
+    fallback_memtot=$(awk '/MemTotal/ {print $2 * 1024}' /proc/meminfo)
+  else
+    fallback_memtot=0
+  fi
+
+  if is_cgroup2; then
     if [ -r /sys/fs/cgroup/memory.max ]; then
       memtot=$(cat /sys/fs/cgroup/memory.max)
     else
       memtot="max"
     fi
-    if [ "$memtot" == "max" ]; then
+    if [ "$memtot" = "max" ]; then
       memtot=$fallback_memtot
     fi
   else
