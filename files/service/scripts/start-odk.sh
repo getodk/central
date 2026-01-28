@@ -27,37 +27,39 @@ node ./lib/bin/log-upgrade
 echo "starting cron.."
 cron -f &
 
-get_cgroup_version() {
-  # The max memory calculation is different between cgroup v1 & v2
-  local cgroup_type
-  cgroup_type=$(stat -fc %T /sys/fs/cgroup/)
-  if [ "$cgroup_type" == "cgroup2fs" ]; then
-    echo "v2"
-  else
-    echo "v1"
-  fi
+is_cgroup2() {
+  [ -f /sys/fs/cgroup/cgroup.controllers ]
 }
 
 get_memory_limit() {
-  local cgroup_version
-  cgroup_version=$(get_cgroup_version)
+  local memtot fallback_memtot
 
-  if [ "$cgroup_version" == "v2" ]; then
-    local memtot
-    memtot=$(cat /sys/fs/cgroup/memory.max)
-    if [ "$memtot" == "max" ]; then
-      # No cgroup memory limit; fallback to system's total memory
-      memtot=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')
+  if [ -r /proc/meminfo ]; then
+    fallback_memtot=$(awk '/MemTotal/ {print $2 * 1024}' /proc/meminfo)
+  else
+    fallback_memtot=0
+  fi
+
+  if is_cgroup2; then
+    if [ -r /sys/fs/cgroup/memory.max ]; then
+      memtot=$(cat /sys/fs/cgroup/memory.max)
+    else
+      memtot="max"
     fi
-    # Force memtot to be an integer (not scientific notation e+09)
-    printf "%.0f\n" "$memtot"
+    if [ "$memtot" = "max" ]; then
+      memtot=$fallback_memtot
+    fi
   else
     # cgroup v1
-    local memtot
-    memtot=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
-    # Force memtot to be an integer
-    printf "%.0f\n" "$memtot"
+    if [ -r /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
+      memtot=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
+    else
+      memtot=$fallback_memtot
+    fi
   fi
+
+  # Force memtot to be an integer (not scientific notation e+09)
+  printf "%.0f\n" "$memtot"
 }
 
 determine_worker_count() {
