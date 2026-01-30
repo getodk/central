@@ -12,8 +12,7 @@ describe('github-actions', () => {
     const workflowSrcPath = '.github/workflows/close-issues.yml';
 
     describe('issueRegex', () => {
-      const issueRegex = /(Closes|Fixes|Resolves)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
-
+      const issueRegex = /(Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
       it('should have same form as the regex we test', () => {
         assert.equal(
           yaml.parse(readFileSync(`../${workflowSrcPath}`, 'utf8'))
