@@ -50,6 +50,27 @@ describe('github-actions', () => {
           );
         });
       });
+
+      // Test that every keyword listed in the github docs is supported.
+      // See: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
+      [
+        'close',
+        'closes',
+        'closed',
+        'fix',
+        'fixes',
+        'fixed',
+        'resolve',
+        'resolves',
+        'resolved',
+      ].forEach(keyword => {
+        it(`should close issue referenced with keyword '${keyword}'`, () => {
+          assert.deepEqual(
+            [...`${keyword} #123`.matchAll(issueRegex)].map(match => match[2]),
+            [ '123' ],
+          );
+        });
+      });
     });
   });
 });
