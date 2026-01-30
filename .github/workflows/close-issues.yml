@@ -20,7 +20,7 @@ jobs:
           script: |
             const body = context.payload.pull_request.body || "";
             const closedIssues = new Set();
-            const issueRegex = /(Closes|Fixes|Resolves)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
+            const issueRegex = /(Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
             let match;
             
             while ((match = issueRegex.exec(body)) !== null) {

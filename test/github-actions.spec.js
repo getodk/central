@@ -12,8 +12,7 @@ describe('github-actions', () => {
     const workflowSrcPath = '.github/workflows/close-issues.yml';
 
     describe('issueRegex', () => {
-      const issueRegex = /(Closes|Fixes|Resolves)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
-
+      const issueRegex = /(Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s*:?\s+(?:(?:https:\/\/)?github.com\/getodk\/central\/issues\/|getodk\/central#|#)(\d+)/gi;
       it('should have same form as the regex we test', () => {
         assert.equal(
           yaml.parse(readFileSync(`../${workflowSrcPath}`, 'utf8'))
@@ -47,6 +46,27 @@ describe('github-actions', () => {
           assert.deepEqual(
             [...commitText.matchAll(issueRegex)].map(match => match[2]),
             expectedClosedIssues.map(n => n.toString()),
+          );
+        });
+      });
+
+      // Test that every keyword listed in the github docs is supported.
+      // See: https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
+      [
+        'close',
+        'closes',
+        'closed',
+        'fix',
+        'fixes',
+        'fixed',
+        'resolve',
+        'resolves',
+        'resolved',
+      ].forEach(keyword => {
+        it(`should close issue referenced with keyword '${keyword}'`, () => {
+          assert.deepEqual(
+            [...`${keyword} #123`.matchAll(issueRegex)].map(match => match[2]),
+            [ '123' ],
           );
         });
       });
