@@ -40,7 +40,7 @@ jobs:
         submodules: recursive
     - uses: actions/setup-node@v4
       with:
-        node-version: 22.22.0
+        node-version: 24.13.0
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./setup-tests.sh

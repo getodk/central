@@ -1,4 +1,4 @@
-FROM node:22.22.0-slim
+FROM node:24.13.0-slim
 
 WORKDIR /workspace
 
