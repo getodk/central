@@ -17,7 +17,7 @@ fi
 # it's self-signed and won't expire for 1,000 years.
 mkdir -p /etc/nginx/ssl
 openssl req -x509 -nodes -newkey rsa:2048 \
-    -subj "/" \
+    -subj "/CN=invalid.local" \
     -keyout /etc/nginx/ssl/nginx.default.key \
     -out    /etc/nginx/ssl/nginx.default.crt \
     -days 365000
@@ -57,13 +57,13 @@ else
     # no need for letsencrypt challenge reply or 80 to 443 redirection
     rm -f /etc/nginx/conf.d/redirector.conf
     # strip out all ssl_* directives
-    perl -i -ne 's/listen 443.*/listen 80;/; print if ! /ssl_/' /etc/nginx/conf.d/odk.conf
+    perl -i -ne 's/listen 443.*/listen 80;/; print if ! /\bssl_/' /etc/nginx/conf.d/odk.conf
     # force https because we expect SSL upstream
-    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
+    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /usr/share/odk/nginx/backend.conf
     echo "starting nginx for upstream ssl..."
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection
-    perl -i -ne 'print if $. < 7 || $. > 14' /etc/nginx/conf.d/redirector.conf
+    perl -i -ne 'print if $. < 9 || $. > 16' /etc/nginx/conf.d/redirector.conf
     echo "starting nginx for custom ssl and self-signed certs..."
   fi
   exec nginx -g "daemon off;"
