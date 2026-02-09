@@ -9,6 +9,7 @@
 
 !/client/.browserslistrc
 !/client/.git/
+!/client/index.html
 !/client/package.json
 !/client/package-lock.json
 !/client/vue.config.js
