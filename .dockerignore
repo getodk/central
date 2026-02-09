@@ -10,8 +10,10 @@
 !/client/.browserslistrc
 !/client/.git/
 !/client/index.html
+!/client/jsconfig.json
 !/client/package.json
 !/client/package-lock.json
+!/client/vite.config.js
 !/client/vue.config.js
 !/client/public/
 !/client/src/
