@@ -16,6 +16,9 @@ jobs:
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
     - run: ./test/check-dockerfiles.sh
+    - run: cd test && npm clean-install
+    - run: cd test && npm run lint
+    - run: cd test && npm run test:github-actions
   test-envsub:
     timeout-minutes: 2
     runs-on: ubuntu-latest
@@ -37,7 +40,7 @@ jobs:
         submodules: recursive
     - uses: actions/setup-node@v4
       with:
-        node-version: 22.22.0
+        node-version: 24.13.0
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./setup-tests.sh
@@ -72,7 +75,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
-    - run: ./test/check-docker-context.sh --report
+    - run: ./test/check-docker-context.sh --min-size 50000 --max-size 60000 --min-count 1500 --max-count 1700
     - run: ./test/test-images.sh
     - if: always()
       run: docker compose logs
