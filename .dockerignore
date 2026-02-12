@@ -3,18 +3,15 @@
 # .git directories required for generating version.txt
 
 !/.git/
-!/docs/
 !/files/
 !/test/files/
 
 !/client/.browserslistrc
 !/client/.git/
 !/client/index.html
-!/client/jsconfig.json
 !/client/package.json
 !/client/package-lock.json
 !/client/vite.config.js
-!/client/vue.config.js
 !/client/public/
 !/client/src/
 
@@ -22,8 +19,6 @@
 !/server/.git/
 !/server/package.json
 !/server/package-lock.json
-!/server/Makefile
 !/server/pm2.config.js
 !/server/config/
-!/server/docs/
 !/server/lib/
