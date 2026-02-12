@@ -97,13 +97,6 @@ throw_err() {
   exit 1
 }
 
-log "File count: $file_count"
-if [[ "${skip_count-}" != "true" ]]; then
-  if [[ "$file_count" -lt "$min_count" ]] || [[ "$file_count" -gt "$max_count" ]]; then
-    throw_err "This is a surprising number of files - expected between $min_count and $max_count"
-  fi
-fi
-
 human_size() {
   if [[ "$1" -gt 999999 ]]; then
     echo "$(bc <<< "scale=3; $1 / 1000000") GB"
@@ -112,7 +105,15 @@ human_size() {
   fi
 }
 
+log "File count: $file_count"
 log "Total size: $(human_size "$total_size")"
+
+if [[ "${skip_count-}" != "true" ]]; then
+  if [[ "$file_count" -lt "$min_count" ]] || [[ "$file_count" -gt "$max_count" ]]; then
+    throw_err "This is a surprising number of files - expected between $min_count and $max_count"
+  fi
+fi
+
 if [[ "${skip_size-}" != "true" ]]; then
   # N.B. busybox `du` outputs in kB
   # See: https://www.busybox.net/downloads/BusyBox.html#du
