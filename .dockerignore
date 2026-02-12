@@ -21,4 +21,5 @@
 !/server/package-lock.json
 !/server/pm2.config.js
 !/server/config/
+!/server/docs/
 !/server/lib/
