@@ -17,6 +17,19 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 # shellcheck disable=SC2090
 export SENTRY_TAGS
 
+# handle legacy DB_SSL configuration, as we couldn't conditionally template that in docker-compose.yml
+if [ "${DB_SSL}" = "true" ]; then
+  if [ -z "${PGSSLMODE}" ] && [ -z "${PGREQUIRESSL}" ]; then
+    export PGSSLMODE="require"
+    printf "Setting PGSSLMODE to \"require\", as DB_SSL=true.\nThis protects against eavesdropping on the database connection, but not against impersonation of the database server.\nRefer to the PostgreSQL manual to learn how to enable host authentication:\nhttps://www.postgresql.org/docs/current/libpq-ssl.html#LIBQ-SSL-CERTIFICATES\n"
+  else
+    echo "Not setting PGSSLMODE, as it (or PGREQUIRESSL) has already has been set."
+  fi
+fi
+
+echo "waiting for PostgreSQL to become connectable to..."
+while ! (psql --no-password --quiet --no-align --tuples --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
+
 echo "running migrations.."
 node ./lib/bin/run-migrations
 
