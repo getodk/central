@@ -48,7 +48,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gpg \
         cron \
-        wait-for-it \
         procps \
         postgresql-client-14 \
         netcat-traditional \
