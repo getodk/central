@@ -47,17 +47,25 @@ services:
     volumes:
       - secrets:/etc/secrets
       - /data/transfer:/data/transfer
+    env_file: .env
     environment:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-}
-      - DB_HOST=${DB_HOST:-postgres14}
-      - DB_USER=${DB_USER:-odk}
-      - DB_PASSWORD=${DB_PASSWORD:-odk}
-      - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
-      - DB_NAME=${DB_NAME:-odk}
+      - PGAPPNAME=${PGAPPNAME:-odkcentral}
+      # Legacy compatibility for DB_* environment variables
+      - PGHOST=${PGHOST:-${DB_HOST:-postgres14}}
+      - PGUSER=${PGUSER:-${DB_USER:-odk}}
+      - PGPASSWORD=${PGPASSWORD:-${DB_PASSWORD:-odk}}
+      - PGDATABASE=${PGDATABASE:-${DB_NAME:-odk}}
+      # Special case: DB_SSL. It is interpreted as "PGSSLMODE=require" (which provides transport encryption, but no authentication).
+      # Ideally we'd set the corresponding PG* variable here, but we can't, because we can't translate values here.
+      # So to maintain backwards compatibility with existing .env files, this one is handled in `start-odk.sh`:
+      # if `true`; and PGSSLMODE and PGREQUIRESSL) are not defined, then we set PGSSLMODE=require, but with a warning.
       - DB_SSL=${DB_SSL:-null}
+      # End of legacy compatibility for DB_* environment variables
+      - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
       - EMAIL_PORT=${EMAIL_PORT:-25}
@@ -69,7 +77,6 @@ services:
       - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-}
       - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
       - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-}
-      - PGAPPNAME=${PGAPPNAME:-odkcentral}
       - SENTRY_ORG_SUBDOMAIN=${SENTRY_ORG_SUBDOMAIN:-o130137}
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
@@ -79,7 +86,7 @@ services:
       - S3_SECRET_KEY=${S3_SECRET_KEY:-}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
       - SESSION_LIFETIME=${SESSION_LIFETIME:-86400}
-    command: [ "wait-for-it", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
+    command: [ "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
