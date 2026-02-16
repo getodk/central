@@ -54,7 +54,7 @@ iidfile="$(mktemp)"
 (
 docker \
     buildx build \
-    -- iidfile "$iidfile" \
+    --iidfile "$iidfile" \
     --load \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
