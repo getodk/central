@@ -50,9 +50,11 @@ docker buildx create --name docker_context_checker \
 docker buildx use docker_context_checker
 
 log "Building docker image..."
+iidfile="$(mktemp)"
 (
 docker \
     buildx build --load \
+    --iidfile "$iidfile" \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
 COPY . /build-context
@@ -71,19 +73,16 @@ vars="$(awk '
   stage == "files" { ++file_count }
   stage == "size"  { total_size=$3 }
 
-  /exporting config/ { image_hash=$4 }
-
   END {
     print "file_count: " file_count "\n"
     print "total_size: " total_size "\n"
-    print "image_hash: " image_hash "\n"
   }
 ' "$tmp")"
 
 
 file_count="$(echo "$vars" | grep file_count | cut -d: -f2)"
 total_size="$(echo "$vars" | grep total_size | cut -d: -f2)"
-docker_img="$(echo "$vars" | grep image_hash | cut -d: -f3)"
+docker_img="$(cat "$iidfile")"
 
 cleanup() {
   log "Removing docker image..."
