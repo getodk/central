@@ -53,9 +53,8 @@ log "Building docker image..."
 iidfile="$(mktemp)"
 (
 docker \
-    buildx build \
+    buildx build --load \
     --iidfile "$iidfile" \
-    --load \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
 COPY . /build-context
