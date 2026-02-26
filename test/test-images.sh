@@ -54,9 +54,9 @@ diff \
      <(docker compose exec nginx cat /usr/share/nginx/html/version.txt) \
      <(cat <<EOF
 versions:
-$(git rev-parse HEAD) ($(git describe --tags))
- $(cd client && git rev-parse HEAD) client ($(cd client && git describe --tags))
- $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags))
+$(git rev-parse HEAD) ($(git describe --tags --always))
+ $(cd client && git rev-parse HEAD) client ($(cd client && git describe --tags --always))
+ $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
 EOF
      )
 log "version.txt looks OK."
