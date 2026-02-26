@@ -5,7 +5,7 @@ shopt -s inherit_errexit
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 not_rel() {
-  log "Submodule targets not relevant: $*"
+  log "  Submodule targets not relevant: $*"
   log "Skipping submodule checks."
   exit
 }
@@ -46,21 +46,26 @@ check_submodules() {
 }
 
 log "Checking if running in CI..."
+log "  CI=${CI-}"
 if ! [[ ${CI-} = true ]]; then
   not_rel "not running in CI."
 fi
 
 log "Checking if running in GitHub Actions..."
+log "  GITHUB_JOB=${GITHUB_JOB-}"
 if [[ -z "${GITHUB_JOB-}" ]]; then
   not_rel "not running in GitHub Actions."
 fi
 
 log "Checking current repo..."
+log "  GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
 if ! [[ "$GITHUB_REPOSITORY" = getodk/central ]]; then
   not_rel "not running in canonical repository."
 fi
 
 log "Checking current branch/PR target..."
+log "  GITHUB_BASE_REF=$GITHUB_BASE_REF"
+log "  GITHUB_REF_NAME=$GITHUB_REF_NAME"
 if   [[ $GITHUB_BASE_REF = master ]] || [[ $GITHUB_BASE_REF = next ]]; then
   log "PR to merge to '$GITHUB_BASE_REF'; checking submodules..."
   check_submodules
