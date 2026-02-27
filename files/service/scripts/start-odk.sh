@@ -21,9 +21,9 @@ export SENTRY_TAGS
 if [ "${DB_SSL}" = "true" ]; then
   if [ -z "${PGSSLMODE}" ] && [ -z "${PGREQUIRESSL}" ]; then
     export PGSSLMODE="require"
-    printf "Setting PGSSLMODE to \"require\", as DB_SSL=true.\nThis protects against eavesdropping on the database connection, but not against impersonation of the database server.\nRefer to the PostgreSQL manual to learn how to enable host authentication:\nhttps://www.postgresql.org/docs/current/libpq-ssl.html#LIBQ-SSL-CERTIFICATES\n"
   else
-    echo "Not setting PGSSLMODE, as it (or PGREQUIRESSL) has already has been set."
+    echo "Fatal: legacy 'DB_SSL=true' specified, but PGSSLMODE or PGREQUIRESSL has already been set. To resolve ambiguity, remove 'DB_SSL=true' from your .env file." > /dev/stderr
+    exit 100
   fi
 fi
 
