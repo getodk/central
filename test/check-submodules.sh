@@ -13,14 +13,12 @@ not_rel() {
 check_submodules() {
   local actualClientSubmodule
   local actualServerSubmodule
-  local expectedClientSubmodule
-  local expectedServerSubmodule
 
   actualClientSubmodule="$(git config --file .gitmodules --get submodule.client.url)"
   actualServerSubmodule="$(git config --file .gitmodules --get submodule.server.url)"
 
-  expectedClientSubmodule=https://github.com/getodk/central-frontend.git
-  expectedServerSubmodule=https://github.com/getodk/central-backend.git
+  local expectedClientSubmodule=https://github.com/getodk/central-frontend.git
+  local expectedServerSubmodule=https://github.com/getodk/central-backend.git
 
   if ! [[ "$actualClientSubmodule" = "$expectedClientSubmodule" ]]; then
     log "!!!"
