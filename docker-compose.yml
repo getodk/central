@@ -62,7 +62,7 @@ services:
       # Special case: DB_SSL. It is interpreted as "PGSSLMODE=require" (which provides transport encryption, but no authentication).
       # Ideally we'd set the corresponding PG* variable here, but we can't, because we can't translate values here.
       # So to maintain backwards compatibility with existing .env files, this one is handled in `start-odk.sh`:
-      # if `true`; and PGSSLMODE and PGREQUIRESSL) are not defined, then we set PGSSLMODE=require, but with a warning.
+      # if `true`; and PGSSLMODE nor PGREQUIRESSL are defined, then we set PGSSLMODE=require.
       - DB_SSL=${DB_SSL:-null}
       # End of legacy compatibility for DB_* environment variables
       - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
