@@ -47,7 +47,7 @@ check_submodules() {
 
 log "Checking if running in CI..."
 log "  CI=${CI-}"
-if ! [[ ${CI-} = true ]]; then
+if ! [[ "${CI-}" = true ]]; then
   not_rel "not running in CI."
 fi
 
@@ -66,10 +66,10 @@ fi
 log "Checking current branch/PR target..."
 log "  GITHUB_BASE_REF=$GITHUB_BASE_REF"
 log "  GITHUB_REF_NAME=$GITHUB_REF_NAME"
-if   [[ $GITHUB_BASE_REF = master ]] || [[ $GITHUB_BASE_REF = next ]]; then
+if   [[ "$GITHUB_BASE_REF" = master ]] || [[ "$GITHUB_BASE_REF" = next ]]; then
   log "PR to merge to '$GITHUB_BASE_REF'; checking submodules..."
   check_submodules
-elif [[ $GITHUB_REF_NAME = master ]] || [[ $GITHUB_REF_NAME = next ]]; then
+elif [[ "$GITHUB_REF_NAME" = master ]] || [[ "$GITHUB_REF_NAME" = next ]]; then
   log "Running on protected branch '$GITHUB_REF_NAME'; checking submodules..."
   check_submodules
 else
