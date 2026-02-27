@@ -28,7 +28,7 @@ if [ "${DB_SSL}" = "true" ]; then
 fi
 
 echo "waiting for PostgreSQL to become connectable to..."
-while ! (psql --no-password --quiet --no-align --tuples --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
+while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
