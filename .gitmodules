@@ -1,7 +1,6 @@
 [submodule "server"]
 	path = server
 	url = https://github.com/getodk/central-backend.git
-	branch = db-unconfig
 [submodule "client"]
 	path = client
 	url = https://github.com/getodk/central-frontend.git
