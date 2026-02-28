@@ -18,14 +18,22 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 export SENTRY_TAGS
 
 # handle legacy DB_SSL configuration, as we couldn't conditionally template that in docker-compose.yml
-if [ "${DB_SSL}" = "true" ]; then
-  if [ -z "${PGSSLMODE}" ] && [ -z "${PGREQUIRESSL}" ]; then
+if [[ -v DB_SSL && "${DB_SSL}" = "true" ]]; then
+  if [[ -v PGSSLMODE && -v PGREQUIRESSL ]]; then
     export PGSSLMODE="require"
   else
     echo "Fatal: legacy 'DB_SSL=true' specified, but PGSSLMODE or PGREQUIRESSL has already been set. To resolve ambiguity, remove 'DB_SSL=true' from your .env file." > /dev/stderr
     exit 100
   fi
 fi
+
+# handle other legacy DB_* configuration, and fill in our defaults if nothing is specified
+# When these PG* variables are _defined_ (even if _empty_), they will be left as-is.
+[[ -v PGHOST ]] || export PGHOST=${DB_HOST:-postgres14}
+[[ -v PGUSER ]] || export PGUSER=${DB_USER:-odk}
+[[ -v PGPASSWORD ]] || export PGPASSWORD=${DB_PASSWORD:-odk}
+[[ -v PGDATABASE ]] || export PGDATABASE=${DB_NAME:-odk}
+[[ -v PGAPPNAME ]] || export PGAPPNAME=odkcentral
 
 echo "waiting for PostgreSQL to become connectable to..."
 while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
