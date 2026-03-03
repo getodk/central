@@ -2,4 +2,7 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+# shellcheck disable=SC1090
+source /usr/share/odk/env.d/*
+
 exec "$(command -v node)" /usr/odk/lib/bin/cli.js "$@"
