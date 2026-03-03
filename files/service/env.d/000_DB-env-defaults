@@ -1,17 +1,23 @@
-# handle legacy DB_SSL configuration, as we couldn't conditionally template that in docker-compose.yml
-if [[ -v DB_SSL && "${DB_SSL}" = "true" ]]; then
-  if [[ -v PGSSLMODE && -v PGREQUIRESSL ]]; then
-    export PGSSLMODE="require"
-  else
-    echo "Fatal: legacy 'DB_SSL=true' specified, but PGSSLMODE or PGREQUIRESSL has already been set. To resolve ambiguity, remove 'DB_SSL=true' from your .env file." > /dev/stderr
-    exit 100
-  fi
-fi
+# if the PGSERVICE mechanism — libpq named configurations (specified through this env var)
+# sourced from a file (referenced through PGSERVICEFILE env var) is used, leave everything be.
+if ! [[ -v PGSERVICE ]]; then
 
-# handle other legacy DB_* configuration, and fill in our defaults if nothing is specified
-# When these PG* variables are _defined_ (even if _empty_), they will be left as-is.
-[[ -v PGHOST ]] || export PGHOST=${DB_HOST:-postgres14}
-[[ -v PGUSER ]] || export PGUSER=${DB_USER:-odk}
-[[ -v PGPASSWORD ]] || export PGPASSWORD=${DB_PASSWORD:-odk}
-[[ -v PGDATABASE ]] || export PGDATABASE=${DB_NAME:-odk}
-[[ -v PGAPPNAME ]] || export PGAPPNAME=odkcentral
+  # handle legacy DB_SSL configuration, as we couldn't conditionally template that in docker-compose.yml
+  if [[ -v DB_SSL && "${DB_SSL}" = "true" ]]; then
+    if [[ -v PGSSLMODE && -v PGREQUIRESSL ]]; then
+      export PGSSLMODE="require"
+    else
+      echo "Fatal: legacy 'DB_SSL=true' specified, but PGSSLMODE or PGREQUIRESSL has already been set. To resolve ambiguity, remove 'DB_SSL=true' from your .env file." > /dev/stderr
+      exit 100
+    fi
+  fi
+
+  # handle other legacy DB_* configuration, and fill in our defaults if nothing is specified
+  # When these PG* variables are _defined_ (even if _empty_), they will be left as-is.
+  [[ -v PGHOST ]] || export PGHOST=${DB_HOST:-postgres14}
+  [[ -v PGUSER ]] || export PGUSER=${DB_USER:-odk}
+  [[ -v PGPASSWORD ]] || export PGPASSWORD=${DB_PASSWORD:-odk}
+  [[ -v PGDATABASE ]] || export PGDATABASE=${DB_NAME:-odk}
+  [[ -v PGAPPNAME ]] || export PGAPPNAME=odkcentral
+
+fi
