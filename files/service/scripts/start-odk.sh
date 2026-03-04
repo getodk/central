@@ -21,7 +21,7 @@ export SENTRY_TAGS
 source /usr/share/odk/env.d/*
 
 echo "waiting for PostgreSQL to become connectable to..."
-while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
+while ! (pg_isready --quiet || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
