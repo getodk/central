@@ -47,12 +47,24 @@ services:
     volumes:
       - secrets:/etc/secrets
       - /data/transfer:/data/transfer
-    env_file: .env
+    env_file:
+      - ".env"
     environment:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-}
+      # Prepare libpq connection env vars, while handling legacy DB_* vars.
+      # Resolution order:
+      # 1. PGVAR specified in .env. This includes declarations with empty values, for instance, to use an empty password (PGPASSWORD=).
+      # 2. Corresponding legacy DB_VAR in .env. These are legacy overrides for custom database connections.
+      # 3. ODK default value.
+      - PGHOST=${PGHOST-${DB_HOST-postgres14}}
+      - PGDATABASE=${PGDATABASE-${DB_NAME-central}}
+      - PGUSER=${PGUSER-${DB_USER-odk}}
+      - PGPASSWORD=${PGPASSWORD-${DB_PASSWORD-odk}}
+      - PGAPPNAME=${PGAPPNAME-odkcentral}
+      # End of libpq connection env var preparation.
       - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}

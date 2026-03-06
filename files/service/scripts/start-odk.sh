@@ -17,9 +17,6 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 # shellcheck disable=SC2090
 export SENTRY_TAGS
 
-# shellcheck disable=SC1090
-source /usr/share/odk/env.d/*
-
 echo "waiting for PostgreSQL to become connectable to..."
 while ! (pg_isready --quiet || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
 

@@ -60,7 +60,6 @@ COPY files/shared/envsub.awk /scripts/
 COPY files/service/scripts/ ./
 
 COPY files/service/config.json.template /usr/share/odk/
-COPY files/service/env.d/ /usr/share/odk/env.d/
 COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
 
