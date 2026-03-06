@@ -16,6 +16,8 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODEN
       | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg
 
 
+ARG DB_SSL
+RUN [ "${DB_SSL}" = "true" ] && (echo 'You have "DB_SSL=true" defined (in your .env file, probably). This is no longer supported from Central 2026.1 onwards, but you can replace it with "PGSSLMODE=require". Please refer to the 2026.1.0 release notes for more information.'; exit 13)
 
 FROM node:${node_version}-slim AS intermediate
 RUN apt-get update \
