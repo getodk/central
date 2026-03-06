@@ -60,7 +60,7 @@ services:
       # 2. Corresponding legacy DB_VAR in .env. These are legacy overrides for custom database connections.
       # 3. ODK default value.
       - PGHOST=${PGHOST-${DB_HOST:-postgres14}}
-      - PGDATABASE=${PGDATABASE-${DB_NAME:-central}}
+      - PGDATABASE=${PGDATABASE-${DB_NAME:-odk}}
       - PGUSER=${PGUSER-${DB_USER:-odk}}
       - PGPASSWORD=${PGPASSWORD-${DB_PASSWORD:-odk}}
       - PGAPPNAME=${PGAPPNAME:-odkcentral}
