@@ -17,7 +17,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODEN
 
 
 ARG DB_SSL
-RUN [ "${DB_SSL}" = "true" ] && (echo 'You have "DB_SSL=true" defined (in your .env file, probably). This is no longer supported from Central 2026.1 onwards, but you can replace it with "PGSSLMODE=require". Please refer to the 2026.1.0 release notes for more information.'; exit 13) || true
+RUN [[ -v DB_SSL ]] && (echo '\n\n\n\n\nYou have the "DB_SSL" variable defined (in your .env file, probably).\nThis variable is no longer supported from Central 2026.1 onwards.\nThere is a new way of configuring SSL for your database, please see:\n\nhttps://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server\n\nPlease refer to the Central 2026.1.0 release notes for more information on this change.\n\n\n\n\n'; exit 13) || true
 
 FROM node:${node_version}-slim AS intermediate
 RUN apt-get update \

@@ -65,7 +65,7 @@ services:
       - PGDATABASE=${PGDATABASE-${DB_NAME:-odk}}
       - PGUSER=${PGUSER-${DB_USER:-odk}}
       - PGPASSWORD=${PGPASSWORD-${DB_PASSWORD:-odk}}
-      - PGAPPNAME=${PGAPPNAME:-odkcentral}
+      - PGAPPNAME=${PGAPPNAME-odkcentral}
       # End of libpq connection env var preparation.
       - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
