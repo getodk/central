@@ -37,6 +37,8 @@ services:
   service:
     build:
       context: .
+      args:
+        DB_SSL: ${DB_SSL}  # So that we can error out at build time if this is defined with a value of "true" (no longer supported from 2026.1).
       dockerfile: service.dockerfile
     depends_on:
       - secrets
@@ -47,17 +49,25 @@ services:
     volumes:
       - secrets:/etc/secrets
       - /data/transfer:/data/transfer
+    env_file:
+      - ".env"
     environment:
       - DOMAIN=${DOMAIN}
       - SYSADMIN_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
       - NODE_OPTIONS=${SERVICE_NODE_OPTIONS:-}
-      - DB_HOST=${DB_HOST:-postgres14}
-      - DB_USER=${DB_USER:-odk}
-      - DB_PASSWORD=${DB_PASSWORD:-odk}
+      # Prepare libpq connection env vars, while handling legacy DB_* vars.
+      # Resolution order:
+      # 1. PGVAR specified in .env. This includes declarations with empty values, for instance, to use an empty password (PGPASSWORD=).
+      # 2. Corresponding legacy DB_VAR in .env. These are legacy overrides for custom database connections.
+      # 3. ODK default value.
+      - PGHOST=${PGHOST-${DB_HOST:-postgres14}}
+      - PGDATABASE=${PGDATABASE-${DB_NAME:-odk}}
+      - PGUSER=${PGUSER-${DB_USER:-odk}}
+      - PGPASSWORD=${PGPASSWORD-${DB_PASSWORD:-odk}}
+      - PGAPPNAME=${PGAPPNAME-odkcentral}
+      # End of libpq connection env var preparation.
       - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
-      - DB_NAME=${DB_NAME:-odk}
-      - DB_SSL=${DB_SSL:-null}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}
       - EMAIL_PORT=${EMAIL_PORT:-25}
@@ -79,7 +89,7 @@ services:
       - S3_SECRET_KEY=${S3_SECRET_KEY:-}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
       - SESSION_LIFETIME=${SESSION_LIFETIME:-86400}
-    command: [ "wait-for-it", "${DB_HOST:-postgres14}:5432", "--", "./start-odk.sh" ]
+    command: [ "./start-odk.sh" ]
     restart: always
     logging:
       driver: local
@@ -138,7 +148,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:7.4.7
+    image: redis:8.4.0
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -147,7 +157,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:7.4.7
+    image: redis:8.4.0
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data

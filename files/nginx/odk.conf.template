@@ -104,7 +104,7 @@ server {
 
   server_tokens off;
 
-  add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
+  add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report" always;
   include /usr/share/odk/nginx/common-headers.conf;
 
   client_max_body_size 100m;
@@ -160,7 +160,7 @@ server {
     # Google Maps API: https://developers.google.com/maps/documentation/javascript/content-security-policy
     # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
     proxy_hide_header Content-Security-Policy-Report-Only;
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/ https://translate.google.com https://translate.googleapis.com; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/ https://translate.google.com; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src 'self' blob: https://maps.googleapis.com/ https://maps.google.com/ https://maps.gstatic.com/mapfiles/ https://fonts.gstatic.com/ https://fonts.googleapis.com/ https://translate.google.com https://translate.googleapis.com; font-src 'self' https://fonts.gstatic.com/; frame-src 'none'; img-src data: blob: jr: 'self' https://maps.google.com/maps/ https://maps.gstatic.com/mapfiles/ https://maps.googleapis.com/maps/ https://tile.openstreetmap.org/ https://translate.google.com; manifest-src 'none'; media-src blob: jr: 'self'; object-src 'none'; script-src 'unsafe-inline' 'self' https://maps.googleapis.com/maps/api/js/ https://maps.google.com/maps/ https://maps.google.com/maps-api-v3/api/js/; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com/css; style-src-attr 'unsafe-inline'; report-uri /csp-report" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
@@ -173,7 +173,7 @@ server {
 
   location ~ ^/v\d {
     proxy_hide_header Content-Security-Policy-Report-Only;
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; report-uri /csp-report" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
     include /usr/share/odk/nginx/backend.conf;
@@ -183,7 +183,7 @@ server {
     root /usr/share/nginx/html;
     try_files /blank.html =404;
 
-    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report";
+    add_header Content-Security-Policy-Report-Only "default-src 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report" always;
     include /usr/share/odk/nginx/common-headers.conf;
   }
   location = /blank.html {
@@ -194,7 +194,7 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /index.html;
 
-    add_header Content-Security-Policy-Report-Only "$central_frontend_csp";
+    add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
   }

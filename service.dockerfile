@@ -1,4 +1,4 @@
-ARG node_version=22.22.0
+ARG node_version=24.13.0
 
 
 
@@ -16,6 +16,8 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODEN
       | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg
 
 
+ARG DB_SSL
+RUN [[ -v DB_SSL ]] && (echo '\n\n\n\n\nYou have the "DB_SSL" variable defined (in your .env file, probably).\nThis variable is no longer supported from Central 2026.1 onwards.\nThere is a new way of configuring SSL for your database, please see:\n\nhttps://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server\n\nPlease refer to the Central 2026.1.0 release notes for more information on this change.\n\n\n\n\n'; exit 13) || true
 
 FROM node:${node_version}-slim AS intermediate
 RUN apt-get update \
@@ -24,11 +26,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 COPY . .
 RUN mkdir /tmp/sentry-versions
-RUN git describe --tags --dirty > /tmp/sentry-versions/central
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/central
 WORKDIR /server
-RUN git describe --tags --dirty > /tmp/sentry-versions/server
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/server
 WORKDIR /client
-RUN git describe --tags --dirty > /tmp/sentry-versions/client
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/client
 
 
 
@@ -48,7 +50,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gpg \
         cron \
-        wait-for-it \
         procps \
         postgresql-client-14 \
         netcat-traditional \
