@@ -12,6 +12,7 @@ jobs:
     - run: docker --version
     - run: docker compose version
     - uses: actions/checkout@v4
+    - run: ./test/check-submodules.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
