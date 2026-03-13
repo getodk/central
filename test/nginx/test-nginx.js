@@ -36,6 +36,11 @@ const contentSecurityPolicies = {
   'backend-unmodified': {
     'default-src': 'NOTE:FROM-BACKEND',
   },
+  'blank-html': allowGoogleTranslate({
+    'default-src': none,
+    'img-src': self, // allow favicon.ico
+    'report-uri':  '/csp-report',
+  }),
   'central-frontend': allowGoogleTranslate({
     'default-src':    none,
     'connect-src': [
@@ -63,10 +68,6 @@ const contentSecurityPolicies = {
     'default-src': none,
     'report-uri':  '/csp-report',
   },
-  'disallow-all-except-standard-plugins': allowGoogleTranslate({
-    'default-src': none,
-    'report-uri':  '/csp-report',
-  }),
   enketo: allowGoogleTranslate({
     'default-src': none,
     'connect-src': [
@@ -480,7 +481,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
         assert.equal(res.headers.get('Content-Type'), 'text/html');
-        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
+        assertSecurityHeaders(res, { csp:'blank-html' });
         await assertEnketoReceivedNoRequests();
       });
     });
