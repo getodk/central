@@ -128,6 +128,7 @@ const contentSecurityPolicies = {
     'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
     'img-src': [
       'blob:',
+      'data:',
       'https:',
     ],
     'manifest-src': none,
