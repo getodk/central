@@ -143,7 +143,7 @@ const contentSecurityPolicies = {
       unsafeInline,
     ],
     'worker-src': [
-      'blob:'
+      'blob:',
     ],
     'report-uri': '/csp-report',
   }),
@@ -450,7 +450,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketoid'
+    '/-/edit/enketoid',
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
@@ -698,7 +698,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   describe('backend caching', () => {
     [
       [ '/v1/foo',                   'passthrough' ],
-      [ '/v1/foo/bar/baz',           'passthrough' ]
+      [ '/v1/foo/bar/baz',           'passthrough' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
