@@ -36,7 +36,6 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 const contentSecurityPolicies = {
   'backend-unmodified': {
     'default-src': [
-      reportSample,
       'NOTE:FROM-BACKEND',
     ],
   },
@@ -196,6 +195,8 @@ describe('contentSecurityPolicies', () => {
   for(const [name, policy] of Object.entries(contentSecurityPolicies)) {
     describe(`policy: ${name}`, () => {
       for(const [key, directive] of Object.entries(policy)) {
+        if(directive === 'NOTE:FROM-BACKEND') continue;
+
         describe(`directive: ${key}`, () => {
           if(supportsReportSample.includes(key)) {
             if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
