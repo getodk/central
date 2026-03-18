@@ -195,7 +195,7 @@ describe('contentSecurityPolicies', () => {
   for(const [name, policy] of Object.entries(contentSecurityPolicies)) {
     describe(`policy: ${name}`, () => {
       for(const [key, directive] of Object.entries(policy)) {
-        if(directive === 'NOTE:FROM-BACKEND') continue;
+        if(directive.length === 1 && directive[0] === 'NOTE:FROM-BACKEND') continue;
 
         describe(`directive: ${key}`, () => {
           if(supportsReportSample.includes(key)) {
