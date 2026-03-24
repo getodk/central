@@ -45,8 +45,10 @@ jobs:
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./setup-tests.sh
-    - run: cd test/nginx && npm run test:nginx
+    - run: cd test/nginx && npm run test:nginx:mocha
     - run: cd test/nginx && ./lint-config.sh
+    # TODO probably need to install chromium/playwright here...
+    - run: cd test/nginx && npm run test:nginx:playwright
 
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign

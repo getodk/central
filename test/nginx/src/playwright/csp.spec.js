@@ -1,0 +1,50 @@
+import { test, expect } from '@playwright/test';
+
+const {
+  assert,
+  assertSentryReceived,
+  resetSentryMock,
+} = require('../lib');
+
+test.beforeEach(async ({ page }) => {
+  await resetSentryMock();
+
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  page.on('console', msg => {
+    console.log(new Date(), msg.type(), msg.text());
+  });
+});
+
+test('catches style-src-elem violation samples', async ({ page }) => {
+  // given
+  await page.goto('https://odk-nginx.example.test:9001');
+
+  // when
+  await page.evaluate(() => {
+    const style = document.createElement('style');
+    style.textContent = 'body { background-color:red }';
+    document.head.appendChild(style);
+  });
+
+  // then
+  await assertSentryReceived(
+    {
+      'report': {
+        'csp-report': {
+          'document-uri': 'https://odk-nginx.example.test:9001/',
+          'referrer': '',
+          'violated-directive': 'style-src-elem',
+          'effective-directive': 'style-src-elem',
+          'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
+          'disposition': 'report',
+          'blocked-uri': 'inline',
+          'line-number': 4,
+          'column-number': 19,
+          'status-code': 200,
+          'script-sample': 'body { background-color:red }'
+        }
+      }
+    }
+  );
+});
