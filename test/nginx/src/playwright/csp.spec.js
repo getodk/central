@@ -8,8 +8,6 @@ const {
 test.beforeEach(async ({ page }) => {
   await resetSentryMock();
 
-  await new Promise(resolve => setTimeout(resolve, 100));
-
   page.on('console', msg => {
     console.log(new Date(), msg.type(), msg.text());
   });
@@ -27,6 +25,8 @@ test('catches style-src-elem violation samples', async ({ page }) => {
     document.head.appendChild(style);
   });
 
+  await new Promise(resolve => setTimeout(resolve, 100));
+
   // then
   await assertSentryReceived(
     {
@@ -39,7 +39,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
           'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; frame-src 'self' https://getodk.github.io/central/news.html; img-src data: https:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
           'disposition': 'report',
           'blocked-uri': 'inline',
-          'line-number': 4,
+          'line-number': 5,
           'column-number': 19,
           'status-code': 200,
           'script-sample': 'body { background-color:red }'
