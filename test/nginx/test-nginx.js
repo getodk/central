@@ -42,6 +42,9 @@ const contentSecurityPolicies = {
     },
   },
   'central-frontend': {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
     reportOnly: allowGoogleTranslate({
       'default-src':    none,
       'connect-src': [
@@ -67,18 +70,27 @@ const contentSecurityPolicies = {
     }),
   },
   'disallow-all': {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
     reportOnly: {
       'default-src': none,
       'report-uri':  '/csp-report',
     },
   },
   'disallow-all-except-standard-plugins': {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
     reportOnly: allowGoogleTranslate({
       'default-src': none,
       'report-uri':  '/csp-report',
     }),
   },
   enketo: {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
     reportOnly: allowGoogleTranslate({
       'default-src': none,
       'connect-src': [
@@ -129,6 +141,9 @@ const contentSecurityPolicies = {
     }),
   },
   'web-forms': {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
     reportOnly: allowGoogleTranslate({
       'default-src': none,
       'connect-src': [
