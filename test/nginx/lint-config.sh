@@ -44,7 +44,9 @@ EOF
                  /usr/share/odk/nginx/
 
     # gixy-ng is a maintained fork of gixy: https://github.com/dvershinin/gixy
-    # For version updates, see: https://pypi.org/project/gixy-ng/#history
+    # For version updates, see:
+    # * https://pypi.org/project/gixy-ng/#history
+    # * https://github.com/dvershinin/gixy/blob/master/CHANGELOG.md
     echo "[lint-config] installing gixy..."
     pip install gixy-ng==0.2.12
     echo "[lint-config] running gixy..."
