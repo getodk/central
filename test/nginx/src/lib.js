@@ -16,10 +16,12 @@ async function assertSentryReceived(...expectedRequests) {
   const { status, body } = await requestSentryMock({ path:'/event-log' });
   assert.equal(status, 200);
 
+  const actual = JSON.parse(body);
+
   try {
-    assert.deepEqual(JSON.parse(body), expectedRequests);
+    assert.deepEqual(actual, expectedRequests);
   } catch(err) {
-    console.log(JSON.stringify({ expectedRequests, body:JSON.parse(body) }, null, 2));
+    console.log(JSON.stringify({ actual, expected:expectedRequests }, null, 2));
     throw err;
   }
 }
