@@ -10,7 +10,7 @@
     "chai": "^5.2.0",
     "deep-equal-in-any-order": "^2.1.0",
     "eslint": "^9.28.0",
-    "mocha": "^11.6.0",
+    "mocha": "^11.7.5",
     "yaml": "^2.8.2"
   },
   "volta": {
