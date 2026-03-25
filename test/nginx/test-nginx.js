@@ -42,9 +42,6 @@ const contentSecurityPolicies = {
     },
   },
   'central-frontend': {
-    block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
-    },
     reportOnly: allowGoogleTranslate({
       'default-src':    none,
       'connect-src': [
