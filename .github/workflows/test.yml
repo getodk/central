@@ -46,7 +46,7 @@ jobs:
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx:mocha
     - run: cd test/nginx && ./lint-config.sh
-    # TODO probably need to install chromium/playwright here...
+    - run: npx playwright install --with-deps chromium
     - run: cd test/nginx && npm run test:nginx:playwright
 
     - if: always()
