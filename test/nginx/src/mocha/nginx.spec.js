@@ -36,7 +36,9 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 
 const contentSecurityPolicies = {
   'backend-unmodified': {
-    'default-src': 'NOTE:FROM-BACKEND',
+    'default-src': [
+      'NOTE:FROM-BACKEND',
+    ],
   },
   'central-frontend': allowGoogleTranslate({
     'default-src': [
