@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+const { defineConfig, devices } = require('@playwright/test');
 
 const dockerHosts = [
   'odk-nginx.example.test',
