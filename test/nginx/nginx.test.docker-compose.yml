@@ -6,8 +6,6 @@ services:
       - "8005:8005"
     environment:
       - PORT=8005
-    networks:
-      - odk-central-nginx-test-network
   service:
     build:
       dockerfile: mock-http-service.dockerfile
@@ -15,8 +13,6 @@ services:
       - "8383:8383"
     environment:
       - PORT=8383
-    networks:
-      - odk-central-nginx-test-network
   sentry-mock:
     build:
       dockerfile: mock-sentry.dockerfile
@@ -27,10 +23,6 @@ services:
       - MODE=https
       - HTTPS_HOST=o-fake-dsn.ingest.sentry.io
       - PORT=443
-    networks:
-      odk-central-nginx-test-network:
-        aliases:
-          - o-fake-dsn.ingest.sentry.io
   nginx-ssl-selfsign:
     extends:
       file: lib.docker-compose.yml
@@ -40,8 +32,6 @@ services:
     ports:
       - "9000:80"
       - "9001:443"
-    networks:
-      - odk-central-nginx-test-network
   nginx-ssl-upstream:
     extends:
       file: lib.docker-compose.yml
@@ -51,8 +41,3 @@ services:
     ports:
       - "10000:80"
       - "10001:443"
-    networks:
-      - odk-central-nginx-test-network
-networks:
-  odk-central-nginx-test-network:
-    driver: bridge
