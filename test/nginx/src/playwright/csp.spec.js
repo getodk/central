@@ -1,7 +1,6 @@
-const { test, expect }  = require('@playwright/test');
+const { test }  = require('@playwright/test');
 
 const {
-  assert,
   assertSentryReceived,
   resetSentryMock,
 } = require('../lib');
@@ -22,6 +21,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
 
   // when
   await page.evaluate(() => {
+    /* global document */
     const style = document.createElement('style');
     style.textContent = 'body { background-color:red }';
     document.head.appendChild(style);
