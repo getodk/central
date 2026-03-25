@@ -21,7 +21,7 @@ async function assertSentryReceived(...expectedRequests) {
   try {
     assert.deepEqual(actual, expectedRequests);
   } catch(err) {
-    console.log(JSON.stringify({ actual, expected:expectedRequests }, null, 2));
+    console.log(JSON.stringify({ expected:expectedRequests, actual }, null, 2));
     throw err;
   }
 }
