@@ -79,9 +79,6 @@ const contentSecurityPolicies = {
     },
   },
   'disallow-all-except-standard-plugins': {
-    block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
-    },
     reportOnly: allowGoogleTranslate({
       'default-src': none,
       'report-uri':  '/csp-report',
