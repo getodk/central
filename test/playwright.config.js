@@ -23,7 +23,6 @@ module.exports = defineConfig({
         ignoreHTTPSErrors: true,
         launchOptions: {
           args: [
-            // N.B. this will ONLY work on chromium
             `--host-resolver-rules=${dockerHosts.map(host => `MAP ${host} 127.0.0.1`).join(',')}`,
           ],
         },
