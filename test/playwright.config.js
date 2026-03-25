@@ -2,7 +2,6 @@ const { defineConfig, devices } = require('@playwright/test');
 
 const dockerHosts = [
   'odk-nginx.example.test',
-  'o-fake-dsn.ingest.sentry.io',
 ];
 
 const reporter = [ ['list'] ];
