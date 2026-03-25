@@ -11,7 +11,8 @@ app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
 
   // always set CSP header to detect (or allow) leaks from backend through to the client
-  res.set('Content-Security-Policy-Report-Only', 'default-src NOTE:FROM-BACKEND');
+  res.set('Content-Security-Policy',             'default-src NOTE:FROM-BACKEND:block');
+  res.set('Content-Security-Policy-Report-Only', 'default-src NOTE:FROM-BACKEND:reportOnly');
 
   next();
 });
