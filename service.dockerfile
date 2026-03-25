@@ -1,4 +1,4 @@
-ARG node_version=24.13.0
+ARG node_version=24.14.1
 
 
 

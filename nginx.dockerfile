@@ -1,4 +1,4 @@
-FROM node:24.13.0-slim AS intermediate
+FROM node:24.14.1-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -15,7 +15,7 @@ RUN files/prebuild/build-frontend.sh
 
 # when upgrading, look for upstream changes to redirector.conf
 # also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
-FROM jonasal/nginx-certbot:6.0.1
+FROM jonasal/nginx-certbot:6.1.0
 
 EXPOSE 80
 EXPOSE 443
