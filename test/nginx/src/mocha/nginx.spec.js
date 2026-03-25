@@ -40,6 +40,14 @@ const contentSecurityPolicies = {
       'NOTE:FROM-BACKEND',
     ],
   },
+  'blank-html': allowGoogleTranslate({
+    'default-src': [
+      reportSample,
+      none,
+    ],
+    'img-src': self, // allow favicon.ico
+    'report-uri':  '/csp-report',
+  }),
   'central-frontend': allowGoogleTranslate({
     'default-src': [
       reportSample,
@@ -82,13 +90,6 @@ const contentSecurityPolicies = {
     ],
     'report-uri':  '/csp-report',
   },
-  'disallow-all-except-standard-plugins': allowGoogleTranslate({
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'report-uri':  '/csp-report',
-  }),
   enketo: allowGoogleTranslate({
     'default-src': [
       reportSample,
@@ -174,7 +175,7 @@ const contentSecurityPolicies = {
     ],
     'worker-src': [
       reportSample,
-      'blob:'
+      'blob:',
     ],
     'report-uri': '/csp-report',
   }),
@@ -525,7 +526,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketoid'
+    '/-/edit/enketoid',
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
@@ -556,7 +557,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
         assert.equal(res.headers.get('Content-Type'), 'text/html');
-        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
+        assertSecurityHeaders(res, { csp:'blank-html' });
         await assertEnketoReceivedNoRequests();
       });
     });
@@ -773,7 +774,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   describe('backend caching', () => {
     [
       [ '/v1/foo',                   'passthrough' ],
-      [ '/v1/foo/bar/baz',           'passthrough' ]
+      [ '/v1/foo/bar/baz',           'passthrough' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
