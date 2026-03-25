@@ -42,9 +42,9 @@ test('catches style-src-elem violation samples', async ({ page }) => {
           'line-number': 5,
           'column-number': 19,
           'status-code': 200,
-          'script-sample': 'body { background-color:red }'
-        }
-      }
-    }
+          'script-sample': 'body { background-color:red }',
+        },
+      },
+    },
   );
 });
