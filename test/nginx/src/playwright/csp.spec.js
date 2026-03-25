@@ -24,7 +24,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
     style.textContent = 'body { background-color:red }';
     document.head.appendChild(style);
   });
-
+  // and
   await new Promise(resolve => setTimeout(resolve, 100));
 
   // then
