@@ -8,7 +8,7 @@ const dockerHosts = [
 const reporter = [ ['list'] ];
 if(process.env.CI) reporter.push(['github']);
 
-export default defineConfig({
+module.exports = defineConfig({
   outputDir: '.playwright-report',
   testDir: 'nginx/src/playwright',
   fullyParallel: false,
