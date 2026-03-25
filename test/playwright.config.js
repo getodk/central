@@ -1,9 +1,5 @@
 const { defineConfig, devices } = require('@playwright/test');
 
-const dockerHosts = [
-  'odk-nginx.example.test',
-];
-
 const reporter = [ ['list'] ];
 if(process.env.CI) reporter.push(['github']);
 
@@ -23,7 +19,7 @@ module.exports = defineConfig({
         ignoreHTTPSErrors: true,
         launchOptions: {
           args: [
-            `--host-resolver-rules=${dockerHosts.map(host => `MAP ${host} 127.0.0.1`).join(',')}`,
+            '--host-resolver-rules=MAP odk-nginx.example.test 127.0.0.1',
           ],
         },
       },
