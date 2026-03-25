@@ -196,7 +196,7 @@ describe('contentSecurityPolicies', () => {
     describe(`policy: ${name}`, () => {
       Object.entries(policy)
           .map    (([ key, directive ]) => [ key, asArray(directive) ])
-          .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === 'NOTE:FROM-BACKEND'))
+          .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === 'NOTE:FROM-BACKEND')) // eslint-disable-line no-unused-vars
           .forEach(([ key, directive ]) => {
             describe(`directive: ${key}`, () => {
               if(supportsReportSample.includes(key)) {
