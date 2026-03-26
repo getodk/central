@@ -11,7 +11,7 @@ jobs:
     steps:
     - run: docker --version
     - run: docker compose version
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: ./test/check-submodules.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
@@ -34,12 +34,12 @@ jobs:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
         node-version: 24.14.1
     - run: cd test/nginx && npm clean-install
@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: ./test/test-secrets.sh
   test-images:
     timeout-minutes: 10
@@ -71,7 +71,7 @@ jobs:
     - test-secrets
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
