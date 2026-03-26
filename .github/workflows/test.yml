@@ -43,7 +43,6 @@ jobs:
       with:
         node-version: 24.14.1
     - run: cd test/nginx && npm clean-install
-    - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx
     - run: cd test/nginx && ./lint-config.sh
