@@ -36,147 +36,165 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 
 const contentSecurityPolicies = {
   'backend-unmodified': {
-    'default-src': 'NOTE:FROM-BACKEND',
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: {
+      'default-src': 'NOTE:FROM-BACKEND:reportOnly',
+    },
   },
-  'blank-html': allowGoogleTranslate({
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'img-src': self, // allow favicon.ico
-    'report-uri':  '/csp-report',
-  }),
-  'central-frontend': allowGoogleTranslate({
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'connect-src': [
-      self,
-    ],
-    'font-src':       self,
-    'frame-src':      [
-      self,
-      'https://getodk.github.io/central/news.html',
-    ],
-    'img-src': [
-      'data:',
-      'https:',
-    ],
-    'manifest-src':   none,
-    'media-src':      none,
-    'object-src':     none,
-    'script-src': [
-      reportSample,
-      self,
-    ],
-    'style-src': [
-      reportSample,
-      self,
-    ],
-    'style-src-attr': unsafeInline,
-    'worker-src': [
-      reportSample,
-      'blob:',
-    ],
-    'report-uri':     '/csp-report',
-  }),
+  'blank-html': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'img-src': self, // allow favicon.ico
+      'report-uri':  '/csp-report',
+    }),
+  },
+  'central-frontend': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportOnly,
+        none,
+      ]
+      'connect-src': [
+        self,
+      ],
+      'font-src':       self,
+      'frame-src':      [
+        self,
+        'https://getodk.github.io/central/news.html',
+      ],
+      'img-src': [
+        'data:',
+        'https:',
+      ],
+      'manifest-src':   none,
+      'media-src':      none,
+      'object-src':     none,
+      'script-src': [
+        reportSample,
+        self,
+      ],
+      'style-src': [
+        reportSample,
+        self,
+      ],
+      'style-src-attr': unsafeInline,
+      'worker-src': [
+        reportSample,
+        'blob:',
+      ],
+      'report-uri':     '/csp-report',
+    }),
+  },
   'disallow-all': {
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'report-uri':  '/csp-report',
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: {
+      'default-src': none,
+      'report-uri':  '/csp-report',
+    },
   },
-  enketo: allowGoogleTranslate({
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'connect-src': [
-      self,
-      'blob:',
-      'https://maps.googleapis.com/',
-      'https://maps.google.com/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://fonts.gstatic.com/',
-      'https://fonts.googleapis.com/',
-    ],
-    'font-src': [
-      self,
-      'https://fonts.gstatic.com/',
-    ],
-    'frame-src': none,
-    'img-src': [
-      'data:',
-      'blob:',
-      'jr:',
-      self,
-      'https://maps.google.com/maps/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://maps.googleapis.com/maps/',
-      'https://tile.openstreetmap.org/',
-    ],
-    'manifest-src': none,
-    'media-src': [
-      'blob:',
-      'jr:',
-      self,
-    ],
-    'object-src': none,
-    'script-src': [
-      reportSample,
-      unsafeInline,
-      self,
-      'https://maps.googleapis.com/maps/api/js/',
-      'https://maps.google.com/maps/',
-      'https://maps.google.com/maps-api-v3/api/js/',
-    ],
-    'style-src': [
-      unsafeInline,
-      self,
-      'https://fonts.googleapis.com/css',
-    ],
-    'style-src-attr': unsafeInline,
-    'report-uri': '/csp-report',
-  }),
-  'web-forms': allowGoogleTranslate({
-    'default-src': [
-      reportSample,
-      none,
-    ],
-    'connect-src': [
-      self,
-      'https:',
-    ],
-    'font-src': [
-      self,
-      'data:',
-    ],
-    'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
-    'img-src': [
-      'blob:',
-      'data:',
-      'https:',
-    ],
-    'manifest-src': none,
-    'media-src': none,
-    'object-src': none,
-    'script-src': [
-      reportSample,
-      self,
-      wasmUnsafeEval,
-    ],
-    'style-src': [
-      self,
-      unsafeInline,
-    ],
-    'worker-src': [
-      reportSample,
-      'blob:',
-    ],
-    'report-uri': '/csp-report',
-  }),
+  enketo: {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'connect-src': [
+        self,
+        'blob:',
+        'https://maps.googleapis.com/',
+        'https://maps.google.com/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://fonts.gstatic.com/',
+        'https://fonts.googleapis.com/',
+      ],
+      'font-src': [
+        self,
+        'https://fonts.gstatic.com/',
+      ],
+      'frame-src': none,
+      'img-src': [
+        'data:',
+        'blob:',
+        'jr:',
+        self,
+        'https://maps.google.com/maps/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://maps.googleapis.com/maps/',
+        'https://tile.openstreetmap.org/',
+      ],
+      'manifest-src': none,
+      'media-src': [
+        'blob:',
+        'jr:',
+        self,
+      ],
+      'object-src': none,
+      'script-src': [
+        reportSample,
+        unsafeInline,
+        self,
+        'https://maps.googleapis.com/maps/api/js/',
+        'https://maps.google.com/maps/',
+        'https://maps.google.com/maps-api-v3/api/js/',
+      ],
+      'style-src': [
+        unsafeInline,
+        self,
+        'https://fonts.googleapis.com/css',
+      ],
+      'style-src-attr': unsafeInline,
+      'report-uri': '/csp-report',
+    }),
+  },
+  'web-forms': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'connect-src': [
+        self,
+        'https:',
+      ],
+      'font-src': [
+        self,
+        'data:',
+      ],
+      'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+      'img-src': [
+        'blob:',
+        'data:',
+        'https:',
+      ],
+      'manifest-src': none,
+      'media-src': none,
+      'object-src': none,
+      'script-src': [
+        reportSample,
+        self,
+        wasmUnsafeEval,
+      ],
+      'style-src': [
+        self,
+        unsafeInline,
+      ],
+      'worker-src': [
+        reportSample,
+        'blob:',
+      ],
+      'report-uri': '/csp-report',
+    }),
+  },
 };
 
 describe('contentSecurityPolicies', () => {
@@ -1094,6 +1112,16 @@ function assertSecurityHeaders(res, { csp }) {
 
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
-  const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.deepEqualInAnyOrder(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assertCsp(res.headers.get('Content-Security-Policy'),             expectedCsp.block);
+  assertCsp(res.headers.get('Content-Security-Policy-Report-Only'), expectedCsp.reportOnly);
+}
+
+function assertCsp(actual, expected) {
+  if(!expected) return assert.isNull(actual);
+
+  assert.deepEqualInAnyOrder(
+    actual?.split('; '),
+    Object.entries(expected)
+        .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
+  );
 }
