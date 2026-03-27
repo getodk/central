@@ -200,7 +200,7 @@ const contentSecurityPolicies = {
   },
 };
 
-describe('contentSecurityPolicies', () => {
+describe('Content-Security-Policy definitions', () => {
   const supportsReportSample = [
     'default-src',
     'require-trusted-types-for',
