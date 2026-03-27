@@ -11,16 +11,20 @@ jobs:
     steps:
     - run: docker --version
     - run: docker compose version
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
+    - run: ./test/check-submodules.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
     - run: ./test/check-dockerfiles.sh
+    - run: cd test && npm clean-install
+    - run: cd test && npm run lint
+    - run: cd test && npm run test:github-actions
   test-envsub:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
@@ -30,19 +34,18 @@ jobs:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
-        node-version: 22.22.0
+        node-version: 24.14.1
     - run: cd test/nginx && npm clean-install
-    - run: cd test/nginx && npm run lint
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx
-    - run: cd test/nginx && ./gixy.sh
+    - run: cd test/nginx && ./lint-config.sh
 
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
@@ -56,7 +59,7 @@ jobs:
     timeout-minutes: 2
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: ./test/test-secrets.sh
   test-images:
     timeout-minutes: 10
@@ -67,12 +70,12 @@ jobs:
     - test-secrets
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
-    - run: ./test/check-docker-context.sh --report
+    - run: ./test/check-docker-context.sh --min-size 50000 --max-size 60000 --min-count 1500 --max-count 1700
     - run: ./test/test-images.sh
     - if: always()
       run: docker compose logs

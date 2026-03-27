@@ -34,118 +34,141 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 
 const contentSecurityPolicies = {
   'backend-unmodified': {
-    'default-src': 'NOTE:FROM-BACKEND',
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: {
+      'default-src': 'NOTE:FROM-BACKEND:reportOnly',
+    },
   },
-  'central-frontend': allowGoogleTranslate({
-    'default-src':    none,
-    'connect-src': [
-      self,
-    ],
-    'font-src':       self,
-    'frame-src':      [
-      self,
-      'https://getodk.github.io/central/news.html',
-    ],
-    'img-src': [
-      'data:',
-      'https:',
-    ],
-    'manifest-src':   none,
-    'media-src':      none,
-    'object-src':     none,
-    'script-src':     self,
-    'style-src':      self,
-    'style-src-attr': unsafeInline,
-    'worker-src':     'blob:',
-    'report-uri':     '/csp-report',
-  }),
+  'blank-html': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': none,
+      'img-src': self, // allow favicon.ico
+      'report-uri':  '/csp-report',
+    }),
+  },
+  'central-frontend': {
+    reportOnly: allowGoogleTranslate({
+      'default-src':    none,
+      'connect-src': [
+        self,
+      ],
+      'font-src':       self,
+      'frame-src':      [
+        self,
+        'https://getodk.github.io/central/news.html',
+      ],
+      'img-src': [
+        'data:',
+        'https:',
+      ],
+      'manifest-src':   none,
+      'media-src':      none,
+      'object-src':     none,
+      'script-src':     self,
+      'style-src':      self,
+      'style-src-attr': unsafeInline,
+      'worker-src':     'blob:',
+      'report-uri':     '/csp-report',
+    }),
+  },
   'disallow-all': {
-    'default-src': none,
-    'report-uri':  '/csp-report',
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: {
+      'default-src': none,
+      'report-uri':  '/csp-report',
+    },
   },
-  'disallow-all-except-standard-plugins': allowGoogleTranslate({
-    'default-src': none,
-    'report-uri':  '/csp-report',
-  }),
-  enketo: allowGoogleTranslate({
-    'default-src': none,
-    'connect-src': [
-      self,
-      'blob:',
-      'https://maps.googleapis.com/',
-      'https://maps.google.com/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://fonts.gstatic.com/',
-      'https://fonts.googleapis.com/',
-    ],
-    'font-src': [
-      self,
-      'https://fonts.gstatic.com/',
-    ],
-    'frame-src': none,
-    'img-src': [
-      'data:',
-      'blob:',
-      'jr:',
-      self,
-      'https://maps.google.com/maps/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://maps.googleapis.com/maps/',
-      'https://tile.openstreetmap.org/',
-    ],
-    'manifest-src': none,
-    'media-src': [
-      'blob:',
-      'jr:',
-      self,
-    ],
-    'object-src': none,
-    'script-src': [
-      unsafeInline,
-      self,
-      'https://maps.googleapis.com/maps/api/js/',
-      'https://maps.google.com/maps/',
-      'https://maps.google.com/maps-api-v3/api/js/',
-    ],
-    'style-src': [
-      unsafeInline,
-      self,
-      'https://fonts.googleapis.com/css',
-    ],
-    'style-src-attr': unsafeInline,
-    'report-uri': '/csp-report',
-  }),
-  'web-forms': allowGoogleTranslate({
-    'default-src': none,
-    'connect-src': [
-      self,
-      'https:',
-    ],
-    'font-src': [
-      self,
-      'data:',
-    ],
-    'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
-    'img-src': [
-      'blob:',
-      'https:',
-    ],
-    'manifest-src': none,
-    'media-src': none,
-    'object-src': none,
-    'script-src': [
-      self,
-      wasmUnsafeEval,
-    ],
-    'style-src': [
-      self,
-      unsafeInline,
-    ],
-    'worker-src': [
-      'blob:'
-    ],
-    'report-uri': '/csp-report',
-  }),
+  enketo: {
+    block: {
+      'default-src': 'NOTE:FROM-BACKEND:block',
+    },
+    reportOnly: allowGoogleTranslate({
+      'default-src': none,
+      'connect-src': [
+        self,
+        'blob:',
+        'https://maps.googleapis.com/',
+        'https://maps.google.com/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://fonts.gstatic.com/',
+        'https://fonts.googleapis.com/',
+      ],
+      'font-src': [
+        self,
+        'https://fonts.gstatic.com/',
+      ],
+      'frame-src': none,
+      'img-src': [
+        'data:',
+        'blob:',
+        'jr:',
+        self,
+        'https://maps.google.com/maps/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://maps.googleapis.com/maps/',
+        'https://tile.openstreetmap.org/',
+      ],
+      'manifest-src': none,
+      'media-src': [
+        'blob:',
+        'jr:',
+        self,
+      ],
+      'object-src': none,
+      'script-src': [
+        unsafeInline,
+        self,
+        'https://maps.googleapis.com/maps/api/js/',
+        'https://maps.google.com/maps/',
+        'https://maps.google.com/maps-api-v3/api/js/',
+      ],
+      'style-src': [
+        unsafeInline,
+        self,
+        'https://fonts.googleapis.com/css',
+      ],
+      'style-src-attr': unsafeInline,
+      'report-uri': '/csp-report',
+    }),
+  },
+  'web-forms': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': none,
+      'connect-src': [
+        self,
+        'https:',
+      ],
+      'font-src': [
+        self,
+        'data:',
+      ],
+      'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+      'img-src': [
+        'blob:',
+        'data:',
+        'https:',
+      ],
+      'manifest-src': none,
+      'media-src': none,
+      'object-src': none,
+      'script-src': [
+        self,
+        wasmUnsafeEval,
+      ],
+      'style-src': [
+        self,
+        unsafeInline,
+      ],
+      'worker-src': [
+        'blob:',
+      ],
+      'report-uri': '/csp-report',
+    }),
+  },
 };
 
 describe('nginx config', () => {
@@ -449,7 +472,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketoid'
+    '/-/edit/enketoid',
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
@@ -480,7 +503,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
         assert.equal(res.headers.get('Content-Type'), 'text/html');
-        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
+        assertSecurityHeaders(res, { csp:'blank-html' });
         await assertEnketoReceivedNoRequests();
       });
     });
@@ -697,7 +720,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   describe('backend caching', () => {
     [
       [ '/v1/foo',                   'passthrough' ],
-      [ '/v1/foo/bar/baz',           'passthrough' ]
+      [ '/v1/foo/bar/baz',           'passthrough' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
@@ -1055,6 +1078,16 @@ function assertSecurityHeaders(res, { csp }) {
 
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
-  const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.deepEqualInAnyOrder(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assertCsp(res.headers.get('Content-Security-Policy'),             expectedCsp.block);
+  assertCsp(res.headers.get('Content-Security-Policy-Report-Only'), expectedCsp.reportOnly);
+}
+
+function assertCsp(actual, expected) {
+  if(!expected) return assert.isNull(actual);
+
+  assert.deepEqualInAnyOrder(
+    actual?.split('; '),
+    Object.entries(expected)
+        .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
+  );
 }
