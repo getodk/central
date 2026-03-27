@@ -1085,5 +1085,9 @@ function assertSecurityHeaders(res, { csp }) {
 function assertCsp(actualCsp, expectedCsp) {
   if(!expectedCsp) return assert.isNull(actualCsp);
 
-  assert.deepEqualInAnyOrder(actualCsp?.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assert.deepEqualInAnyOrder(
+    actualCsp?.split('; '),
+    Object.entries(expectedCsp)
+        .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
+  );
 }
