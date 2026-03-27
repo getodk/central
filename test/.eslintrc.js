@@ -10,6 +10,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
+    'comma-dangle': [ 'error', 'always-multiline' ],
     'eol-last': 'error',
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',

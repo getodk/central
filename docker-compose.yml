@@ -17,6 +17,7 @@ services:
     build:
       context: .
       dockerfile: postgres-upgrade.dockerfile
+    platform: linux/amd64
     volumes:
       - /var/lib/postgresql/data
       - postgres14:/var/lib/postgresql/14
@@ -27,7 +28,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
   mail:
-    image: "registry.gitlab.com/egos-tech/smtp:1.1.5"
+    image: "registry.gitlab.com/egos-tech/smtp:1.2.2"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
@@ -148,7 +149,7 @@ services:
       - SUPPORT_EMAIL=${SYSADMIN_EMAIL}
       - HTTPS_PORT=${HTTPS_PORT:-443}
   enketo_redis_main:
-    image: redis:8.4.0
+    image: redis:8.6.2
     volumes:
       - ./files/enketo/redis-enketo-main.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_main:/data
@@ -157,7 +158,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
   enketo_redis_cache:
-    image: redis:8.4.0
+    image: redis:8.6.2
     volumes:
       - ./files/enketo/redis-enketo-cache.conf:/usr/local/etc/redis/redis.conf:ro
       - enketo_redis_cache:/data

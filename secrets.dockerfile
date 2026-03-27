@@ -1,3 +1,3 @@
-FROM node:24.13.0-slim
+FROM node:24.14.1-slim
 
 COPY files/enketo/generate-secrets.sh ./
