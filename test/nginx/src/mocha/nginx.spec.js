@@ -56,9 +56,9 @@ const contentSecurityPolicies = {
   'central-frontend': {
     reportOnly: allowGoogleTranslate({
       'default-src': [
-        reportOnly,
+        reportSample,
         none,
-      ]
+      ],
       'connect-src': [
         self,
       ],
@@ -95,7 +95,10 @@ const contentSecurityPolicies = {
       'default-src': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
-      'default-src': none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'report-uri':  '/csp-report',
     },
   },
@@ -210,34 +213,46 @@ describe('contentSecurityPolicies', () => {
     'worker-src',
   ];
 
-  for(const [name, policy] of Object.entries(contentSecurityPolicies)) {
+  const headerNames = {
+    block:      'Content-Security-Policy',
+    reportOnly: 'Content-Security-Policy-Report-Only',
+  };
+
+  for(const [name, policies] of Object.entries(contentSecurityPolicies)) {
     describe(`policy: ${name}`, () => {
-      Object.entries(policy)
-          .map    (([ key, directive ]) => [ key, asArray(directive) ])
-          .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === 'NOTE:FROM-BACKEND')) // eslint-disable-line no-unused-vars
-          .forEach(([ key, directive ]) => {
-            describe(`directive: ${key}`, () => {
-              if(supportsReportSample.includes(key)) {
-                if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
-                  // For style-* directives, report-sample will only provide a sample of inline violations.
-                  it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
-                    // expect
-                    assert.notInclude(directive, "'report-sample'");
-                  });
-                } else {
-                  it(`should include 'report-sample' in directive '${key}'`, () => {
-                    // expect
-                    assert.include(directive, "'report-sample'");
-                  });
-                }
-              } else {
-                it(`should not include 'report-sample' in directive '${key}'`, () => {
-                  // expect
-                  assert.notInclude(directive, "'report-sample'");
+      for(const headerType of ['block', 'reportOnly']) {
+        const policy = policies[headerType];
+        if(!policy) continue;
+
+        describe(`header: ${headerNames[headerType]}`, () => {
+          Object.entries(policy)
+              .map    (([ key, directive ]) => [ key, asArray(directive) ])
+              .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
+              .forEach(([ key, directive ]) => {
+                describe(`directive: ${key}`, () => {
+                  if(supportsReportSample.includes(key)) {
+                    if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
+                      // For style-* directives, report-sample will only provide a sample of inline violations.
+                      it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+                        // expect
+                        assert.notInclude(directive, "'report-sample'");
+                      });
+                    } else {
+                      it(`should include 'report-sample' in directive '${key}'`, () => {
+                        // expect
+                        assert.include(directive, "'report-sample'");
+                      });
+                    }
+                  } else {
+                    it(`should not include 'report-sample' in directive '${key}'`, () => {
+                      // expect
+                      assert.notInclude(directive, "'report-sample'");
+                    });
+                  }
                 });
-              }
-            });
-          });
+              });
+        });
+      }
     });
   }
 });
