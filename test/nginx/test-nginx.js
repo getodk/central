@@ -1082,12 +1082,12 @@ function assertSecurityHeaders(res, { csp }) {
   assertCsp(res.headers.get('Content-Security-Policy-Report-Only'), expectedCsp.reportOnly);
 }
 
-function assertCsp(actualCsp, expectedCsp) {
-  if(!expectedCsp) return assert.isNull(actualCsp);
+function assertCsp(actual, expected) {
+  if(!expected) return assert.isNull(actual);
 
   assert.deepEqualInAnyOrder(
-    actualCsp?.split('; '),
-    Object.entries(expectedCsp)
+    actual?.split('; '),
+    Object.entries(expected)
         .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
   );
 }
