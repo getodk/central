@@ -191,6 +191,7 @@ const contentSecurityPolicies = {
 
 describe('Content-Security-Policy definitions', () => {
   const requiredDirectives = [
+    'default-src',
     'form-action',
     'frame-ancestors',
   ];
