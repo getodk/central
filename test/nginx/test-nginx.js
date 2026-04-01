@@ -83,9 +83,9 @@ const contentSecurityPolicies = {
   },
   'disallow-all': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block:default-src',
-      'form-action': 'NOTE:FROM-BACKEND:block:form-action',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block:frame-ancestors',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
       'default-src': none,
@@ -96,9 +96,9 @@ const contentSecurityPolicies = {
   },
   enketo: {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block:default-src',
-      'form-action': 'NOTE:FROM-BACKEND:block:form-action',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block:frame-ancestors',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: allowGoogleTranslate({
       'default-src': none,
