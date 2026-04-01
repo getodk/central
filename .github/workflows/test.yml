@@ -46,6 +46,7 @@ jobs:
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx:mocha
+    - run: cd test/nginx && npm run test:nginx-chunked-stream-error-passthrough
     - run: cd test/nginx && ./lint-config.sh
 
     - run: cd test/nginx && npx playwright install --with-deps chromium-headless-shell

@@ -6,7 +6,8 @@
     "test:nginx": "npm run test:nginx:mocha && npm run test:nginx:playwright",
     "test:nginx:mocha": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha ./nginx/src/mocha",
     "test:nginx:playwright": "NODE_TLS_REJECT_UNAUTHORIZED=0 playwright test",
-    "test": "npm run lint && npm run test:github-actions && npm run test:nginx"
+    "test:nginx-chunked-stream-error-passthrough": "./nginx/test-nginx-chunked-stream-error-passthrough.sh",
+    "test": "npm run lint && npm run test:github-actions && npm run test:nginx && npm run test:test-nginx-chunked-stream-error-passthrough"
   },
   "dependencies": {
     "@playwright/test": "^1.58.2",
