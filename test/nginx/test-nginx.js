@@ -202,7 +202,7 @@ describe.only('Content-Security-Policy definitions', () => {
         if(!policy) continue;
 
         it(`should have required directives: ${requiredDirectives}`, () => {
-          assert.containsAllKeys(policy, requiredDirectives)
+          assert.containsAllKeys(policy, requiredDirectives);
         });
       }
     });
