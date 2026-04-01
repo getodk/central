@@ -189,7 +189,7 @@ const contentSecurityPolicies = {
   },
 };
 
-describe.only('Content-Security-Policy definitions', () => {
+describe('Content-Security-Policy definitions', () => {
   const requiredDirectives = [
     'form-action',
     'frame-ancestors',
