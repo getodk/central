@@ -35,14 +35,14 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 const contentSecurityPolicies = {
   'backend-unmodified': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block:default-src',
-      'form-action': 'NOTE:FROM-BACKEND:block:form-action',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block:frame-ancestors',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
-      'default-src': 'NOTE:FROM-BACKEND:reportOnly:default-src',
-      'form-action': 'NOTE:FROM-BACKEND:reportOnly:form-action',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:reportOnly:frame-ancestors',
+      'default-src':     'NOTE:FROM-BACKEND:reportOnly',
+      'form-action':     'NOTE:FROM-BACKEND:reportOnly',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:reportOnly',
     },
   },
   'blank-html': {

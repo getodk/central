@@ -16,8 +16,8 @@ app.use((req, res, next) => {
     'form-action',
     'frame-ancestors',
   ];
-  res.set('Content-Security-Policy',             topLevelDirectives.map(d => `NOTE:FROM-BACKEND:block:${d}`)     .join('; '));
-  res.set('Content-Security-Policy-Report-Only', topLevelDirectives.map(d => `NOTE:FROM-BACKEND:reportOnly:${d}`).join('; '));
+  res.set('Content-Security-Policy',             topLevelDirectives.map(d => `${d} NOTE:FROM-BACKEND:block`)     .join('; '));
+  res.set('Content-Security-Policy-Report-Only', topLevelDirectives.map(d => `${d} NOTE:FROM-BACKEND:reportOnly`).join('; '));
 
   next();
 });
