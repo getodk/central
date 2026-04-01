@@ -15,5 +15,8 @@
   },
   "volta": {
     "node": "24.14.1"
+  },
+  "devDependencies": {
+    "eslint-plugin-no-only-tests": "^3.3.0"
   }
 }
