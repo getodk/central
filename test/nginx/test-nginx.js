@@ -171,6 +171,25 @@ const contentSecurityPolicies = {
   },
 };
 
+describe('Content-Security-Policy definitions', () => {
+  const requiredDirectives = [
+    'default-src',
+  ];
+
+  for(const [name, policies] of Object.entries(contentSecurityPolicies)) {
+    describe(`policy: ${name}`, () => {
+      for(const headerType of ['block', 'reportOnly']) {
+        const policy = policies[headerType];
+        if(!policy) continue;
+
+        it(`should have required directives: ${requiredDirectives}`, () => {
+          assert.containsAllKeys(policy, requiredDirectives);
+        });
+      }
+    });
+  }
+});
+
 describe('nginx config', () => {
   beforeEach(() => Promise.all([
     resetEnketoMock(),
