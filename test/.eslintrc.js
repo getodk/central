@@ -9,10 +9,13 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
   },
+  plugins: [
+    'no-only-tests',
+  ],
   rules: {
     'comma-dangle': [ 'error', 'always-multiline' ],
     'eol-last': 'error',
-    'no-focused-tests': process.env.CI ? 'error' : 'off',
+    'no-only-tests/no-only-tests': process.env.CI ? 'error' : 'off',
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
     'no-undef-init': 'error',
