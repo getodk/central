@@ -12,6 +12,7 @@ module.exports = {
   rules: {
     'comma-dangle': [ 'error', 'always-multiline' ],
     'eol-last': 'error',
+    'no-focused-tests': process.env.CI ? 'error' : 'off',
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
     'no-undef-init': 'error',
