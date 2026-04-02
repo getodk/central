@@ -228,11 +228,11 @@ describe('Content-Security-Policy definitions', () => {
         const policy = policies[headerType];
         if(!policy) continue;
 
-        it(`should have required directives: ${requiredDirectives}`, () => {
-          assert.containsAllKeys(policy, requiredDirectives);
-        });
-
         describe(`header: ${headerNames[headerType]}`, () => {
+          it(`should have required directives: ${requiredDirectives}`, () => {
+            assert.containsAllKeys(policy, requiredDirectives);
+          });
+
           Object.entries(policy)
               .map    (([ key, directive ]) => [ key, asArray(directive) ])
               .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
