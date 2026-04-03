@@ -13,6 +13,7 @@ jobs:
     - run: docker compose version
     - uses: actions/checkout@v5
     - run: ./test/check-submodules.sh
+    - run: ./test/test-with-pgenvblock.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
