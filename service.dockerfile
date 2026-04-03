@@ -63,6 +63,7 @@ COPY files/service/scripts/ ./
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
+COPY files/service/with-pgenvblock.pl /usr/bin/
 
 COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
 
