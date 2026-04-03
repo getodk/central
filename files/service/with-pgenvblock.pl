@@ -10,7 +10,7 @@ my $envblockfile = $ARGV[0];
 
 open my $fh, '<:raw', $envblockfile
     or die "Cannot open '" . $envblockfile . "': $!";
-my $content = <$fh>;
+my $content = do { local $/; <$fh> };
 close $fh;
 
 my @entries = split /\x00/, $content;
