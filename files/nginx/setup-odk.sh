@@ -44,10 +44,34 @@ echo "writing fresh nginx templates..."
   < /usr/share/odk/nginx/redirector.conf \
   > /etc/nginx/conf.d/redirector.conf
 
+if [ -n "${SENTRY_DSN:-}" ]; then
+  # SENTRY_DSN is in format {PROTOCOL}://{PUBLIC_KEY}@{HOST}/{PATH}{PROJECT_ID}
+  # We need to build {PROTOCOL}://{HOST}/{PATH}/api/{PROJECT_ID}/security/?sentry_key={PUBLIC_KEY}
+  # for the CSP reporting endpoint.
+  DSN_NO_PROTO=${SENTRY_DSN#*://}
+  KEY=${DSN_NO_PROTO%%@*}
+  REST=${DSN_NO_PROTO#*@}
+  PROJECT=${REST##*/}
+  HOST_PATH=${REST%/*}
+  PROTO=${SENTRY_DSN%%:*}
+  export SENTRY_CSP_ENDPOINT="${PROTO}://${HOST_PATH}/api/${PROJECT}/security/?sentry_key=${KEY}"
+else
+  # Sentry is not configured. We will replace the csp-report location block
+  # after envsub.awk has run. We set a dummy value here to avoid an empty
+  # proxy_pass directive, which would cause an error.
+  export SENTRY_CSP_ENDPOINT="http://localhost"
+fi
+
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
 /scripts/envsub.awk \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
+
+if [ -z "${SENTRY_DSN:-}" ]; then
+  # Sentry is not configured. Replace the csp-report location block
+  # with one that simply returns 204 No Content.
+  perl -i -0777 -pe 's/location \/csp-report \{.*?\}/location \/csp-report { return 204; }/s' /etc/nginx/conf.d/odk.conf
+fi
 
 if [ "$SSL_TYPE" = "letsencrypt" ]; then
   echo "starting nginx for letsencrypt..."

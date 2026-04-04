@@ -42,9 +42,7 @@
     },
     "external": {
       "sentry": {
-        "orgSubdomain": "${SENTRY_ORG_SUBDOMAIN}",
-        "key": "${SENTRY_KEY}",
-        "project": "${SENTRY_PROJECT}",
+        "dsn": "${SENTRY_DSN}",
         "traceRate": "${SENTRY_TRACE_RATE}"
       },
       "s3blobStore": {
