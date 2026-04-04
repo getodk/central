@@ -39,7 +39,7 @@ services:
     build:
       context: .
       args:
-        DB_SSL: ${DB_SSL}  # So that we can error out at build time if this is defined with a value of "true" (no longer supported from 2026.1).
+        DB_SSL: ${DB_SSL:-}  # So that we can error out at build time if this is defined with a value of "true" (no longer supported from 2026.1).
       dockerfile: service.dockerfile
     depends_on:
       - secrets
@@ -124,7 +124,7 @@ services:
       options:
         max-file: "30"
   pyxform:
-    image: 'ghcr.io/getodk/pyxform-http:v4.3.1'
+    image: 'ghcr.io/getodk/pyxform-http:v4.4.0'
     restart: always
   secrets:
     volumes:
