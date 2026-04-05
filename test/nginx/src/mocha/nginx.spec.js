@@ -201,6 +201,10 @@ const contentSecurityPolicies = {
 };
 
 describe('Content-Security-Policy definitions', () => {
+  const requiredDirectives = [
+    'default-src',
+  ];
+
   const supportsReportSample = [
     'default-src',
     'require-trusted-types-for',
@@ -225,6 +229,10 @@ describe('Content-Security-Policy definitions', () => {
         if(!policy) continue;
 
         describe(`header: ${headerNames[headerType]}`, () => {
+          it(`should have required directives: ${requiredDirectives}`, () => {
+            assert.containsAllKeys(policy, requiredDirectives);
+          });
+
           Object.entries(policy)
               .map    (([ key, directive ]) => [ key, asArray(directive) ])
               .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
