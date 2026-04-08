@@ -13,6 +13,7 @@ jobs:
     - run: docker compose version
     - uses: actions/checkout@v5
     - run: ./test/check-submodules.sh
+    - run: ./test/test-with-pgenvblock.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
@@ -31,7 +32,7 @@ jobs:
         submodules: recursive
     - run: cd test/envsub && ./run-tests.sh
   test-nginx:
-    timeout-minutes: 2
+    timeout-minutes: 4
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
@@ -44,8 +45,11 @@ jobs:
         node-version: 24.14.1
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && ./setup-tests.sh
-    - run: cd test/nginx && npm run test:nginx
+    - run: cd test/nginx && npm run test:nginx:mocha
     - run: cd test/nginx && ./lint-config.sh
+
+    - run: cd test/nginx && npx playwright install --with-deps chromium-headless-shell
+    - run: cd test/nginx && npm run test:nginx:playwright
 
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign

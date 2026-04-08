@@ -1,13 +1,15 @@
-const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 
-const deepEqualInAnyOrder = require('deep-equal-in-any-order');
-const chai = require('chai');
-chai.use(deepEqualInAnyOrder);
-const { assert } = chai;
+const {
+  assert,
+  assertSentryReceived,
+  requestSentryMock,
+  resetSentryMock,
+} = require('../lib');
 
 const none = `'none'`;
+const reportSample = `'report-sample'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
@@ -43,14 +45,20 @@ const contentSecurityPolicies = {
   },
   'blank-html': {
     reportOnly: allowGoogleTranslate({
-      'default-src': none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'img-src': self, // allow favicon.ico
       'report-uri':  '/csp-report',
     }),
   },
   'central-frontend': {
     reportOnly: allowGoogleTranslate({
-      'default-src':    none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'connect-src': [
         self,
       ],
@@ -66,10 +74,19 @@ const contentSecurityPolicies = {
       'manifest-src':   none,
       'media-src':      none,
       'object-src':     none,
-      'script-src':     self,
-      'style-src':      self,
+      'script-src': [
+        reportSample,
+        self,
+      ],
+      'style-src': [
+        reportSample,
+        self,
+      ],
       'style-src-attr': unsafeInline,
-      'worker-src':     'blob:',
+      'worker-src': [
+        reportSample,
+        'blob:',
+      ],
       'report-uri':     '/csp-report',
     }),
   },
@@ -78,7 +95,10 @@ const contentSecurityPolicies = {
       'default-src': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
-      'default-src': none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'report-uri':  '/csp-report',
     },
   },
@@ -87,7 +107,10 @@ const contentSecurityPolicies = {
       'default-src': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: allowGoogleTranslate({
-      'default-src': none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'connect-src': [
         self,
         'blob:',
@@ -120,6 +143,7 @@ const contentSecurityPolicies = {
       ],
       'object-src': none,
       'script-src': [
+        reportSample,
         unsafeInline,
         self,
         'https://maps.googleapis.com/maps/api/js/',
@@ -137,7 +161,10 @@ const contentSecurityPolicies = {
   },
   'web-forms': {
     reportOnly: allowGoogleTranslate({
-      'default-src': none,
+      'default-src': [
+        reportSample,
+        none,
+      ],
       'connect-src': [
         self,
         'https:',
@@ -156,6 +183,7 @@ const contentSecurityPolicies = {
       'media-src': none,
       'object-src': none,
       'script-src': [
+        reportSample,
         self,
         wasmUnsafeEval,
       ],
@@ -164,12 +192,70 @@ const contentSecurityPolicies = {
         unsafeInline,
       ],
       'worker-src': [
+        reportSample,
         'blob:',
       ],
       'report-uri': '/csp-report',
     }),
   },
 };
+
+describe('Content-Security-Policy definitions', () => {
+  const supportsReportSample = [
+    'default-src',
+    'require-trusted-types-for',
+    'script-src',
+    'script-src-attr',
+    'script-src-elem',
+    'style-src',
+    'style-src-attr',
+    'style-src-elem',
+    'worker-src',
+  ];
+
+  const headerNames = {
+    block:      'Content-Security-Policy',
+    reportOnly: 'Content-Security-Policy-Report-Only',
+  };
+
+  for(const [name, policies] of Object.entries(contentSecurityPolicies)) {
+    describe(`policy: ${name}`, () => {
+      for(const headerType of ['block', 'reportOnly']) {
+        const policy = policies[headerType];
+        if(!policy) continue;
+
+        describe(`header: ${headerNames[headerType]}`, () => {
+          Object.entries(policy)
+              .map    (([ key, directive ]) => [ key, asArray(directive) ])
+              .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
+              .forEach(([ key, directive ]) => {
+                describe(`directive: ${key}`, () => {
+                  if(supportsReportSample.includes(key)) {
+                    if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
+                      // For style-* directives, report-sample will only provide a sample of inline violations.
+                      it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+                        // expect
+                        assert.notInclude(directive, "'report-sample'");
+                      });
+                    } else {
+                      it(`should include 'report-sample' in directive '${key}'`, () => {
+                        // expect
+                        assert.include(directive, "'report-sample'");
+                      });
+                    }
+                  } else {
+                    it(`should not include 'report-sample' in directive '${key}'`, () => {
+                      // expect
+                      assert.notInclude(directive, "'report-sample'");
+                    });
+                  }
+                });
+              });
+        });
+      }
+    });
+  }
+});
 
 describe('nginx config', () => {
   beforeEach(() => Promise.all([
@@ -898,43 +984,6 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         });
       });
     });
-
-    async function resetSentryMock() {
-      const res = await requestSentryMock({ path:'/reset' });
-      assert.equal(res.status, 200);
-    }
-
-    async function assertSentryReceived(...expectedRequests) {
-      const { status, body } = await requestSentryMock({ path:'/event-log' });
-      assert.equal(status, 200);
-      assert.deepEqual(expectedRequests, JSON.parse(body));
-    }
-
-    // This function makes DIRECT requests to sentry-mock.  IRL these requests
-    // would be performed by nginx when a client POSTs to /csp-report.  This
-    // function is for used in test setup/assertions, except when confirming the
-    // behaviour of the mock Sentry implementation.
-    function requestSentryMock(opts) {
-      // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
-      const {
-        path = '/api/check-cert',
-        servername = 'o-fake-dsn.ingest.sentry.io',
-      } = opts;
-
-      return new Promise((resolve, reject) => {
-        const req = https.request(
-          { path, servername },
-          res => {
-            let body = '';
-            res.on('data', data => body += data);
-            res.on('end', () => resolve({ status:res.statusCode, body }));
-            res.on('error', reject);
-          },
-        );
-        req.on('error', reject);
-        req.end();
-      });
-    }
   });
 }
 
