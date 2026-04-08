@@ -124,6 +124,10 @@ server {
   gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml application/xml text/csv image/svg+xml;
   gzip_proxied any;
 
+  types {
+    application/manifest+json webmanifest;
+  }
+
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
   # we want old Enketo URLs redirected to a Central frontend page which dynamically decides
