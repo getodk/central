@@ -14,6 +14,12 @@ const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 
+// Central has notifications shared from GitHub Pages including:
+//
+// * https://getodk.github.io/central/news.html
+// * https://getodk.github.io/central/outdated-version.html
+const centralNotifications = 'https://getodk.github.io/central/';
+
 const asArray = val => {
   if (val == null) return [];
   if (Array.isArray(val)) return val;
@@ -65,7 +71,7 @@ const contentSecurityPolicies = {
       'font-src':       self,
       'frame-src':      [
         self,
-        'https://getodk.github.io/central/news.html',
+        centralNotifications,
       ],
       'img-src': [
         'data:',
@@ -173,7 +179,10 @@ const contentSecurityPolicies = {
         self,
         'data:',
       ],
-      'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+      'frame-src': [
+        self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+        centralNotifications,
+      ],
       'img-src': [
         'blob:',
         'data:',
