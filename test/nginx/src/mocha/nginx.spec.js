@@ -14,7 +14,7 @@ const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 
-// Central has notifications shared from GitHub Pages including:
+// Central has notifications defined in https://github.com/getodk/central/tree/master/docs, and served from GitHub Pages.  These include:
 //
 // * https://getodk.github.io/central/news.html
 // * https://getodk.github.io/central/outdated-version.html
