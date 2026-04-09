@@ -8,6 +8,10 @@ server {
   return 421;
 }
 
+types {
+  application/manifest+json webmanifest;
+}
+
 map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/android-chrome-192x192.png$ "revalidate";
@@ -123,10 +127,6 @@ server {
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/geo+json application/x-javascript application/javascript text/xml application/xml text/csv image/svg+xml;
   gzip_proxied any;
-
-  types {
-    application/manifest+json webmanifest;
-  }
 
   # Enketo Configuration.
   # Enketo express is traditionally served at /- but with the introduction of ODK Web Forms
