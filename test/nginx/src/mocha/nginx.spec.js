@@ -43,10 +43,14 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 const contentSecurityPolicies = {
   'backend-unmodified': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
-      'default-src': 'NOTE:FROM-BACKEND:reportOnly',
+      'default-src':     'NOTE:FROM-BACKEND:reportOnly',
+      'form-action':     'NOTE:FROM-BACKEND:reportOnly',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:reportOnly',
     },
   },
   'blank-html': {
@@ -55,6 +59,8 @@ const contentSecurityPolicies = {
         reportSample,
         none,
       ],
+      'form-action': none,
+      'frame-ancestors': self,
       'img-src': self, // allow favicon.ico
       'report-uri':  '/csp-report',
     }),
@@ -69,6 +75,8 @@ const contentSecurityPolicies = {
         self,
       ],
       'font-src':       self,
+      'form-action': self,
+      'frame-ancestors': none,
       'frame-src':      [
         self,
         centralNotifications,
@@ -98,19 +106,25 @@ const contentSecurityPolicies = {
   },
   'disallow-all': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
       'default-src': [
         reportSample,
         none,
       ],
+      'form-action': none,
+      'frame-ancestors': none,
       'report-uri':  '/csp-report',
     },
   },
   enketo: {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: allowGoogleTranslate({
       'default-src': [
@@ -130,6 +144,8 @@ const contentSecurityPolicies = {
         self,
         'https://fonts.gstatic.com/',
       ],
+      'form-action': self,
+      'frame-ancestors': self,
       'frame-src': none,
       'img-src': [
         'data:',
@@ -179,6 +195,8 @@ const contentSecurityPolicies = {
         self,
         'data:',
       ],
+      'form-action': self,
+      'frame-ancestors': self,
       'frame-src': [
         self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
         centralNotifications,
@@ -212,6 +230,8 @@ const contentSecurityPolicies = {
 describe('Content-Security-Policy definitions', () => {
   const requiredDirectives = [
     'default-src',
+    'form-action',
+    'frame-ancestors',
   ];
 
   const supportsReportSample = [
@@ -236,6 +256,10 @@ describe('Content-Security-Policy definitions', () => {
       for(const headerType of ['block', 'reportOnly']) {
         const policy = policies[headerType];
         if(!policy) continue;
+
+        it(`should have required directives: ${requiredDirectives}`, () => {
+          assert.containsAllKeys(policy, requiredDirectives);
+        });
 
         describe(`header: ${headerNames[headerType]}`, () => {
           it(`should have required directives: ${requiredDirectives}`, () => {
