@@ -449,10 +449,10 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',  /<div id="app"><\/div>/ ],
-    [ '/version.txt', /^versions:/ ],
-    [ '/favicon.ico', /^\n$/ ],
-  ].forEach(([ path, expectedContent ]) => {
+    [ '/index.html',  'text/html',    /<div id="app"><\/div>/ ],
+    [ '/version.txt', 'text/plain',   /^versions:/ ],
+    [ '/favicon.ico', 'image/x-icon', /^\n$/ ],
+  ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
       const res = await apiFetch(path);
@@ -460,6 +460,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
+      assert.equal(res.headers.get('Content-Type'), expectedContentType);
       assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
