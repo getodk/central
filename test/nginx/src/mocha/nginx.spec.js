@@ -203,6 +203,7 @@ const contentSecurityPolicies = {
       'worker-src': [
         reportSample,
         'blob:',
+        'data:',
       ],
       'report-uri': '/csp-report',
     }),
