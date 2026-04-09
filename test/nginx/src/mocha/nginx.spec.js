@@ -14,6 +14,12 @@ const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 
+// Central has notifications defined in https://github.com/getodk/central/tree/master/docs, and served from GitHub Pages.  These include:
+//
+// * https://getodk.github.io/central/news.html
+// * https://getodk.github.io/central/outdated-version.html
+const centralNotifications = 'https://getodk.github.io/central/';
+
 const asArray = val => {
   if (val == null) return [];
   if (Array.isArray(val)) return val;
@@ -73,7 +79,7 @@ const contentSecurityPolicies = {
       'frame-ancestors': none,
       'frame-src':      [
         self,
-        'https://getodk.github.io/central/news.html',
+        centralNotifications,
       ],
       'img-src': [
         'data:',
@@ -191,7 +197,10 @@ const contentSecurityPolicies = {
       ],
       'form-action': self,
       'frame-ancestors': self,
-      'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+      'frame-src': [
+        self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+        centralNotifications,
+      ],
       'img-src': [
         'blob:',
         'data:',
@@ -473,10 +482,10 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',  /<div id="app"><\/div>/ ],
-    [ '/version.txt', /^versions:/ ],
-    [ '/favicon.ico', /^\n$/ ],
-  ].forEach(([ path, expectedContent ]) => {
+    [ '/index.html',  'text/html',    /<div id="app"><\/div>/ ],
+    [ '/version.txt', 'text/plain',   /^versions:/ ],
+    [ '/favicon.ico', 'image/x-icon', /^\n$/ ],
+  ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
       const res = await apiFetch(path);
@@ -484,6 +493,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
+      assert.equal(res.headers.get('Content-Type'), expectedContentType);
       assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
