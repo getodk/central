@@ -458,9 +458,15 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',  'text/html',    /<div id="app"><\/div>/ ],
-    [ '/version.txt', 'text/plain',   /^versions:/ ],
-    [ '/favicon.ico', 'image/x-icon', /^\n$/ ],
+    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
+    [ '/version.txt',                'text/plain',                /^versions:/ ],
+    [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
+    [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
+    [ '/apple-touch-icon.png',       'image/png',                 /^\n$/ ],
+    [ '/favicon.ico',                'image/x-icon',              /^\n$/ ],
+    [ '/favicon-16x16.png',          'image/png',                 /^\n$/ ],
+    [ '/favicon-32x32.png',          'image/png',                 /^\n$/ ],
+    [ '/site.webmanifest',           'application/manifest+json', /^\n$/ ],
   ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
