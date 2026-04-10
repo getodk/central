@@ -10,18 +10,18 @@ server {
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
-  ~^(GET|HEAD)::/client-config.json$ "revalidate";
-  ~^(GET|HEAD)::/favicon.ico$        "revalidate";
-  ~^(GET|HEAD)::/robots.txt$         "revalidate";
-  ~^(GET|HEAD)::/version.txt$        "revalidate";
+  ~^(GET|HEAD)::/client-config\.json$ "revalidate";
+  ~^(GET|HEAD)::/favicon\.ico$        "revalidate";
+  ~^(GET|HEAD)::/robots\.txt$         "revalidate";
+  ~^(GET|HEAD)::/version\.txt$        "revalidate";
 
   # central-backend
   ~^(GET|HEAD)::/v1/                 "passthrough";
 
   # central-frontend - unversioned
   ~^(GET|HEAD)::/$             "revalidate";
-  ~^(GET|HEAD)::/index.html$   "revalidate";
-  ~^(GET|HEAD)::/blank.html$   "revalidate";
+  ~^(GET|HEAD)::/index\.html$  "revalidate";
+  ~^(GET|HEAD)::/blank\.html$  "revalidate";
   ~^(GET|HEAD)::/fonts/.*\?\w+ "immutable";
   ~^(GET|HEAD)::/fonts/        "revalidate";
 
