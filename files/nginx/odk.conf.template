@@ -14,17 +14,17 @@ types {
 
 map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
-  ~^(GET|HEAD)::/android-chrome-192x192.png$ "revalidate";
-  ~^(GET|HEAD)::/android-chrome-512x512.png$ "revalidate";
-  ~^(GET|HEAD)::/apple-touch-icon.png$       "revalidate";
-  ~^(GET|HEAD)::/blank.html$                 "revalidate";
-  ~^(GET|HEAD)::/client-config.json$         "revalidate";
-  ~^(GET|HEAD)::/favicon.ico$                "revalidate";
-  ~^(GET|HEAD)::/favicon-16x16.png$          "revalidate";
-  ~^(GET|HEAD)::/favicon-32x32.png$          "revalidate";
-  ~^(GET|HEAD)::/robots.txt$                 "revalidate";
-  ~^(GET|HEAD)::/site.webmanifest$           "revalidate";
-  ~^(GET|HEAD)::/version.txt$                "revalidate";
+  ~^(GET|HEAD)::/android-chrome-192x192\.png$ "revalidate";
+  ~^(GET|HEAD)::/android-chrome-512x512\.png$ "revalidate";
+  ~^(GET|HEAD)::/apple-touch-icon\.png$       "revalidate";
+  ~^(GET|HEAD)::/blank\.html$                 "revalidate";
+  ~^(GET|HEAD)::/client-config\.json$         "revalidate";
+  ~^(GET|HEAD)::/favicon\.ico$                "revalidate";
+  ~^(GET|HEAD)::/favicon-16x16\.png$          "revalidate";
+  ~^(GET|HEAD)::/favicon-32x32\.png$          "revalidate";
+  ~^(GET|HEAD)::/robots\.txt$                 "revalidate";
+  ~^(GET|HEAD)::/site\.webmanifest$           "revalidate";
+  ~^(GET|HEAD)::/version\.txt$                "revalidate";
 
   # central-backend
   ~^(GET|HEAD)::/v1/                 "passthrough";
