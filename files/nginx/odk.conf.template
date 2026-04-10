@@ -8,10 +8,13 @@ server {
   return 421;
 }
 
+types {
+  application/manifest+json webmanifest;
+}
+
 map "$request_method::$uri$is_args$args" $cache_strategy {
   # general
   ~^(GET|HEAD)::/client-config\.json$ "revalidate";
-  ~^(GET|HEAD)::/favicon\.ico$        "revalidate";
   ~^(GET|HEAD)::/robots\.txt$         "revalidate";
   ~^(GET|HEAD)::/version\.txt$        "revalidate";
 
@@ -19,11 +22,18 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   ~^(GET|HEAD)::/v1/                 "passthrough";
 
   # central-frontend - unversioned
-  ~^(GET|HEAD)::/$             "revalidate";
-  ~^(GET|HEAD)::/index\.html$  "revalidate";
-  ~^(GET|HEAD)::/blank\.html$  "revalidate";
-  ~^(GET|HEAD)::/fonts/.*\?\w+ "immutable";
-  ~^(GET|HEAD)::/fonts/        "revalidate";
+  ~^(GET|HEAD)::/$                            "revalidate";
+  ~^(GET|HEAD)::/index\.html$                 "revalidate";
+  ~^(GET|HEAD)::/android-chrome-192x192\.png$ "revalidate";
+  ~^(GET|HEAD)::/android-chrome-512x512\.png$ "revalidate";
+  ~^(GET|HEAD)::/apple-touch-icon\.png$       "revalidate";
+  ~^(GET|HEAD)::/blank\.html$                 "revalidate";
+  ~^(GET|HEAD)::/favicon\.ico$                "revalidate";
+  ~^(GET|HEAD)::/favicon-16x16\.png$          "revalidate";
+  ~^(GET|HEAD)::/favicon-32x32\.png$          "revalidate";
+  ~^(GET|HEAD)::/fonts/.*\?\w+                "immutable";
+  ~^(GET|HEAD)::/fonts/                       "revalidate";
+  ~^(GET|HEAD)::/site\.webmanifest$           "revalidate";
 
   # central-frontend - versioned
   ~^(GET|HEAD)::/assets/ "immutable";
