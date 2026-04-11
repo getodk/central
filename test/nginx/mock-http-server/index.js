@@ -9,7 +9,23 @@ const app = express();
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
+  next();
+});
 
+app.get('/v1/chunked', (req, res) => {
+  // See https://github.com/getodk/central/issues/1736
+  // We don't have to set the transfer encoding to chunked explicitly; by default,
+  // node will produce a chunked response when we treat the response as a stream.
+  res.flushHeaders();
+  res.cork();
+  res.write('Pack it up, ');
+  res.uncork();
+  res.write('pack it in, ');
+  if (req.query.crash) throw new Error("let's pretend-play a bad thing happened and now we couldn't call .end() and thus we have an unterminated chunked stream on our hands.");
+  res.end('let me begin\n');
+});
+
+app.use((req, res, next) => {
   // always set CSP header to detect (or allow) leaks from backend through to the client
   res.set('Content-Security-Policy',             'default-src NOTE:FROM-BACKEND:block');
   res.set('Content-Security-Policy-Report-Only', 'default-src NOTE:FROM-BACKEND:reportOnly');
