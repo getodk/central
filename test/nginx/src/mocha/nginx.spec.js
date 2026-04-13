@@ -189,7 +189,9 @@ const contentSecurityPolicies = {
         'https:',
       ],
       'manifest-src': none,
-      'media-src': none,
+      'media-src': [
+        'blob:',
+      ],
       'object-src': none,
       'script-src': [
         reportSample,
