@@ -21,4 +21,5 @@ for my $entry (@entries) {
     }
 }
 
-exec @ARGV[1..$#ARGV];
+exec @ARGV[1..$#ARGV]
+    or die;

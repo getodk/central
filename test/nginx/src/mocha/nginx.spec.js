@@ -14,6 +14,12 @@ const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
 
+// Central has notifications defined in https://github.com/getodk/central/tree/master/docs, and served from GitHub Pages.  These include:
+//
+// * https://getodk.github.io/central/news.html
+// * https://getodk.github.io/central/outdated-version.html
+const centralNotifications = 'https://getodk.github.io/central/';
+
 const asArray = val => {
   if (val == null) return [];
   if (Array.isArray(val)) return val;
@@ -37,10 +43,14 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 const contentSecurityPolicies = {
   'backend-unmodified': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
-      'default-src': 'NOTE:FROM-BACKEND:reportOnly',
+      'default-src':     'NOTE:FROM-BACKEND:reportOnly',
+      'form-action':     'NOTE:FROM-BACKEND:reportOnly',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:reportOnly',
     },
   },
   'blank-html': {
@@ -49,6 +59,8 @@ const contentSecurityPolicies = {
         reportSample,
         none,
       ],
+      'form-action': none,
+      'frame-ancestors': self,
       'img-src': self, // allow favicon.ico
       'report-uri':  '/csp-report',
     }),
@@ -63,15 +75,17 @@ const contentSecurityPolicies = {
         self,
       ],
       'font-src':       self,
+      'form-action': self,
+      'frame-ancestors': none,
       'frame-src':      [
         self,
-        'https://getodk.github.io/central/news.html',
+        centralNotifications,
       ],
       'img-src': [
         'data:',
         'https:',
       ],
-      'manifest-src':   none,
+      'manifest-src':   self,
       'media-src':      none,
       'object-src':     none,
       'script-src': [
@@ -92,19 +106,25 @@ const contentSecurityPolicies = {
   },
   'disallow-all': {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: {
       'default-src': [
         reportSample,
         none,
       ],
+      'form-action': none,
+      'frame-ancestors': none,
       'report-uri':  '/csp-report',
     },
   },
   enketo: {
     block: {
-      'default-src': 'NOTE:FROM-BACKEND:block',
+      'default-src':     'NOTE:FROM-BACKEND:block',
+      'form-action':     'NOTE:FROM-BACKEND:block',
+      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
     },
     reportOnly: allowGoogleTranslate({
       'default-src': [
@@ -124,6 +144,8 @@ const contentSecurityPolicies = {
         self,
         'https://fonts.gstatic.com/',
       ],
+      'form-action': self,
+      'frame-ancestors': self,
       'frame-src': none,
       'img-src': [
         'data:',
@@ -173,14 +195,21 @@ const contentSecurityPolicies = {
         self,
         'data:',
       ],
-      'frame-src': self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+      'form-action': self,
+      'frame-ancestors': self,
+      'frame-src': [
+        self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+        centralNotifications,
+      ],
       'img-src': [
         'blob:',
         'data:',
         'https:',
       ],
-      'manifest-src': none,
-      'media-src': none,
+      'manifest-src': self,
+      'media-src': [
+        'blob:',
+      ],
       'object-src': none,
       'script-src': [
         reportSample,
@@ -201,6 +230,12 @@ const contentSecurityPolicies = {
 };
 
 describe('Content-Security-Policy definitions', () => {
+  const requiredDirectives = [
+    'default-src',
+    'form-action',
+    'frame-ancestors',
+  ];
+
   const supportsReportSample = [
     'default-src',
     'require-trusted-types-for',
@@ -224,7 +259,15 @@ describe('Content-Security-Policy definitions', () => {
         const policy = policies[headerType];
         if(!policy) continue;
 
+        it(`should have required directives: ${requiredDirectives}`, () => {
+          assert.containsAllKeys(policy, requiredDirectives);
+        });
+
         describe(`header: ${headerNames[headerType]}`, () => {
+          it(`should have required directives: ${requiredDirectives}`, () => {
+            assert.containsAllKeys(policy, requiredDirectives);
+          });
+
           Object.entries(policy)
               .map    (([ key, directive ]) => [ key, asArray(directive) ])
               .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
@@ -441,10 +484,16 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',  /<div id="app"><\/div>/ ],
-    [ '/version.txt', /^versions:/ ],
-    [ '/favicon.ico', /^\n$/ ],
-  ].forEach(([ path, expectedContent ]) => {
+    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
+    [ '/version.txt',                'text/plain',                /^versions:/ ],
+    [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
+    [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
+    [ '/apple-touch-icon.png',       'image/png',                 /^\n$/ ],
+    [ '/favicon.ico',                'image/x-icon',              /^\n$/ ],
+    [ '/favicon-16x16.png',          'image/png',                 /^\n$/ ],
+    [ '/favicon-32x32.png',          'image/png',                 /^\n$/ ],
+    [ '/site.webmanifest',           'application/manifest+json', /^\n$/ ],
+  ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
       const res = await apiFetch(path);
@@ -452,6 +501,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
+      assert.equal(res.headers.get('Content-Type'), expectedContentType);
       assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
