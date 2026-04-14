@@ -85,7 +85,7 @@ const contentSecurityPolicies = {
         'data:',
         'https:',
       ],
-      'manifest-src':   none,
+      'manifest-src':   self,
       'media-src':      none,
       'object-src':     none,
       'script-src': [
@@ -206,8 +206,10 @@ const contentSecurityPolicies = {
         'data:',
         'https:',
       ],
-      'manifest-src': none,
-      'media-src': none,
+      'manifest-src': self,
+      'media-src': [
+        'blob:',
+      ],
       'object-src': none,
       'script-src': [
         reportSample,
