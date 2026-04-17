@@ -1,8 +1,10 @@
 name: GHCR
 
 on:
+  workflow_dispatch:
   push:
-  pull_request:
+    branches: [master]
+    tags: ["v*.*.*"]
 
 env:
   REGISTRY: ghcr.io
