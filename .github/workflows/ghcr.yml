@@ -2,6 +2,7 @@ name: GHCR
 
 on:
   push:
+  pull_request:
 
 env:
   REGISTRY: ghcr.io
