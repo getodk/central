@@ -1,3 +1,24 @@
-node_modules
-npm-debug.log
-test
+**
+
+# .git directories required for generating version.txt
+
+!/.git/
+!/files/
+
+!/client/.browserslistrc
+!/client/.git
+!/client/index.html
+!/client/package.json
+!/client/package-lock.json
+!/client/vite.config.js
+!/client/public/
+!/client/src/
+
+!/server/.git
+!/server/.npmrc
+!/server/package.json
+!/server/package-lock.json
+!/server/pm2.config.js
+!/server/config/
+!/server/docs/
+!/server/lib/
