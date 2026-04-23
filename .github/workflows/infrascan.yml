@@ -2,7 +2,7 @@ name: InfraScan Audit
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, next ]
   pull_request:
     types: [ opened, reopened, synchronize ]
 
