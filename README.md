@@ -3,6 +3,7 @@
 ![Platform](https://img.shields.io/badge/platform-Docker-blue.svg)
 [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build status](https://circleci.com/gh/getodk/central.svg?style=shield)](https://circleci.com/gh/getodk/central)
+[![Verified by InfraScan](https://img.shields.io/badge/Verified_by-SolDevelo_InfraScan-0052cc?style=flat&logo=security)](https://github.com/soldevelo/infrascan)
 
 Central is the [ODK](https://getodk.org/) server. It manages user accounts and permissions, stores Form definitions, and allows data collection clients like ODK Collect to connect to it for Form download and Submission upload.
 

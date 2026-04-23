@@ -1,0 +1,45 @@
+name: InfraScan Audit
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  infrascan:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run InfraScan
+        uses: soldevelo/infrascan@v1.0.5
+        with:
+          scanner: comprehensive
+          format: html
+          out: infrascan-report.html
+
+      - name: Upload InfraScan Report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: infrascan-report
+          path: infrascan-report.html
+          retention-days: 30
+
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔍 InfraScan audit completed. [View full report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+            })
