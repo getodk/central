@@ -54,7 +54,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': none,
       'frame-ancestors': none,
-      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http:// allows secure upgrade to https://
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme allows secure upgrade to https://
       'report-uri':  '/csp-report',
     },
   },
@@ -78,7 +78,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': none,
       'frame-ancestors': self,
-      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http:// allows secure upgrade to https://
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme allows secure upgrade to https://
       'report-uri':  '/csp-report',
     }),
   },
