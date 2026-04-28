@@ -70,7 +70,7 @@ const contentSecurityPolicies = {
     },
   },
   'blank-html': {
-    reportOnly: allowGoogleTranslate({
+    block: allowGoogleTranslate({
       'default-src': [
         reportSample,
         none,
