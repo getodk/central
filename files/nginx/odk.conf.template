@@ -114,7 +114,7 @@ server {
 
   server_tokens off;
 
-  add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://{DOMAIN}/favicon.icon https://translate.google.com; report-uri /csp-report" always;
+  add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://${DOMAIN}/favicon.icon https://translate.google.com; report-uri /csp-report" always;
   include /usr/share/odk/nginx/common-headers.conf;
 
   client_max_body_size 100m;
@@ -193,7 +193,7 @@ server {
     root /usr/share/nginx/html;
     try_files /blank.html =404;
 
-    add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; connect-src https://translate.google.com https://translate.googleapis.com; form-action 'none'; frame-ancestors 'self'; img-src https://{DOMAIN}/favicon.icon https://translate.google.com; report-uri /csp-report" always;
+    add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; connect-src https://translate.google.com https://translate.googleapis.com; form-action 'none'; frame-ancestors 'self'; img-src https://${DOMAIN}/favicon.icon https://translate.google.com; report-uri /csp-report" always;
     include /usr/share/odk/nginx/common-headers.conf;
   }
   location = /blank.html {
