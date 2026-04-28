@@ -54,6 +54,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': none,
       'frame-ancestors': none,
+      'img-src': 'https://domain-goes-here/favicon.ico',
       'report-uri':  '/csp-report',
     },
   },
@@ -77,7 +78,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': none,
       'frame-ancestors': self,
-      'img-src': self, // allow favicon.ico
+      'img-src': 'https://domain-goes-here/favicon.ico',
       'report-uri':  '/csp-report',
     }),
   },
