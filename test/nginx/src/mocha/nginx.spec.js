@@ -77,7 +77,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': none,
       'frame-ancestors': self,
-      'img-src': self, // allow favicon.ico
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme allows secure upgrade to https://
       'report-uri':  '/csp-report',
     }),
   },
