@@ -259,10 +259,6 @@ describe('Content-Security-Policy definitions', () => {
         const policy = policies[headerType];
         if(!policy) continue;
 
-        it(`should have required directives: ${requiredDirectives}`, () => {
-          assert.containsAllKeys(policy, requiredDirectives);
-        });
-
         describe(`header: ${headerNames[headerType]}`, () => {
           it(`should have required directives: ${requiredDirectives}`, () => {
             assert.containsAllKeys(policy, requiredDirectives);
