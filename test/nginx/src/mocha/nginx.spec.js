@@ -76,7 +76,7 @@ const contentSecurityPolicies = {
         reportSample,
         none,
       ],
-      'form-action': none,
+      'form-action': self, // allow decrypted zip downloads from central-frontend
       'frame-ancestors': self,
       'img-src': self, // allow favicon.ico
       'report-uri':  '/csp-report',
@@ -259,10 +259,6 @@ describe('Content-Security-Policy definitions', () => {
       for(const headerType of ['block', 'reportOnly']) {
         const policy = policies[headerType];
         if(!policy) continue;
-
-        it(`should have required directives: ${requiredDirectives}`, () => {
-          assert.containsAllKeys(policy, requiredDirectives);
-        });
 
         describe(`header: ${headerNames[headerType]}`, () => {
           it(`should have required directives: ${requiredDirectives}`, () => {
