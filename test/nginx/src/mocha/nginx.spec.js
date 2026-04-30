@@ -78,7 +78,7 @@ const contentSecurityPolicies = {
       ],
       'form-action': self, // allow decrypted zip downloads from central-frontend
       'frame-ancestors': self,
-      'img-src': self, // allow favicon.ico
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme permits secure upgrade to https://
       'report-uri':  '/csp-report',
     }),
   },
