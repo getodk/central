@@ -251,33 +251,33 @@ describe('Content-Security-Policy definitions', () => {
             it(`should have required directives: ${requiredDirectives}`, () => {
               assert.containsAllKeys(policy, requiredDirectives);
             });
-          }
 
-          Object.entries(policy)
-              .map    (([ key, directive ]) => [ key, asArray(directive) ])
-              .forEach(([ key, directive ]) => {
-                describe(`directive: ${key}`, () => {
-                  if(supportsReportSample.includes(key)) {
-                    if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
-                      // For style-* directives, report-sample will only provide a sample of inline violations.
-                      it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+            Object.entries(policy)
+                .map    (([ key, directive ]) => [ key, asArray(directive) ])
+                .forEach(([ key, directive ]) => {
+                  describe(`directive: ${key}`, () => {
+                    if(supportsReportSample.includes(key)) {
+                      if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
+                        // For style-* directives, report-sample will only provide a sample of inline violations.
+                        it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+                          // expect
+                          assert.notInclude(directive, "'report-sample'");
+                        });
+                      } else {
+                        it(`should include 'report-sample' in directive '${key}'`, () => {
+                          // expect
+                          assert.include(directive, "'report-sample'");
+                        });
+                      }
+                    } else {
+                      it(`should not include 'report-sample' in directive '${key}'`, () => {
                         // expect
                         assert.notInclude(directive, "'report-sample'");
                       });
-                    } else {
-                      it(`should include 'report-sample' in directive '${key}'`, () => {
-                        // expect
-                        assert.include(directive, "'report-sample'");
-                      });
                     }
-                  } else {
-                    it(`should not include 'report-sample' in directive '${key}'`, () => {
-                      // expect
-                      assert.notInclude(directive, "'report-sample'");
-                    });
-                  }
+                  });
                 });
-              });
+          }
         });
       }
     });
