@@ -43,11 +43,6 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 const contentSecurityPolicies = {
   'backend-strict': {
     block: {
-      'default-src':     'NOTE:FROM-BACKEND:block',
-      'form-action':     'NOTE:FROM-BACKEND:block',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
-    },
-    reportOnly: {
       'default-src': [
         reportSample,
         none,
@@ -59,16 +54,8 @@ const contentSecurityPolicies = {
     },
   },
   'backend-unmodified': {
-    block: {
-      'default-src':     'NOTE:FROM-BACKEND:block',
-      'form-action':     'NOTE:FROM-BACKEND:block',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
-    },
-    reportOnly: {
-      'default-src':     'NOTE:FROM-BACKEND:reportOnly',
-      'form-action':     'NOTE:FROM-BACKEND:reportOnly',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:reportOnly',
-    },
+    block:      'NOTE:FROM-BACKEND:block',
+    reportOnly: 'NOTE:FROM-BACKEND:reportOnly',
   },
   'blank-html': {
     block: allowGoogleTranslate({
@@ -122,11 +109,7 @@ const contentSecurityPolicies = {
     }),
   },
   enketo: {
-    block: {
-      'default-src':     'NOTE:FROM-BACKEND:block',
-      'form-action':     'NOTE:FROM-BACKEND:block',
-      'frame-ancestors': 'NOTE:FROM-BACKEND:block',
-    },
+    block: 'NOTE:FROM-BACKEND:block',
     reportOnly: allowGoogleTranslate({
       'default-src': [
         reportSample,
@@ -262,36 +245,39 @@ describe('Content-Security-Policy definitions', () => {
         if(!policy) continue;
 
         describe(`header: ${headerNames[headerType]}`, () => {
-          it(`should have required directives: ${requiredDirectives}`, () => {
-            assert.containsAllKeys(policy, requiredDirectives);
-          });
+          if(typeof policy === 'string') {
+            if(!policy.startsWith('NOTE:FROM-BACKEND:')) throw new Error(`Unexpected policy string: '${policy}'`);
+          } else {
+            it(`should have required directives: ${requiredDirectives}`, () => {
+              assert.containsAllKeys(policy, requiredDirectives);
+            });
 
-          Object.entries(policy)
-              .map    (([ key, directive ]) => [ key, asArray(directive) ])
-              .filter (([ key, directive ]) => !(directive.length === 1 && directive[0] === `NOTE:FROM-BACKEND:${headerType}`)) // eslint-disable-line no-unused-vars
-              .forEach(([ key, directive ]) => {
-                describe(`directive: ${key}`, () => {
-                  if(supportsReportSample.includes(key)) {
-                    if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
-                      // For style-* directives, report-sample will only provide a sample of inline violations.
-                      it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+            Object.entries(policy)
+                .map    (([ key, directive ]) => [ key, asArray(directive) ])
+                .forEach(([ key, directive ]) => {
+                  describe(`directive: ${key}`, () => {
+                    if(supportsReportSample.includes(key)) {
+                      if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
+                        // For style-* directives, report-sample will only provide a sample of inline violations.
+                        it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+                          // expect
+                          assert.notInclude(directive, "'report-sample'");
+                        });
+                      } else {
+                        it(`should include 'report-sample' in directive '${key}'`, () => {
+                          // expect
+                          assert.include(directive, "'report-sample'");
+                        });
+                      }
+                    } else {
+                      it(`should not include 'report-sample' in directive '${key}'`, () => {
                         // expect
                         assert.notInclude(directive, "'report-sample'");
                       });
-                    } else {
-                      it(`should include 'report-sample' in directive '${key}'`, () => {
-                        // expect
-                        assert.include(directive, "'report-sample'");
-                      });
                     }
-                  } else {
-                    it(`should not include 'report-sample' in directive '${key}'`, () => {
-                      // expect
-                      assert.notInclude(directive, "'report-sample'");
-                    });
-                  }
+                  });
                 });
-              });
+          }
         });
       }
     });
@@ -1182,9 +1168,13 @@ function assertSecurityHeaders(res, { csp }) {
 function assertCsp(actual, expected) {
   if(!expected) return assert.isNull(actual);
 
-  assert.deepEqualInAnyOrder(
-    actual?.split('; '),
-    Object.entries(expected)
-        .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
-  );
+  if(typeof expected === 'string') {
+    assert.equal(actual, expected);
+  } else {
+    assert.deepEqualInAnyOrder(
+      actual?.split('; '),
+      Object.entries(expected)
+          .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
+    );
+  }
 }

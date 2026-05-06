@@ -9,16 +9,6 @@ const app = express();
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
-
-  // always set CSP header to detect (or allow) leaks from backend through to the client
-  const topLevelDirectives = [
-    'default-src',
-    'form-action',
-    'frame-ancestors',
-  ];
-  res.set('Content-Security-Policy',             topLevelDirectives.map(d => `${d} NOTE:FROM-BACKEND:block`)     .join('; '));
-  res.set('Content-Security-Policy-Report-Only', topLevelDirectives.map(d => `${d} NOTE:FROM-BACKEND:reportOnly`).join('; '));
-
   next();
 });
 
@@ -26,6 +16,10 @@ app.use((req, res, next) => {
 app.use('/-/', (req, res, next) => {
   res.set('Vary', 'Accept-Encoding');
   res.set('Cache-Control', 'public, max-age=0');
+
+  // Set both CSP headers from enketo.  Eventually nginx should be confident to override both.
+  res.set('Content-Security-Policy',             `NOTE:FROM-BACKEND:block`);
+  res.set('Content-Security-Policy-Report-Only', `NOTE:FROM-BACKEND:reportOnly`);
   next();
 });
 
@@ -42,6 +36,14 @@ app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
 app.get('/v1/projects', (_, res) => {
   res.set('Vary', 'Cookie');
   res.set('Cache-Control', 'private, max-age=3600');
+  res.send('OK');
+});
+
+app.get('/v1/oidc/callback', (req, res) => {
+  // This endpoint is 100% responsible for its own headers.  Set both, and test they both get through.
+  res.set('Content-Security-Policy',             `NOTE:FROM-BACKEND:block`);
+  res.set('Content-Security-Policy-Report-Only', `NOTE:FROM-BACKEND:reportOnly`);
+
   res.send('OK');
 });
 

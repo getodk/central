@@ -97,6 +97,12 @@ map $request_uri $central_frontend_csp {
     "default-src 'report-sample' 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report";
 }
 
+map $upstream_http_content_security_policy $central_backend_csp {
+  # pass through any Content-Security-Policy received from upstream services (central-backend, enketo)
+  ""      "default-src 'report-sample' 'none'; form-action 'none'; frame-ancestors 'none'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report";
+  default $upstream_http_content_security_policy;
+}
+
 server {
   listen 443 ssl;
   http2 on;
@@ -176,17 +182,20 @@ server {
   }
   # End of Enketo Configuration.
 
-  location ~ ^/v\d+/oidc/callback$ {
-    include /usr/share/odk/nginx/common-headers.conf;
-    include /usr/share/odk/nginx/backend.conf;
-  }
-
   location ~ ^/v\d {
-    proxy_hide_header Content-Security-Policy-Report-Only;
-    add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; form-action 'none'; frame-ancestors 'none'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report" always;
+    proxy_hide_header Content-Security-Policy;
+    add_header Content-Security-Policy $central_backend_csp always;
 
     include /usr/share/odk/nginx/common-headers.conf;
-    include /usr/share/odk/nginx/backend.conf;
+
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://service:8383;
+    proxy_redirect off;
+
+    # buffer requests, but not responses, so streaming out works.
+    proxy_request_buffering on;
+    proxy_buffering off;
+    proxy_read_timeout 2m;
   }
 
   location @blank.html {
