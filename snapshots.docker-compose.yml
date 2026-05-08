@@ -1,9 +1,19 @@
 services:
+  postgres14:
+    build:
+      dockerfile: postgres14.dockerfile
+  postgres:
+    build:
+      dockerfile: postgres-upgrade.dockerfile
   service:
     build:
       dockerfile: service.dockerfile
-      args:
-        DB_SSL: ${DB_SSL:-}  # So that we can error out at build time if this is defined with a value of "true" (no longer supported from 2026.1).
   nginx:
     build:
       dockerfile: nginx.dockerfile
+  secrets:
+    build:
+      dockerfile: secrets.dockerfile
+  enketo:
+    build:
+      dockerfile: enketo.dockerfile

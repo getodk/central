@@ -1,8 +1,6 @@
 services:
   postgres14:
-    build:
-      context: .
-      dockerfile: postgres14.dockerfile
+    image: 'ghcr.io/getodk/central-postgres14:v2024.3.1'
     shm_size: 512m
     volumes:
       - postgres14:/var/lib/odk/postgresql/14
@@ -14,9 +12,7 @@ services:
   postgres:
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
-    build:
-      context: .
-      dockerfile: postgres-upgrade.dockerfile
+    image: 'ghcr.io/getodk/central-postgres:v2024.3.1'
     platform: linux/amd64
     volumes:
       - /var/lib/postgresql/data
@@ -120,18 +116,14 @@ services:
     image: 'ghcr.io/getodk/pyxform-http:v4.4.1'
     restart: always
   secrets:
+    image: 'ghcr.io/getodk/central-secrets:v2024.3.1'
     volumes:
       - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: secrets.dockerfile
     command: './generate-secrets.sh'
   enketo:
+    image: 'ghcr.io/getodk/central-enketo:v2024.3.1'
     volumes:
       - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: enketo.dockerfile
     restart: always
     depends_on:
       - secrets
