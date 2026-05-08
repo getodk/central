@@ -5,7 +5,7 @@ shopt -s inherit_errexit
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
 docker_compose() {
-  ./compose-snapshots.sh "$@"
+  ./compose-snapshot.sh "$@"
 }
 
 tmp="$(mktemp)"
