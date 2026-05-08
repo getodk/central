@@ -50,9 +50,11 @@ docker buildx create --name docker_context_checker \
 docker buildx use docker_context_checker
 
 log "Building docker image..."
+iidfile="$(mktemp)"
 (
 docker \
     buildx build --load \
+    --iidfile "$iidfile" \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
 COPY . /build-context
@@ -71,19 +73,16 @@ vars="$(awk '
   stage == "files" { ++file_count }
   stage == "size"  { total_size=$3 }
 
-  /exporting config/ { image_hash=$4 }
-
   END {
     print "file_count: " file_count "\n"
     print "total_size: " total_size "\n"
-    print "image_hash: " image_hash "\n"
   }
 ' "$tmp")"
 
 
 file_count="$(echo "$vars" | grep file_count | cut -d: -f2)"
 total_size="$(echo "$vars" | grep total_size | cut -d: -f2)"
-docker_img="$(echo "$vars" | grep image_hash | cut -d: -f3)"
+docker_img="$(cat "$iidfile")"
 
 cleanup() {
   log "Removing docker image..."
@@ -97,13 +96,6 @@ throw_err() {
   exit 1
 }
 
-log "File count: $file_count"
-if [[ "${skip_count-}" != "true" ]]; then
-  if [[ "$file_count" -lt "$min_count" ]] || [[ "$file_count" -gt "$max_count" ]]; then
-    throw_err "This is a surprising number of files - expected between $min_count and $max_count"
-  fi
-fi
-
 human_size() {
   if [[ "$1" -gt 999999 ]]; then
     echo "$(bc <<< "scale=3; $1 / 1000000") GB"
@@ -112,7 +104,15 @@ human_size() {
   fi
 }
 
+log "File count: $file_count"
 log "Total size: $(human_size "$total_size")"
+
+if [[ "${skip_count-}" != "true" ]]; then
+  if [[ "$file_count" -lt "$min_count" ]] || [[ "$file_count" -gt "$max_count" ]]; then
+    throw_err "This is a surprising number of files - expected between $min_count and $max_count"
+  fi
+fi
+
 if [[ "${skip_size-}" != "true" ]]; then
   # N.B. busybox `du` outputs in kB
   # See: https://www.busybox.net/downloads/BusyBox.html#du

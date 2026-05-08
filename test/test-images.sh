@@ -53,6 +53,18 @@ docker_compose build
 log "Starting containers..."
 docker_compose up --detach
 
+log "Verifying version.txt..."
+diff \
+     <(docker compose exec nginx cat /usr/share/nginx/html/version.txt) \
+     <(cat <<EOF
+versions:
+$(git rev-parse HEAD) ($(git describe --tags --always))
+ $(cd client && git rev-parse HEAD) client ($(cd client && git describe --tags --always))
+ $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
+EOF
+     )
+log "version.txt looks OK."
+
 log "Verifying frontend..."
 check_path 180 / 'ODK Central'
 log "  Frontend started OK."

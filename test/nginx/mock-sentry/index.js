@@ -17,7 +17,13 @@ const logErrorEvent = error => {
 };
 
 const app = express();
-app.use(express.json());
+app.use(express.json({
+  type: [
+    'application/json',
+    'application/csp-report',   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-uri#violation_report_syntax
+    'application/reports+json', // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-to#violation_report_syntax
+  ],
+}));
 app.get('/event-log', (req, res) => res.json(events));
 app.get('/reset',       (req, res) => {
   events.length = 0;

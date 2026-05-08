@@ -1,16 +1,24 @@
-const https = require('node:https');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 
-const deepEqualInAnyOrder = require('deep-equal-in-any-order');
-const chai = require('chai');
-chai.use(deepEqualInAnyOrder);
-const { assert } = chai;
+const {
+  assert,
+  assertSentryReceived,
+  requestSentryMock,
+  resetSentryMock,
+} = require('../lib');
 
 const none = `'none'`;
+const reportSample = `'report-sample'`;
 const self = `'self'`;
 const unsafeInline = `'unsafe-inline'`;
 const wasmUnsafeEval = `'wasm-unsafe-eval'`;
+
+// Central has notifications defined in https://github.com/getodk/central/tree/master/docs, and served from GitHub Pages.  These include:
+//
+// * https://getodk.github.io/central/news.html
+// * https://getodk.github.io/central/outdated-version.html
+const centralNotifications = 'https://getodk.github.io/central/';
 
 const asArray = val => {
   if (val == null) return [];
@@ -33,120 +41,248 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
 };
 
 const contentSecurityPolicies = {
+  'backend-strict': {
+    block: {
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'form-action': none,
+      'frame-ancestors': none,
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme permits secure upgrade to https://
+      'report-uri':  '/csp-report',
+    },
+  },
   'backend-unmodified': {
-    'default-src': 'NOTE:FROM-BACKEND',
+    block:      'NOTE:FROM-BACKEND:block',
+    reportOnly: 'NOTE:FROM-BACKEND:reportOnly',
   },
-  'central-frontend': allowGoogleTranslate({
-    'default-src':    none,
-    'connect-src': [
-      self,
-    ],
-    'font-src':       self,
-    'frame-src':      [
-      self,
-      'https://getodk.github.io/central/news.html',
-    ],
-    'img-src': [
-      'data:',
-      'https:',
-    ],
-    'manifest-src':   none,
-    'media-src':      none,
-    'object-src':     none,
-    'script-src':     self,
-    'style-src':      self,
-    'style-src-attr': unsafeInline,
-    'worker-src':     'blob:',
-    'report-uri':     '/csp-report',
-  }),
-  'disallow-all': {
-    'default-src': none,
-    'report-uri':  '/csp-report',
+  'blank-html': {
+    block: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'form-action': self, // allow decrypted zip downloads from central-frontend
+      'frame-ancestors': self,
+      'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme permits secure upgrade to https://
+      'report-uri':  '/csp-report',
+    }),
   },
-  'disallow-all-except-standard-plugins': allowGoogleTranslate({
-    'default-src': none,
-    'report-uri':  '/csp-report',
-  }),
-  enketo: allowGoogleTranslate({
-    'default-src': none,
-    'connect-src': [
-      self,
-      'blob:',
-      'https://maps.googleapis.com/',
-      'https://maps.google.com/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://fonts.gstatic.com/',
-      'https://fonts.googleapis.com/',
-    ],
-    'font-src': [
-      self,
-      'https://fonts.gstatic.com/',
-    ],
-    'frame-src': none,
-    'img-src': [
-      'data:',
-      'blob:',
-      'jr:',
-      self,
-      'https://maps.google.com/maps/',
-      'https://maps.gstatic.com/mapfiles/',
-      'https://maps.googleapis.com/maps/',
-      'https://tile.openstreetmap.org/',
-    ],
-    'manifest-src': none,
-    'media-src': [
-      'blob:',
-      'jr:',
-      self,
-    ],
-    'object-src': none,
-    'script-src': [
-      unsafeInline,
-      self,
-      'https://maps.googleapis.com/maps/api/js/',
-      'https://maps.google.com/maps/',
-      'https://maps.google.com/maps-api-v3/api/js/',
-    ],
-    'style-src': [
-      unsafeInline,
-      self,
-      'https://fonts.googleapis.com/css',
-    ],
-    'style-src-attr': unsafeInline,
-    'report-uri': '/csp-report',
-  }),
-  'web-forms': allowGoogleTranslate({
-    'default-src': none,
-    'connect-src': [
-      self,
-      'https:',
-    ],
-    'font-src': [
-      self,
-      'data:',
-    ],
-    'frame-src': none,
-    'img-src': [
-      'blob:',
-      'https:',
-    ],
-    'manifest-src': none,
-    'media-src': none,
-    'object-src': none,
-    'script-src': [
-      self,
-      wasmUnsafeEval,
-    ],
-    'style-src': [
-      self,
-      unsafeInline,
-    ],
-    'worker-src': [
-      'blob:'
-    ],
-    'report-uri': '/csp-report',
-  }),
+  'central-frontend': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'connect-src': [
+        self,
+      ],
+      'font-src':       self,
+      'form-action': self,
+      'frame-ancestors': none,
+      'frame-src':      [
+        self,
+        centralNotifications,
+      ],
+      'img-src': [
+        'data:',
+        'https:',
+      ],
+      'manifest-src':   self,
+      'media-src':      none,
+      'object-src':     none,
+      'script-src': [
+        reportSample,
+        self,
+      ],
+      'style-src': [
+        reportSample,
+        self,
+      ],
+      'style-src-attr': unsafeInline,
+      'worker-src': [
+        reportSample,
+        'blob:',
+      ],
+      'report-uri':     '/csp-report',
+    }),
+  },
+  enketo: {
+    block: 'NOTE:FROM-BACKEND:block',
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'connect-src': [
+        self,
+        'blob:',
+        'https://maps.googleapis.com/',
+        'https://maps.google.com/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://fonts.gstatic.com/',
+        'https://fonts.googleapis.com/',
+      ],
+      'font-src': [
+        self,
+        'https://fonts.gstatic.com/',
+      ],
+      'form-action': self,
+      'frame-ancestors': self,
+      'frame-src': none,
+      'img-src': [
+        'data:',
+        'blob:',
+        'jr:',
+        self,
+        'https://maps.google.com/maps/',
+        'https://maps.gstatic.com/mapfiles/',
+        'https://maps.googleapis.com/maps/',
+        'https://tile.openstreetmap.org/',
+      ],
+      'manifest-src': none,
+      'media-src': [
+        'blob:',
+        'jr:',
+        self,
+      ],
+      'object-src': none,
+      'script-src': [
+        reportSample,
+        unsafeInline,
+        self,
+        'https://maps.googleapis.com/maps/api/js/',
+        'https://maps.google.com/maps/',
+        'https://maps.google.com/maps-api-v3/api/js/',
+      ],
+      'style-src': [
+        unsafeInline,
+        self,
+        'https://fonts.googleapis.com/css',
+      ],
+      'style-src-attr': unsafeInline,
+      'report-uri': '/csp-report',
+    }),
+  },
+  'web-forms': {
+    reportOnly: allowGoogleTranslate({
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'connect-src': [
+        self,
+        'https:',
+      ],
+      'font-src': [
+        self,
+        'data:',
+      ],
+      'form-action': self,
+      'frame-ancestors': self,
+      'frame-src': [
+        self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+        centralNotifications,
+      ],
+      'img-src': [
+        'blob:',
+        'data:',
+        'https:',
+      ],
+      'manifest-src': self,
+      'media-src': [
+        'blob:',
+      ],
+      'object-src': none,
+      'script-src': [
+        reportSample,
+        self,
+        wasmUnsafeEval,
+      ],
+      'style-src': [
+        self,
+        unsafeInline,
+      ],
+      'worker-src': [
+        reportSample,
+        'blob:',
+        'data:',
+      ],
+      'report-uri': '/csp-report',
+    }),
+  },
 };
+
+describe('Content-Security-Policy definitions', () => {
+  const requiredDirectives = [
+    'default-src',
+    'form-action',
+    'frame-ancestors',
+  ];
+
+  const supportsReportSample = [
+    'default-src',
+    'require-trusted-types-for',
+    'script-src',
+    'script-src-attr',
+    'script-src-elem',
+    'style-src',
+    'style-src-attr',
+    'style-src-elem',
+    'worker-src',
+  ];
+
+  const headerNames = {
+    block:      'Content-Security-Policy',
+    reportOnly: 'Content-Security-Policy-Report-Only',
+  };
+
+  for(const [name, policies] of Object.entries(contentSecurityPolicies)) {
+    describe(`policy: ${name}`, () => {
+      for(const headerType of ['block', 'reportOnly']) {
+        const policy = policies[headerType];
+        if(!policy) continue;
+
+        describe(`header: ${headerNames[headerType]}`, () => {
+          if(typeof policy === 'string') {
+            if(!policy.startsWith('NOTE:FROM-BACKEND:')) throw new Error(`Unexpected policy string: '${policy}'`);
+          } else {
+            it(`should have required directives: ${requiredDirectives}`, () => {
+              assert.containsAllKeys(policy, requiredDirectives);
+            });
+
+            Object.entries(policy)
+                .map    (([ key, directive ]) => [ key, asArray(directive) ])
+                .forEach(([ key, directive ]) => {
+                  describe(`directive: ${key}`, () => {
+                    if(supportsReportSample.includes(key)) {
+                      if(key.startsWith('style-src') && directive.includes(`'unsafe-inline'`)) {
+                        // For style-* directives, report-sample will only provide a sample of inline violations.
+                        it(`should not include 'report-sample' in directive '${key}' when 'unsafe-inline' is allowed`, () => {
+                          // expect
+                          assert.notInclude(directive, "'report-sample'");
+                        });
+                      } else {
+                        it(`should include 'report-sample' in directive '${key}'`, () => {
+                          // expect
+                          assert.include(directive, "'report-sample'");
+                        });
+                      }
+                    } else {
+                      it(`should not include 'report-sample' in directive '${key}'`, () => {
+                        // expect
+                        assert.notInclude(directive, "'report-sample'");
+                      });
+                    }
+                  });
+                });
+          }
+        });
+      }
+    });
+  }
+});
 
 describe('nginx config', () => {
   beforeEach(() => Promise.all([
@@ -332,10 +468,16 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',  /<div id="app"><\/div>/ ],
-    [ '/version.txt', /^versions:/ ],
-    [ '/favicon.ico', /^\n$/ ],
-  ].forEach(([ path, expectedContent ]) => {
+    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
+    [ '/version.txt',                'text/plain',                /^versions:/ ],
+    [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
+    [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
+    [ '/apple-touch-icon.png',       'image/png',                 /^\n$/ ],
+    [ '/favicon.ico',                'image/x-icon',              /^\n$/ ],
+    [ '/favicon-16x16.png',          'image/png',                 /^\n$/ ],
+    [ '/favicon-32x32.png',          'image/png',                 /^\n$/ ],
+    [ '/site.webmanifest',           'application/manifest+json', /^\n$/ ],
+  ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
       const res = await apiFetch(path);
@@ -343,6 +485,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // then
       assert.equal(res.status, 200);
       assert.match(await res.text(), expectedContent);
+      assert.equal(res.headers.get('Content-Type'), expectedContentType);
       assertSecurityHeaders(res, { csp:'central-frontend' });
     });
   });
@@ -449,7 +592,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/logout',
     '/-/api',
     '/-/preview',
-    '/-/edit/enketoid'
+    '/-/edit/enketoid',
   ].forEach(request => {
     it(`should not redirect ${request} to central-frontend`, async () => {
       // when
@@ -480,7 +623,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.equal(res.status, 200);
         assert.isEmpty((await res.text()).trim());
         assert.equal(res.headers.get('Content-Type'), 'text/html');
-        assertSecurityHeaders(res, { csp:'disallow-all-except-standard-plugins' });
+        assertSecurityHeaders(res, { csp:'blank-html' });
         await assertEnketoReceivedNoRequests();
       });
     });
@@ -493,7 +636,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     // then
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'OK');
-    assertSecurityHeaders(res, { csp:'disallow-all' });
+    assertSecurityHeaders(res, { csp:'backend-strict' });
     // and
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
@@ -515,7 +658,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     const res = await apiFetch('/v1/reflect-headers');
     // then
     assert.equal(res.status, 200);
-    assertSecurityHeaders(res, { csp:'disallow-all' });
+    assertSecurityHeaders(res, { csp:'backend-strict' });
 
     // when
     const body = await res.json();
@@ -533,7 +676,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     // then
     assert.equal(res.status, 200);
     // and
-    assertSecurityHeaders(res, { csp:'disallow-all' });
+    assertSecurityHeaders(res, { csp:'backend-strict' });
 
     // when
     const body = await res.json();
@@ -697,7 +840,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   describe('backend caching', () => {
     [
       [ '/v1/foo',                   'passthrough' ],
-      [ '/v1/foo/bar/baz',           'passthrough' ]
+      [ '/v1/foo/bar/baz',           'passthrough' ],
     ].forEach(([ path, expectedCacheStrategy ]) => {
       [ 'GET', 'HEAD' ].forEach(method => {
         it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
@@ -867,43 +1010,6 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         });
       });
     });
-
-    async function resetSentryMock() {
-      const res = await requestSentryMock({ path:'/reset' });
-      assert.equal(res.status, 200);
-    }
-
-    async function assertSentryReceived(...expectedRequests) {
-      const { status, body } = await requestSentryMock({ path:'/event-log' });
-      assert.equal(status, 200);
-      assert.deepEqual(expectedRequests, JSON.parse(body));
-    }
-
-    // This function makes DIRECT requests to sentry-mock.  IRL these requests
-    // would be performed by nginx when a client POSTs to /csp-report.  This
-    // function is for used in test setup/assertions, except when confirming the
-    // behaviour of the mock Sentry implementation.
-    function requestSentryMock(opts) {
-      // servername: SNI extension value - https://nodejs.org/api/https.html#new-agentoptions
-      const {
-        path = '/api/check-cert',
-        servername = 'o-fake-dsn.ingest.sentry.io',
-      } = opts;
-
-      return new Promise((resolve, reject) => {
-        const req = https.request(
-          { path, servername },
-          res => {
-            let body = '';
-            res.on('data', data => body += data);
-            res.on('end', () => resolve({ status:res.statusCode, body }));
-            res.on('error', reject);
-          },
-        );
-        req.on('error', reject);
-        req.end();
-      });
-    }
   });
 }
 
@@ -1055,6 +1161,20 @@ function assertSecurityHeaders(res, { csp }) {
 
   const expectedCsp = contentSecurityPolicies[csp];
   if(!expectedCsp) assert.fail(`Tried to match unknown CSP '${csp}'`);
-  const actualCsp = res.headers.get('Content-Security-Policy-Report-Only');
-  assert.deepEqualInAnyOrder(actualCsp.split('; '), Object.entries(expectedCsp).map(([ k, v ]) => `${k} ${Array.isArray(v) ? v.join(' ') : v}`));
+  assertCsp(res.headers.get('Content-Security-Policy'),             expectedCsp.block);
+  assertCsp(res.headers.get('Content-Security-Policy-Report-Only'), expectedCsp.reportOnly);
+}
+
+function assertCsp(actual, expected) {
+  if(!expected) return assert.isNull(actual);
+
+  if(typeof expected === 'string') {
+    assert.equal(actual, expected);
+  } else {
+    assert.deepEqualInAnyOrder(
+      actual?.split('; '),
+      Object.entries(expected)
+          .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
+    );
+  }
 }

@@ -2,6 +2,13 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+# Serialize (as a raw env block) the environment set up by docker, for later
+# availability to processes running with a reset environment (such as cronjobs).
+# See https://github.com/getodk/central/issues/1747 .
+# See `man 5 proc_pid_environ` .
+cp --preserve=mode,ownership /proc/self/environ /dev/shm/docker-envblock
+
+
 echo "generating local service configuration.."
 
 ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
@@ -16,6 +23,9 @@ export SENTRY_RELEASE
 SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
 # shellcheck disable=SC2090
 export SENTRY_TAGS
+
+echo "waiting for PostgreSQL to become connectable to..."
+while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
