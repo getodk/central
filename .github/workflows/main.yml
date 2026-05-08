@@ -2,6 +2,10 @@ name: Test, Build, Publish
 
 on:
   push:
+    branches:
+    - '**'
+    tags:
+    - 'v**'
   pull_request:
   workflow_dispatch:
     inputs:
