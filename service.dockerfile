@@ -2,6 +2,12 @@ ARG node_version=24.14.1
 
 
 
+FROM node:${node_version}-slim AS env_validator
+ARG DB_SSL
+RUN [ -z "${DB_SSL}" ] || (/bin/echo -e '\n\n\n\n\nYou have the DB_SSL variable defined (in your .env file, probably).\nThis variable is no longer supported from Central 2026.1 onwards.\nThere is a new way of configuring SSL for your database, please see:\n\nhttps://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server\n\nPlease refer to the Central 2026.1.0 release notes for more information on this change.\n\n\n\n\n'; exit 13)
+
+
+
 FROM node:${node_version}-slim AS pgdg
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -15,8 +21,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODEN
     && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc \
       | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg
 
-ARG DB_SSL
-RUN [ -z "${DB_SSL}" ] || (/bin/echo -e '\n\n\n\n\nYou have the DB_SSL variable defined (in your .env file, probably).\nThis variable is no longer supported from Central 2026.1 onwards.\nThere is a new way of configuring SSL for your database, please see:\n\nhttps://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server\n\nPlease refer to the Central 2026.1.0 release notes for more information on this change.\n\n\n\n\n'; exit 13)
+
 
 FROM node:${node_version}-slim AS intermediate
 RUN apt-get update \
@@ -34,6 +39,7 @@ RUN git describe --tags --dirty --always > /tmp/sentry-versions/client
 
 
 FROM node:${node_version}-slim
+COPY --from=env_validator /dev/null /dev/null # Force env_validator to build
 
 ARG node_version
 LABEL org.opencontainers.image.source="https://github.com/getodk/central"
