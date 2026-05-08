@@ -33,20 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-        fetch-tags: true
-        submodules: recursive
     - run: cd test/envsub && ./run-tests.sh
   test-nginx:
     timeout-minutes: 4
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-        fetch-tags: true
-        submodules: recursive
     - uses: actions/setup-node@v5
       with:
         node-version: 24.14.1
