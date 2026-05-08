@@ -4,10 +4,6 @@ shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
-docker_compose() {
-  ./compose-snapshot.sh "$@"
-}
-
 tmp="$(mktemp)"
 
 check_path() {
@@ -18,7 +14,7 @@ check_path() {
   for (( i=0; ; ++i )); do
     log "Checking response from $requestPath ..."
     echo -e "GET $requestPath HTTP/1.0\r\nHost: local\r\n\r\n" |
-        docker_compose exec --no-TTY nginx \
+        ./snapshot_compose.sh exec --no-TTY nginx \
             openssl s_client -quiet -connect 127.0.0.1:443 \
             >"$tmp" 2>&1 || true
     if grep --silent --fixed-strings "$expected" "$tmp"; then
@@ -48,10 +44,10 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 touch ./files/allow-postgres14-upgrade
 
 log "Building docker containers..."
-docker_compose build
+./snapshot_compose.sh build
 
 log "Starting containers..."
-docker_compose up --detach
+./snapshot_compose.sh up --detach
 
 log "Verifying version.txt..."
 diff \

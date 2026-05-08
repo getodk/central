@@ -12,10 +12,10 @@ if [[ -d "$localSecrets" ]]; then
 fi
 
 log "Building secrets image..."
-./compose-snapshot.sh build --no-cache secrets
+./snapshot-compose.sh build --no-cache secrets
 
 log "Running container..."
-./compose-snapshot.sh run --rm --volume "$localSecrets":/etc/secrets secrets
+./snapshot-compose.sh run --rm --volume "$localSecrets":/etc/secrets secrets
 
 log "Checking secrets exist..."
 assert_size() {
