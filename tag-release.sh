@@ -62,8 +62,12 @@ fi
 log "Updating version numbers in docker-compose.yml ..."
 tmpfile="$(mktemp)"
 sed -E \
+    -e "s_(image:\s+'.*/.*/central-postgres14):.*'_\1:$newVersion'_" \
+    -e "s_(image:\s+'.*/.*/central-postgres):.*'_\1:$newVersion'_" \
     -e "s_(image:\s+'.*/.*/central-nginx):.*'_\1:$newVersion'_" \
     -e "s_(image:\s+'.*/.*/central-service):.*'_\1:$newVersion'_" \
+    -e "s_(image:\s+'.*/.*/central-secrets):.*'_\1:$newVersion'_" \
+    -e "s_(image:\s+'.*/.*/central-enketo):.*'_\1:$newVersion'_" \
     docker-compose.yml > "$tmpfile"
 mv "$tmpfile" docker-compose.yml
 
