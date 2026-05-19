@@ -7,11 +7,11 @@ const log = (...args) => console.log(logPrefix, ...args);
 
 describe('service image', () => {
   describe('DB_SSL handling', () => {
-    const runningMigrations = 'running migrations..';
+    const generatingServiceConfig = 'generating local service configuration..';
     const unresolvedIssue = '!!! ODK Central backend will not start until this issue is resolved.';
     const finishedMarkers = [
       unresolvedIssue,
-      runningMigrations,
+      generatingServiceConfig,
     ];
 
     const runService = (...args) => new Promise(resolve => {
@@ -60,7 +60,7 @@ describe('service image', () => {
 
       // then
       assertIncludes(stdcombi, unresolvedIssue);
-      assertNotIncludes(stdcombi, runningMigrations);
+      assertNotIncludes(stdcombi, generatingServiceConfig);
     });
 
     it('should start OK if DB_SSL is not set', async function() {
@@ -70,7 +70,7 @@ describe('service image', () => {
       const { stdcombi } = await runService();
 
       // then
-      assertIncludes(stdcombi, runningMigrations);
+      assertIncludes(stdcombi, generatingServiceConfig);
       assertNotIncludes(stdcombi, unresolvedIssue);
     });
 
