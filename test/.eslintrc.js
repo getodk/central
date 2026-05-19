@@ -20,6 +20,7 @@ module.exports = {
     'no-trailing-spaces': 'error',
     'no-undef-init': 'error',
     'no-unused-expressions': 'error',
+    'no-unused-vars': ['error', { 'argsIgnorePattern': '^_$' }],
     'semi': [ 'error', 'always' ],
   },
 };
