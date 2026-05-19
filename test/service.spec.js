@@ -53,7 +53,7 @@ describe('service image', () => {
     });
 
     describe('DB_SSL values', () => {
-      // Until pre-8e05cf3b2e8cbaa2effae2b1d3213fe23f0545cb, odk-central-backend checked
+      // Pre-8e05cf3b2e8cbaa2effae2b1d3213fe23f0545cb, odk-central-backend checked
       // DB_SSL like so:
       //
       //     if (ssl != null && ssl !== true)
