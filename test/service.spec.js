@@ -44,8 +44,8 @@ describe('service image', () => {
       const { stdcombi } = await runService('--env', 'DB_SSL=true');
 
       // then
-      assert.include(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
-      assert.notInclude(stdcombi, 'running migrations..');
+      assertIncludes(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
+      assertNotIncludes(stdcombi, 'running migrations..');
     });
 
     it('should start OK if DB_SSL is not set', async function() {
@@ -55,10 +55,18 @@ describe('service image', () => {
       const { stdcombi } = await runService();
 
       // then
-      assert.include(stdcombi, 'running migrations..');
-      assert.notInclude(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
+      assertIncludes(stdcombi, 'running migrations..');
+      assertNotIncludes(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
     });
 
     // TODO what to do for other values of DB_SSL?  what to do if DB_SSL is empty string?
   });
 });
+
+function assertIncludes(stdcombi, expectedLine) {
+  assert.include(stdcombi, 'running migrations..', `Could not find line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
+}
+
+function assertNotIncludes(stdcombi, expectedLine) {
+  assert.notInclude(stdcombi, 'running migrations..', `Found unexpected line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
+}
