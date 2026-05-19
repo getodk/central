@@ -66,6 +66,7 @@ describe('service image', () => {
       //     files/service/config.json.template: "ssl": ${DB_SSL},
 
       [
+        '', // e.g. if passed via `docker compose run --env DB_SSL=`
         'true',
         'false',
       ].forEach(badVal => {
@@ -82,7 +83,6 @@ describe('service image', () => {
       });
 
       [
-        '',
         'null',
       ].forEach(goodVal => {
         it(`should start OK if DB_SSL=${goodVal}`, async function() {

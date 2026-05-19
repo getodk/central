@@ -3,7 +3,7 @@ set -o pipefail
 shopt -s inherit_errexit
 
 # Check for illegal DB_SSL environment variable.
-if ! [[ "${DB_SSL-}" = notset ]]; then
+if ! [[ "${DB_SSL-}" = null ]]; then
   echo "!!!"
   echo "!!! You have the DB_SSL variable defined (in your .env file, probably)."
   echo "!!! This variable is no longer supported from Central 2026.1 onwards."
@@ -18,7 +18,7 @@ if ! [[ "${DB_SSL-}" = notset ]]; then
   sleep 60 # reduce resource waste from quick restart and instant failure
   exit 1
 fi
-unset DB_SSL_CHECK
+unset DB_SSL
 
 # Serialize (as a raw env block) the environment set up by docker, for later
 # availability to processes running with a reset environment (such as cronjobs).
