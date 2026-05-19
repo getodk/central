@@ -7,16 +7,31 @@ const log = (...args) => console.log(logPrefix, ...args);
 
 describe('service image', () => {
   describe('DB_SSL handling', () => {
+    const runningMigrations = 'running migrations..';
+    const unresolvedIssue = '!!! ODK Central backend will not start until this issue is resolved.';
+    const finishedMarkers = [
+      unresolvedIssue,
+      runningMigrations,
+    ];
+
     const runService = (...args) => new Promise(resolve => {
       const stdcombi = [];
 
       const process = spawn('docker', [ 'compose', 'run', ...args, 'service' ], { cwd:'..' });
 
-      const appendOutput = data => stdcombi.push(data.toString());
+      const appendOutput = data => {
+        const str = data.toString();
+        stdcombi.push(str);
+
+        // Allow short-circuiting of tests - execution time varies
+        // wildly depending if docker images are pre-built or not.
+        const lines = str.split('\n');
+        if(lines.some(line => finishedMarkers.includes(line))) process.kill();
+      };
       process.stdout.on('data', appendOutput);
       process.stderr.on('data', appendOutput);
 
-      const timer = setTimeout(() => { process.kill(); }, 8_000);
+      const timer = setTimeout(() => { process.kill(); }, 19_000);
 
       process.on('close', (code, signal) => {
         clearTimeout(timer);
@@ -38,25 +53,25 @@ describe('service image', () => {
     });
 
     it('should reject DB_SSL=true', async function() {
-      this.timeout(10_000);
+      this.timeout(20_000);
 
       // when
       const { stdcombi } = await runService('--env', 'DB_SSL=true');
 
       // then
-      assertIncludes(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
-      assertNotIncludes(stdcombi, 'running migrations..');
+      assertIncludes(stdcombi, unresolvedIssue);
+      assertNotIncludes(stdcombi, runningMigrations);
     });
 
     it('should start OK if DB_SSL is not set', async function() {
-      this.timeout(10_000);
+      this.timeout(20_000);
 
       // when
       const { stdcombi } = await runService();
 
       // then
-      assertIncludes(stdcombi, 'running migrations..');
-      assertNotIncludes(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
+      assertIncludes(stdcombi, runningMigrations);
+      assertNotIncludes(stdcombi, unresolvedIssue);
     });
 
     // TODO what to do for other values of DB_SSL?  what to do if DB_SSL is empty string?
