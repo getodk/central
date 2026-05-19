@@ -28,6 +28,7 @@ describe('service image', () => {
     before(function () {
       this.timeout(120_000);
       log('Building "service" docker image...');
+      execSync('touch .env', { cwd:'..', stdio:['ignore', 'inherit', 'inherit'] });
       execSync('docker compose build service', { cwd:'..', stdio:['ignore', 'inherit', 'inherit'] });
       log('"service" docker image built OK.');
     });
