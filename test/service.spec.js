@@ -52,29 +52,57 @@ describe('service image', () => {
       log('"service" docker image built OK.');
     });
 
-    it('should reject DB_SSL=true', async function() {
-      this.timeout(10_000);
+    describe('DB_SSL values', () => {
+      // Until pre-8e05cf3b2e8cbaa2effae2b1d3213fe23f0545cb, odk-central-backend checked
+      // DB_SSL like so:
+      // if (ssl != null && ssl !== true)
+      //   return Problem.internal.invalidDatabaseConfig({ reason: 'If ssl is specified, its value can only be true.' });
+      it('should reject DB_SSL=true', async function() {
+        this.timeout(10_000);
 
-      // when
-      const { stdcombi } = await runService('--env', 'DB_SSL=true');
+        // when
+        const { stdcombi } = await runService('--env', 'DB_SSL=true');
 
-      // then
-      assertIncludes(stdcombi, unresolvedIssue);
-      assertNotIncludes(stdcombi, generatingServiceConfig);
+        // then
+        assertIncludes(stdcombi, unresolvedIssue);
+        assertNotIncludes(stdcombi, generatingServiceConfig);
+      });
+
+      it('should start OK if DB_SSL is empty', async function() {
+        this.timeout(10_000);
+
+        // when
+        const { stdcombi } = await runService('--env', 'DB_SSL=');
+
+        // then
+        assertIncludes(stdcombi, generatingServiceConfig);
+        assertNotIncludes(stdcombi, unresolvedIssue);
+      });
+
+      it('should start OK if DB_SSL is "null"', async function() {
+        this.timeout(10_000);
+
+        // when
+        const { stdcombi } = await runService('--env', 'DB_SSL=null');
+
+        // then
+        assertIncludes(stdcombi, generatingServiceConfig);
+        assertNotIncludes(stdcombi, unresolvedIssue);
+      });
+
+      it('should start OK if DB_SSL is not set', async function() {
+        this.timeout(10_000);
+
+        // when
+        const { stdcombi } = await runService();
+
+        // then
+        assertIncludes(stdcombi, generatingServiceConfig);
+        assertNotIncludes(stdcombi, unresolvedIssue);
+      });
+
+      // TODO what to do for other values of DB_SSL?  what to do if DB_SSL is empty string?
     });
-
-    it('should start OK if DB_SSL is not set', async function() {
-      this.timeout(10_000);
-
-      // when
-      const { stdcombi } = await runService();
-
-      // then
-      assertIncludes(stdcombi, generatingServiceConfig);
-      assertNotIncludes(stdcombi, unresolvedIssue);
-    });
-
-    // TODO what to do for other values of DB_SSL?  what to do if DB_SSL is empty string?
   });
 });
 
