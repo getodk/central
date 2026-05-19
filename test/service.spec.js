@@ -16,9 +16,7 @@ describe('service image', () => {
       process.stdout.on('data', data => stdout.push(data.toString()));
       process.stderr.on('data', data => stderr.push(data.toString()));
 
-      const timer = setTimeout(() => {
-        try { process.kill(); } catch { /* expected */ }
-      }, 2_000);
+      const timer = setTimeout(() => { process.kill(); }, 2_000);
 
       process.on('close', (code, signal) => {
         clearTimeout(timer);
