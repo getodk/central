@@ -64,9 +64,9 @@ describe('service image', () => {
 });
 
 function assertIncludes(stdcombi, expectedLine) {
-  assert.include(stdcombi, 'running migrations..', `Could not find line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
+  assert.include(stdcombi, expectedLine, `Could not find line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
 }
 
 function assertNotIncludes(stdcombi, expectedLine) {
-  assert.notInclude(stdcombi, 'running migrations..', `Found unexpected line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
+  assert.notInclude(stdcombi, expectedLine, `Found unexpected line '${expectedLine}' in stdcombi:\n${stdcombi.join('\n')}`);
 }
