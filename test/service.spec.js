@@ -7,6 +7,18 @@ const log = (...args) => console.log(logPrefix, ...args);
 
 describe('service image', () => {
   describe('DB_SSL handling', () => {
+    // Pre-8e05cf3b2e8cbaa2effae2b1d3213fe23f0545cb, odk-central-backend checked
+    // DB_SSL like so:
+    //
+    //     if (ssl != null && ssl !== true)
+    //       return Problem.internal.invalidDatabaseConfig({ reason: 'If ssl is specified, its value can only be true.' });
+    //
+    // This was passed into config in the getodk/central repo pre-d10cccb34bb3abd893563bbe26ed5160df66b972
+    // via:
+    //
+    //     docker-compose.yml: - DB_SSL=${DB_SSL:-null}
+    //     files/service/config.json.template: "ssl": ${DB_SSL},
+
     const generatingServiceConfig = 'generating local service configuration..';
     const unresolvedIssue = '!!! ODK Central backend will not start until this issue is resolved.';
     const finishedMarkers = [
@@ -52,61 +64,47 @@ describe('service image', () => {
       log('"service" docker image built OK.');
     });
 
-    describe('DB_SSL values', () => {
-      // Pre-8e05cf3b2e8cbaa2effae2b1d3213fe23f0545cb, odk-central-backend checked
-      // DB_SSL like so:
-      //
-      //     if (ssl != null && ssl !== true)
-      //       return Problem.internal.invalidDatabaseConfig({ reason: 'If ssl is specified, its value can only be true.' });
-      //
-      // This was passed into config in the getodk/central repo pre-d10cccb34bb3abd893563bbe26ed5160df66b972
-      // via:
-      //
-      //     docker-compose.yml: - DB_SSL=${DB_SSL:-null}
-      //     files/service/config.json.template: "ssl": ${DB_SSL},
-
-      [
-        '', // e.g. if passed via `docker compose run --env DB_SSL=`
-        'true',
-        'false',
-      ].forEach(badVal => {
-        it(`should fail to start if DB_SSL=${badVal}`, async function() {
-          this.timeout(10_000);
-
-          // when
-          const { stdcombi } = await runService('--env', `DB_SSL=${badVal}`);
-
-          // then
-          assertIncludes(stdcombi, unresolvedIssue);
-          assertNotIncludes(stdcombi, generatingServiceConfig);
-        });
-      });
-
-      [
-        'null',
-      ].forEach(goodVal => {
-        it(`should start OK if DB_SSL=${goodVal}`, async function() {
-          this.timeout(10_000);
-
-          // when
-          const { stdcombi } = await runService('--env', `DB_SSL=${goodVal}`);
-
-          // then
-          assertIncludes(stdcombi, generatingServiceConfig);
-          assertNotIncludes(stdcombi, unresolvedIssue);
-        });
-      });
-
-      it('should start OK if DB_SSL is not set', async function() {
+    [
+      '', // e.g. if passed via `docker compose run --env DB_SSL=`
+      'true',
+      'false',
+    ].forEach(badVal => {
+      it(`should fail to start if DB_SSL=${badVal}`, async function() {
         this.timeout(10_000);
 
         // when
-        const { stdcombi } = await runService();
+        const { stdcombi } = await runService('--env', `DB_SSL=${badVal}`);
+
+        // then
+        assertIncludes(stdcombi, unresolvedIssue);
+        assertNotIncludes(stdcombi, generatingServiceConfig);
+      });
+    });
+
+    [
+      'null',
+    ].forEach(goodVal => {
+      it(`should start OK if DB_SSL=${goodVal}`, async function() {
+        this.timeout(10_000);
+
+        // when
+        const { stdcombi } = await runService('--env', `DB_SSL=${goodVal}`);
 
         // then
         assertIncludes(stdcombi, generatingServiceConfig);
         assertNotIncludes(stdcombi, unresolvedIssue);
       });
+    });
+
+    it('should start OK if DB_SSL is not set', async function() {
+      this.timeout(10_000);
+
+      // when
+      const { stdcombi } = await runService();
+
+      // then
+      assertIncludes(stdcombi, generatingServiceConfig);
+      assertNotIncludes(stdcombi, unresolvedIssue);
     });
   });
 });
