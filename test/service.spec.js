@@ -31,7 +31,7 @@ describe('service image', () => {
       process.stdout.on('data', appendOutput);
       process.stderr.on('data', appendOutput);
 
-      const timer = setTimeout(() => { process.kill(); }, 19_000);
+      const timer = setTimeout(() => { process.kill(); }, 9_000);
 
       process.on('close', (code, signal) => {
         clearTimeout(timer);
@@ -53,7 +53,7 @@ describe('service image', () => {
     });
 
     it('should reject DB_SSL=true', async function() {
-      this.timeout(20_000);
+      this.timeout(10_000);
 
       // when
       const { stdcombi } = await runService('--env', 'DB_SSL=true');
@@ -64,7 +64,7 @@ describe('service image', () => {
     });
 
     it('should start OK if DB_SSL is not set', async function() {
-      this.timeout(20_000);
+      this.timeout(10_000);
 
       // when
       const { stdcombi } = await runService();
