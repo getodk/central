@@ -39,7 +39,7 @@ describe('service image', () => {
       const { stdcombi } = await runService('--env', 'DB_SSL=true');
 
       // then
-      assert.include(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
+      assert.include(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.', `Full output: \n${stdcombi.join('\n')}`);
       assert.notInclude(stdcombi, 'running migrations..');
     });
 
@@ -50,7 +50,7 @@ describe('service image', () => {
       const { stdcombi } = await runService();
 
       // then
-      assert.include(stdcombi, 'running migrations..');
+      assert.include(stdcombi, 'running migrations..', `Full output: \n${stdcombi.join('\n')}`);
       assert.notInclude(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
     });
 
