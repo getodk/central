@@ -27,9 +27,13 @@ describe('service image', () => {
 
     before(function () {
       this.timeout(120_000);
+
+      const exec = cmd => execSync(cmd, { cwd:'..', stdio:['ignore', 'inherit', 'inherit'] });
+
       log('Building "service" docker image...');
-      execSync('touch .env', { cwd:'..', stdio:['ignore', 'inherit', 'inherit'] });
-      execSync('docker compose build service', { cwd:'..', stdio:['ignore', 'inherit', 'inherit'] });
+      exec('touch .env');
+      exec('docker compose pull --include-deps service');
+      exec('docker compose build --with-dependencies service');
       log('"service" docker image built OK.');
     });
 
