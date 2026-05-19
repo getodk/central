@@ -8,20 +8,20 @@ const log = (...args) => console.log(logPrefix, ...args);
 describe('service image', () => {
   describe('DB_SSL handling', () => {
     const runService = (...args) => new Promise(resolve => {
-      const stdout = [];
-      const stderr = [];
+      const stdcombi = [];
 
       const process = spawn('docker', [ 'compose', 'run', ...args, 'service' ], { cwd:'..' });
 
-      process.stdout.on('data', data => stdout.push(data.toString()));
-      process.stderr.on('data', data => stderr.push(data.toString()));
+      const appendOutput = data => stdcombi.push(data.toString());
+      process.stdout.on('data', appendOutput);
+      process.stderr.on('data', appendOutput);
 
       const timer = setTimeout(() => { process.kill(); }, 2_000);
 
       process.on('close', (code, signal) => {
         clearTimeout(timer);
         const asLines = datas => datas.join('').split('\n');
-        resolve({ code, signal, stdout:asLines(stdout), stderr:asLines(stderr) });
+        resolve({ code, signal, stdcombi:asLines(stdcombi) });
       });
     });
 
@@ -36,22 +36,22 @@ describe('service image', () => {
       this.timeout(5000);
 
       // when
-      const { stdout } = await runService('--env', 'DB_SSL=true');
+      const { stdcombi } = await runService('--env', 'DB_SSL=true');
 
       // then
-      assert.include(stdout, '!!! ODK Central backend will not start until this issue is resolved.');
-      assert.notInclude(stdout, 'running migrations..');
+      assert.include(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
+      assert.notInclude(stdcombi, 'running migrations..');
     });
 
     it('should start OK if DB_SSL is not set', async function() {
       this.timeout(5000);
 
       // when
-      const { stdout } = await runService();
+      const { stdcombi } = await runService();
 
       // then
-      assert.include(stdout, 'running migrations..');
-      assert.notInclude(stdout, '!!! ODK Central backend will not start until this issue is resolved.');
+      assert.include(stdcombi, 'running migrations..');
+      assert.notInclude(stdcombi, '!!! ODK Central backend will not start until this issue is resolved.');
     });
 
     // TODO what to do for other values of DB_SSL?  what to do if DB_SSL is empty string?
