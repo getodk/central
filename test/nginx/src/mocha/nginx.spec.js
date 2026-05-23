@@ -70,7 +70,7 @@ const contentSecurityPolicies = {
     }),
   },
   'central-frontend': {
-    reportOnly: allowGoogleTranslate({
+    block: allowGoogleTranslate({
       'default-src': [
         reportSample,
         none,
@@ -109,8 +109,7 @@ const contentSecurityPolicies = {
     }),
   },
   enketo: {
-    block: 'NOTE:FROM-BACKEND:block',
-    reportOnly: allowGoogleTranslate({
+    block: allowGoogleTranslate({
       'default-src': [
         reportSample,
         none,
@@ -166,7 +165,7 @@ const contentSecurityPolicies = {
     }),
   },
   'web-forms': {
-    reportOnly: allowGoogleTranslate({
+    block: allowGoogleTranslate({
       'default-src': [
         reportSample,
         none,
