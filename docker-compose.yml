@@ -38,8 +38,6 @@ services:
   service:
     build:
       context: .
-      args:
-        DB_SSL: ${DB_SSL:-}  # So that we can error out at build time if this is defined with a value of "true" (no longer supported from 2026.1).
       dockerfile: service.dockerfile
     depends_on:
       - secrets
@@ -68,6 +66,7 @@ services:
       - PGPASSWORD=${PGPASSWORD-${DB_PASSWORD:-odk}}
       - PGAPPNAME=${PGAPPNAME-odkcentral}
       # End of libpq connection env var preparation.
+      - DB_SSL=${DB_SSL:-null}
       - DB_POOL_SIZE=${DB_POOL_SIZE:-10}
       - EMAIL_FROM=${EMAIL_FROM:-no-reply@$DOMAIN}
       - EMAIL_HOST=${EMAIL_HOST:-mail}

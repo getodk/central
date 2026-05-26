@@ -6,7 +6,8 @@
     "test:nginx": "npm run test:nginx:mocha && npm run test:nginx:playwright",
     "test:nginx:mocha": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha ./nginx/src/mocha",
     "test:nginx:playwright": "NODE_TLS_REJECT_UNAUTHORIZED=0 playwright test",
-    "test": "npm run lint && npm run test:github-actions && npm run test:nginx"
+    "test:service": "mocha ./service.spec.js",
+    "test": "npm run lint && npm run test:github-actions && npm run test:nginx && npm run test:service"
   },
   "dependencies": {
     "@playwright/test": "^1.58.2",

@@ -66,6 +66,18 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - run: ./test/test-secrets.sh
+  test-service:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        submodules: true
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24.14.1
+    - run: cd test/nginx && npm clean-install
+    - run: cd test/nginx && npm run test:service
   test-images:
     timeout-minutes: 10
     needs:
@@ -73,6 +85,7 @@ jobs:
     - test-envsub
     - test-nginx
     - test-secrets
+    - test-service
     runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v5
