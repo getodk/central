@@ -30,8 +30,10 @@ services:
     environment:
       - SSL_TYPE=selfsign
     ports:
-      - 127.0.0.1:9000:80
-      - 127.0.0.1:9001:443
+      - "127.0.0.1:9000:80"
+      - "[::1]:9000:80"
+      - "127.0.0.1:9001:443"
+      - "[::1]:9001:443"
   nginx-ssl-upstream:
     extends:
       file: lib.docker-compose.yml
