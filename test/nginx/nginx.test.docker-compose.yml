@@ -18,7 +18,8 @@ services:
       dockerfile: mock-sentry.dockerfile
     ports:
       # Sentry port is not currently configurable in nginx config, so use default HTTPS port
-      - 127.0.0.1:443:443
+      - "127.0.0.1:443:443"
+      - "[::1]:443:443"
     environment:
       - MODE=https
       - HTTPS_HOST=o-fake-dsn.ingest.sentry.io
