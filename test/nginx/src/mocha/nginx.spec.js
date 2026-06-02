@@ -592,19 +592,19 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/api',
     '/-/preview',
     '/-/edit/enketoid',
-  ].forEach(request => {
-    it(`should not redirect ${request} to central-frontend`, async () => {
+  ].forEach(path => {
+    it(`should not redirect ${path} to central-frontend`, async () => {
       // when
-      const res = await apiFetch(request);
+      const res = await apiFetch(path);
 
       // then
       assert.equal(res.status, 200);
       assert.equal(await res.text(), 'OK');
       assertSecurityHeaders(res, { csp:'enketo' });
 
-      // // and
+      // and
       await assertEnketoReceived(
-        { method:'GET', path: request },
+        { method:'GET', path },
       );
     });
   });
