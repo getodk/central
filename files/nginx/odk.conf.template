@@ -210,7 +210,7 @@ server {
     try_files $uri @blank.html;
   }
 
-  location ~ "^/projects/([0-9]+)/forms/(.+)/submissions/(new|.+)" {
+  location ~ "^/projects/([0-9]+)/forms/([a-zA-Z0-9]+)/submissions/([a-zA-Z0-9]+)" {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /apps/forms/index.html;
 
