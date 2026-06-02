@@ -212,7 +212,7 @@ server {
 
   location ~ "^/projects/([0-9]+)/forms/([a-zA-Z0-9]+)/submissions/([a-zA-Z0-9]+)" {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /apps/forms/index.html;
+    try_files $uri $uri/ /apps/forms/index.html =404;
 
     add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
 
