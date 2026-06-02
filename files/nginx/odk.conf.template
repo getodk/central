@@ -211,12 +211,12 @@ server {
   }
 
   location ~ "^/projects/([0-9]+)/forms/(.+)/submissions/(new|.+)" {
-    root ./dist;
+    root /usr/share/nginx/html;
     try_files $uri $uri/ /apps/forms/index.html;
 
     add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
 
-    include ./common-headers.conf;
+    include /usr/share/odk/nginx/common-headers.conf;
   }
 
   location / {
