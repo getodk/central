@@ -1,3 +1,4 @@
+const { isIPv6 } = require('node:net');
 const tls = require('node:tls');
 const { Readable } = require('stream');
 
@@ -609,6 +610,100 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
   });
 
+  describe('enketo query param filtering', () => {
+    [
+      '/-/preview',
+      '/-/preview/',
+      '/enketo-passthrough/preview',
+      '/enketo-passthrough/preview/',
+    ].forEach(pathRoot => {
+      [
+        'form',
+        'form=',
+        'form=123',
+        'form&a=1',
+        'form=&a=1',
+        'form=123&a=1',
+        'a=1&form',
+        'a=1&form=',
+        'a=1&form=123',
+        'a=1&form&b=2',
+        'a=1&form=&b=2',
+        'a=1&form=123&b=2',
+        'a=1&form&form=123',
+        'a=1&form=123&form=123',
+
+        'xform',
+        'xform=',
+        'xform=123',
+        'xform&a=1',
+        'xform=&a=1',
+        'xform=123&a=1',
+        'a=1&xform',
+        'a=1&xform=',
+        'a=1&xform=123',
+        'a=1&xform&b=2',
+        'a=1&xform=&b=2',
+        'a=1&xform=123&b=2',
+        'a=1&xform&xform=123',
+        'a=1&xform=123&xform=123',
+
+        'form=1&xform=1&form=2&xform=2&form=3&xform=3&form=4&xform=4&form=5&xform=5&form=6&xform=6&',
+
+        '%66orm=123',
+
+        'XFORM=123',
+
+        'form;a=1',
+        'form=;a=1',
+        'form=123;a=1',
+        'a=1;form',
+        'a=1;form=',
+        'a=1;form=123',
+        'a=1;form;b=2',
+        'a=1;form=;b=2',
+        'a=1;form=123;b=2',
+        'a=1;form;form=123',
+        'a=1;form=123;form=123',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 400);
+          // and
+          await assertEnketoReceivedNoRequests();
+        });
+      });
+
+      [
+        'platform=mac',
+        'form_id=99',
+        'uniform=true',
+        'a=1&deform=false&b=2',
+        'information=detailed',
+        'performance=good',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should NOT reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          await assertEnketoReceived(
+            { method:'GET', path:'/-/preview' + (pathRoot.endsWith('/') ? '/' : '') + '?' + queryString },
+          );
+        });
+      });
+    });
+  });
+
   describe('blank.html', () => {
     [
       '/blank.html',
@@ -1087,13 +1182,20 @@ async function resetMock(port) {
 //
 // 1. do not follow redirects
 // 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
-function request(url, { body, ...options }={}) {
+function request(urlString, { body, ...options }={}) {
   if(!options.headers) options.headers = {};
   if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
 
+  const url = new URL(urlString);
+  if(url.username || url.password) throw new Error('Basic auth creds not yet supported.');
+
+  options.host = safeIpv6(url.hostname);
+  options.port = url.port;
+  options.path = urlString.replace(/^http(s?):\/\/[^/]*/, '') || '/';
+
   return new Promise((resolve, reject) => {
     try {
-      const req = getProtocolImplFrom(url).request(url, options, res => {
+      const req = getProtocolImplFrom(url).request(options, res => {
         res.on('error', reject);
 
         const body = new Readable({ read:() => {} });
@@ -1129,8 +1231,7 @@ function request(url, { body, ...options }={}) {
   });
 }
 
-function getProtocolImplFrom(url) {
-  const { protocol } = new URL(url);
+function getProtocolImplFrom({ protocol }) {
   switch(protocol) {
     case 'http:':  return require('node:http');
     case 'https:': return require('node:https');
@@ -1193,4 +1294,9 @@ function assertCsp(actual, expected) {
           .map(([ k, v ]) => `${k} ${asArray(v).join(' ')}`),
     );
   }
+}
+
+function safeIpv6(hostname) {
+  const maybeV6 = hostname.replace(/^\[(.*)\]$/, (_, $1) => $1);
+  return isIPv6(maybeV6) ? maybeV6 : hostname;
 }
