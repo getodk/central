@@ -643,17 +643,18 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   it('should detect backend stream breakages', async () => {
-     // when
+    // when
     const res = await apiFetch('/v1/broken-stream');
-
     // then
     assert.equal(res.status, 200);
 
-    // and
     try {
+      // when
       await res.text();
+
       assert.fail('response should have been aborted');
     } catch(err) {
+      // then
       if(err.code !== 'ECONNRESET') throw err;
     }
   });
