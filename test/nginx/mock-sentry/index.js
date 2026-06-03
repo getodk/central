@@ -1,4 +1,5 @@
 const { execSync } = require('node:child_process');
+const crypto  = require('node:crypto');
 const { readFileSync } = require('node:fs');
 const { createServer } = require('node:https');
 const { createSecureContext } = require('node:tls');
@@ -102,6 +103,8 @@ const server = (() => {
       }
       cb(null, createSecureContext(goodCreds));
     },
+    // Without this setting, nginx pools connections to mock-sentry which are then missing SNI info when re-used.
+    secureOptions: crypto.constants.SSL_OP_NO_TICKET,
   };
 
   return createServer(opts, app);
