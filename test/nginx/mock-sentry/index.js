@@ -103,7 +103,10 @@ const server = (() => {
       }
       cb(null, createSecureContext(goodCreds));
     },
-    // Without this setting, nginx pools connections to mock-sentry which are then missing SNI info when re-used.
+    // Disable TLS session-ticket resumption so nginx does not pool HTTPS
+    // connections.  This means that repeated nginx requests will perform
+    // a full TLS handshake and exercise SNICallback consistently.
+    // See: https://nodejs.org/api/crypto.html#openssl-options:~:text=SSL_OP_NO_TICKET
     secureOptions: crypto.constants.SSL_OP_NO_TICKET,
   };
 
