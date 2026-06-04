@@ -103,9 +103,8 @@ const server = (() => {
       }
       cb(null, createSecureContext(goodCreds));
     },
-    // Disable TLS session-ticket resumption so nginx does not pool HTTPS
-    // connections.  This means that repeated nginx requests will perform
-    // a full TLS handshake and exercise SNICallback consistently.
+    // Disable TLS session-ticket resumption to force nginx to perform
+    // a full TLS handshake, thus exercising SNICallback consistently.
     // See: https://nodejs.org/api/crypto.html#openssl-options:~:text=SSL_OP_NO_TICKET
     secureOptions: crypto.constants.SSL_OP_NO_TICKET,
   };
