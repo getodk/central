@@ -210,9 +210,9 @@ server {
     try_files $uri @blank.html;
   }
 
-  location ~ "^/projects/([0-9]+)/forms/.+/submissions/.+" {
+  location ~ "^/f/.+|^/projects/([0-9]+)/forms/.+/submissions/.+" {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /apps/forms/index.html =404;
+    try_files $uri $uri/ /apps/forms/index.html;
 
     add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
 
