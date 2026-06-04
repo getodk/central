@@ -3,14 +3,14 @@ services:
     build:
       dockerfile: mock-http-service.dockerfile
     ports:
-      - "8005:8005"
+      - 127.0.0.1:8005:8005
     environment:
       - PORT=8005
   service:
     build:
       dockerfile: mock-http-service.dockerfile
     ports:
-      - "8383:8383"
+      - 127.0.0.1:8383:8383
     environment:
       - PORT=8383
   sentry-mock:
@@ -18,6 +18,7 @@ services:
       dockerfile: mock-sentry.dockerfile
     ports:
       # Sentry port is not currently configurable in nginx config, so use default HTTPS port
+      # FIXME in line with other .ports, make this port binding more restrictive
       - "443:443"
     environment:
       - MODE=https
@@ -30,8 +31,10 @@ services:
     environment:
       - SSL_TYPE=selfsign
     ports:
-      - "9000:80"
-      - "9001:443"
+      - "127.0.0.1:9000:80"
+      - "[::1]:9000:80"
+      - "127.0.0.1:9001:443"
+      - "[::1]:9001:443"
   nginx-ssl-upstream:
     extends:
       file: lib.docker-compose.yml
@@ -39,5 +42,7 @@ services:
     environment:
       - SSL_TYPE=upstream
     ports:
-      - "10000:80"
-      - "10001:443"
+      - "127.0.0.1:10000:80"
+      - "[::1]:10000:80"
+      - "127.0.0.1:10001:443"
+      - "[::1]:10001:443"

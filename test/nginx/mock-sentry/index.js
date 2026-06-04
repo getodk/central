@@ -1,4 +1,5 @@
 const { execSync } = require('node:child_process');
+const crypto  = require('node:crypto');
 const { readFileSync } = require('node:fs');
 const { createServer } = require('node:https');
 const { createSecureContext } = require('node:tls');
@@ -102,6 +103,10 @@ const server = (() => {
       }
       cb(null, createSecureContext(goodCreds));
     },
+    // Disable TLS session-ticket resumption to force nginx to perform
+    // a full TLS handshake, thus exercising SNICallback consistently.
+    // See: https://nodejs.org/api/crypto.html#openssl-options:~:text=SSL_OP_NO_TICKET
+    secureOptions: crypto.constants.SSL_OP_NO_TICKET,
   };
 
   return createServer(opts, app);

@@ -47,6 +47,17 @@ app.get('/v1/oidc/callback', (req, res) => {
   res.send('OK');
 });
 
+app.get('/v1/broken-stream', (req, res) => {
+  res.status(200);
+  res.write('beginning stream...', () => {
+    // Write has now flushed from NodeJS.  Give it a chance to flush
+    // from lower-level network buffer.
+    setTimeout(() => {
+       res.socket.destroy();
+    }, 50);
+  });
+});
+
 [
   'delete',
   'get',
