@@ -112,7 +112,7 @@ const server = (() => {
   return createServer(opts, app);
 })();
 
-server.listen(port, () => {
+server.listen(port, '127.0.0.1', () => {
   log(`Listening with HTTPS on port: ${port}`);
 });
 

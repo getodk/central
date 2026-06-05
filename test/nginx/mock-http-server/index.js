@@ -70,6 +70,6 @@ app.get('/v1/broken-stream', (req, res) => {
   res.send('OK');
 }));
 
-app.listen(port, () => {
+app.listen(port, '127.0.0.1', () => {
   log(`Listening on port: ${port}`);
 });
