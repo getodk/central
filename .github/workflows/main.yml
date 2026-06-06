@@ -42,6 +42,8 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version: 24.14.1
+        cache: npm
+        cache-dependency-path: ./test/package-lock.json
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx:mocha
@@ -76,6 +78,8 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version: 24.14.1
+        cache: npm
+        cache-dependency-path: ./test/package-lock.json
     - run: cd test/nginx && npm clean-install
     - run: cd test/nginx && npm run test:service
   test-images:
