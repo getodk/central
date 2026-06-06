@@ -6,6 +6,7 @@ const log = (...args) => console.log('[mock-http-server]', ...args);
 const requests = [];
 
 const app = express();
+app.set('case sensitive routing', true);
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);

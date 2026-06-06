@@ -610,6 +610,100 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
   });
 
+  describe('enketo query param filtering', () => {
+    [
+      '/-/preview',
+      '/-/preview/',
+      '/enketo-passthrough/preview',
+      '/enketo-passthrough/preview/',
+    ].forEach(pathRoot => {
+      [
+        'form',
+        'form=',
+        'form=123',
+        'form&a=1',
+        'form=&a=1',
+        'form=123&a=1',
+        'a=1&form',
+        'a=1&form=',
+        'a=1&form=123',
+        'a=1&form&b=2',
+        'a=1&form=&b=2',
+        'a=1&form=123&b=2',
+        'a=1&form&form=123',
+        'a=1&form=123&form=123',
+
+        'xform',
+        'xform=',
+        'xform=123',
+        'xform&a=1',
+        'xform=&a=1',
+        'xform=123&a=1',
+        'a=1&xform',
+        'a=1&xform=',
+        'a=1&xform=123',
+        'a=1&xform&b=2',
+        'a=1&xform=&b=2',
+        'a=1&xform=123&b=2',
+        'a=1&xform&xform=123',
+        'a=1&xform=123&xform=123',
+
+        'form=1&xform=1&form=2&xform=2&form=3&xform=3&form=4&xform=4&form=5&xform=5&form=6&xform=6&',
+
+        '%66orm=123',
+
+        'XFORM=123',
+
+        'form;a=1',
+        'form=;a=1',
+        'form=123;a=1',
+        'a=1;form',
+        'a=1;form=',
+        'a=1;form=123',
+        'a=1;form;b=2',
+        'a=1;form=;b=2',
+        'a=1;form=123;b=2',
+        'a=1;form;form=123',
+        'a=1;form=123;form=123',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 400);
+          // and
+          await assertEnketoReceivedNoRequests();
+        });
+      });
+
+      [
+        'platform=mac',
+        'form_id=99',
+        'uniform=true',
+        'a=1&deform=false&b=2',
+        'information=detailed',
+        'performance=good',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should NOT reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          await assertEnketoReceived(
+            { method:'GET', path:'/-/preview' + (pathRoot.endsWith('/') ? '/' : '') + '?' + queryString },
+          );
+        });
+      });
+    });
+  });
+
   describe('blank.html', () => {
     [
       '/blank.html',

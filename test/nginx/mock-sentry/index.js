@@ -18,6 +18,7 @@ const logErrorEvent = error => {
 };
 
 const app = express();
+app.set('case sensitive routing', true);
 app.use(express.json({
   type: [
     'application/json',
