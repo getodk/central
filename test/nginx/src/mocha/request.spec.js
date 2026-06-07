@@ -15,8 +15,8 @@ describe('request()', () => {
 
     const app = express();
     app.use((req, res, next) => {
-      const { method, originalUrl:path, headers } = req;
-      requestsReceived.push({ method, path, headers });
+      const { method, originalUrl:target, headers } = req;
+      requestsReceived.push({ method, target, headers });
       next();
     });
     app.get('/redirect-302', (req, res) => {
@@ -46,7 +46,7 @@ describe('request()', () => {
     assert.equal(res.status, 302);
     assert.equal(res.headers.get('location'), 'http://example.test/redirected');
     assert.deepEqual(stripHeaders(requestsReceived), [
-      { method:'GET', path:'/redirect-302' },
+      { method:'GET', target:'/redirect-302' },
     ]);
   });
 
@@ -62,7 +62,7 @@ describe('request()', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(stripHeaders(requestsReceived), [
-      { method:'GET', path:'/' },
+      { method:'GET', target:'/' },
     ]);
     assert.equal(requestsReceived[0].headers['host'], 'not-a-host');
   });
@@ -74,7 +74,7 @@ describe('request()', () => {
     // then
     assert.equal(res.status, 200);
     assert.deepEqual(stripHeaders(requestsReceived), [
-      { method:'GET', path:'/a/../b.html?x=1' },
+      { method:'GET', target:'/a/../b.html?x=1' },
     ]);
   });
 });
