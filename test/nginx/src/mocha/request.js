@@ -60,7 +60,6 @@ function getProtocolImplFrom(url) {
 
 /**
  * Prevent URL path normalisation.
- *
  * @see https://nodejs.org/api/http.html#httprequesturl-options-callback
  * @see https://nodejs.org/api/url.html#new-urlinput-base
  */
