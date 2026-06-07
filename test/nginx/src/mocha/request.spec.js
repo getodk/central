@@ -15,7 +15,7 @@ describe('request()', () => {
 
     const app = express();
     app.use((req, res, next) => {
-      const { method, path, headers } = req;
+      const { method, originalUrl:path, headers } = req;
       requestsReceived.push({ method, path, headers });
       next();
     });
@@ -65,6 +65,17 @@ describe('request()', () => {
       { method:'GET', path:'/' },
     ]);
     assert.equal(requestsReceived[0].headers['host'], 'not-a-host');
+  });
+
+  it('should not normalise URLs', async () => {
+    // when
+    const res = await request(`http://127.0.0.1:${port}/a/../b.html?x=1`);
+
+    // then
+    assert.equal(res.status, 200);
+    assert.deepEqual(stripHeaders(requestsReceived), [
+      { method:'GET', path:'/a/../b.html?x=1' },
+    ]);
   });
 });
 

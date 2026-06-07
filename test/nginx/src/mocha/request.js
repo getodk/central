@@ -20,7 +20,7 @@ function request(urlString, { body, ...options }={}) {
 
   return new Promise((resolve, reject) => {
     try {
-      const req = getProtocolImplFrom(url).request(url, options, res => {
+      const req = getProtocolImplFrom(url).request(options, res => {
         res.on('error', reject);
 
         const body = new Readable({ read:() => {} });
