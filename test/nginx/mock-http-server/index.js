@@ -6,6 +6,7 @@ const log = (...args) => console.log('[mock-http-server]', ...args);
 const requests = [];
 
 const app = express();
+app.set('case sensitive routing', true);
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
@@ -47,6 +48,17 @@ app.get('/v1/oidc/callback', (req, res) => {
   res.send('OK');
 });
 
+app.get('/v1/broken-stream', (req, res) => {
+  res.status(200);
+  res.write('beginning stream...', () => {
+    // Write has now flushed from NodeJS.  Give it a chance to flush
+    // from lower-level network buffer.
+    setTimeout(() => {
+       res.socket.destroy();
+    }, 50);
+  });
+});
+
 [
   'delete',
   'get',
@@ -59,6 +71,6 @@ app.get('/v1/oidc/callback', (req, res) => {
   res.send('OK');
 }));
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   log(`Listening on port: ${port}`);
 });
