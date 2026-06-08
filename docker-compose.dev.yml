@@ -11,7 +11,7 @@ services:
     profiles:
       - central
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
     environment:
       POSTGRES_USER: jubilant
       POSTGRES_PASSWORD: jubilant
@@ -39,7 +39,7 @@ services:
     profiles:
       - central
     ports:
-      - 5001:80
+      - 127.0.0.1:5001:80
   secrets:
     profiles:
       - central
@@ -61,16 +61,16 @@ services:
     extra_hosts:
     - "${DOMAIN}:host-gateway"
     ports:
-      - 8005:8005
+      - 127.0.0.1:8005:8005
   enketo_redis_main:
     profiles:
       - central
     ports:
-      - 6379:6379
+      - 127.0.0.1:6379:6379
   enketo_redis_cache:
     profiles:
       - central
     ports:
-      - 6380:6380
+      - 127.0.0.1:6380:6380
 volumes:
   dev_secrets:

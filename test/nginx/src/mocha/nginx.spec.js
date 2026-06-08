@@ -1,5 +1,4 @@
 const tls = require('node:tls');
-const { Readable } = require('stream');
 
 const {
   assert,
@@ -7,6 +6,7 @@ const {
   requestSentryMock,
   resetSentryMock,
 } = require('../lib');
+const request = require('./request');
 
 const none = `'none'`;
 const reportSample = `'report-sample'`;
@@ -609,6 +609,100 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
   });
 
+  describe('enketo query param filtering', () => {
+    [
+      '/-/preview',
+      '/-/preview/',
+      '/enketo-passthrough/preview',
+      '/enketo-passthrough/preview/',
+    ].forEach(pathRoot => {
+      [
+        'form',
+        'form=',
+        'form=123',
+        'form&a=1',
+        'form=&a=1',
+        'form=123&a=1',
+        'a=1&form',
+        'a=1&form=',
+        'a=1&form=123',
+        'a=1&form&b=2',
+        'a=1&form=&b=2',
+        'a=1&form=123&b=2',
+        'a=1&form&form=123',
+        'a=1&form=123&form=123',
+
+        'xform',
+        'xform=',
+        'xform=123',
+        'xform&a=1',
+        'xform=&a=1',
+        'xform=123&a=1',
+        'a=1&xform',
+        'a=1&xform=',
+        'a=1&xform=123',
+        'a=1&xform&b=2',
+        'a=1&xform=&b=2',
+        'a=1&xform=123&b=2',
+        'a=1&xform&xform=123',
+        'a=1&xform=123&xform=123',
+
+        'form=1&xform=1&form=2&xform=2&form=3&xform=3&form=4&xform=4&form=5&xform=5&form=6&xform=6&',
+
+        '%66orm=123',
+
+        'XFORM=123',
+
+        'form;a=1',
+        'form=;a=1',
+        'form=123;a=1',
+        'a=1;form',
+        'a=1;form=',
+        'a=1;form=123',
+        'a=1;form;b=2',
+        'a=1;form=;b=2',
+        'a=1;form=123;b=2',
+        'a=1;form;form=123',
+        'a=1;form=123;form=123',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 400);
+          // and
+          await assertEnketoReceivedNoRequests();
+        });
+      });
+
+      [
+        'platform=mac',
+        'form_id=99',
+        'uniform=true',
+        'a=1&deform=false&b=2',
+        'information=detailed',
+        'performance=good',
+      ].forEach(queryString => {
+        const path = pathRoot + '?' + queryString;
+
+        it(`should NOT reject path ${path}`, async () => {
+          // when
+          const res = await apiFetch(path);
+
+          // then
+          assert.equal(res.status, 200);
+          // and
+          await assertEnketoReceived(
+            { method:'GET', path:'/-/preview' + (pathRoot.endsWith('/') ? '/' : '') + '?' + queryString },
+          );
+        });
+      });
+    });
+  });
+
   describe('blank.html', () => {
     [
       '/blank.html',
@@ -640,6 +734,23 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     await assertBackendReceived(
       { method:'GET', path:'/v1/some/central-backend/path' },
     );
+  });
+
+  it('should detect backend stream breakages', async () => {
+    // when
+    const res = await apiFetch('/v1/broken-stream');
+    // then
+    assert.equal(res.status, 200);
+
+    try {
+      // when
+      await res.text();
+
+      assert.fail('response should have been aborted');
+    } catch(err) {
+      // then
+      if(err.code !== 'ECONNRESET') throw err;
+    }
   });
 
   it('/oidc/callback should serve Content-Security-Policy from backend', async () => {
@@ -1064,61 +1175,6 @@ function resetBackendMock() {
 async function resetMock(port) {
   const res = await request(`http://localhost:${port}/reset`);
   assert.isTrue(res.ok);
-}
-
-// Similar to fetch() but:
-//
-// 1. do not follow redirects
-// 2. allow overriding of fetch's "forbidden" headers: https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
-function request(url, { body, ...options }={}) {
-  if(!options.headers) options.headers = {};
-  if(!options.headers.host) options.headers.host = 'odk-nginx.example.test';
-
-  return new Promise((resolve, reject) => {
-    try {
-      const req = getProtocolImplFrom(url).request(url, options, res => {
-        res.on('error', reject);
-
-        const body = new Readable({ read:() => {} });
-        res.on('error', err => body.destroy(err));
-        res.on('data', data => body.push(data));
-        res.on('end', () => body.push(null));
-
-        const text = () => new Promise((resolve, reject) => {
-          const chunks = [];
-          body.on('error', reject);
-          body.on('data', data => chunks.push(data));
-          body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-        });
-
-        const status = res.statusCode;
-
-        resolve({
-          status,
-          ok: status >= 200 && status < 300,
-          statusText: res.statusText,
-          body,
-          text,
-          json: async () => JSON.parse(await text()),
-          headers: new Headers(res.headers),
-        });
-      });
-      req.on('error', reject);
-      if(body !== undefined) req.write(body);
-      req.end();
-    } catch(err) {
-      reject(err);
-    }
-  });
-}
-
-function getProtocolImplFrom(url) {
-  const { protocol } = new URL(url);
-  switch(protocol) {
-    case 'http:':  return require('node:http');
-    case 'https:': return require('node:https');
-    default: throw new Error(`Unsupported protocol: ${protocol}`);
-  }
 }
 
 function assertCacheStrategyApplied(res, expectedCacheStrategy) {

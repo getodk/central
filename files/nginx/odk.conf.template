@@ -165,6 +165,10 @@ server {
   # For that iframe to work, we'll need another path prefix (enketo-passthrough) under which we can
   # reach Enketo — this one will not be intercepted.
   location ~ ^/(?:-|enketo-passthrough)(?:/|$) {
+    if ($args ~* "(^|&|;)(x|%78|%58)?(f|%66|%46)(o|%6f|%4f)(r|%72|%52)(m|%6d|%4d)(=[^;&]*)?(&|;|$)" ) {
+      return 400;
+    }
+
     rewrite ^/enketo-passthrough(/.*)?$ /-$1 break;
     proxy_pass http://enketo:8005;
     proxy_redirect off;
