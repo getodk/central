@@ -7,6 +7,7 @@ const requests = [];
 
 const app = express();
 app.set('case sensitive routing', true);
+app.set('query parser', 'simple');
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
