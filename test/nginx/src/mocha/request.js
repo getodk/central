@@ -1,3 +1,4 @@
+const { isIPv6 } = require('node:net');
 const { Readable } = require('node:stream');
 
 module.exports = request;
@@ -12,7 +13,7 @@ function request(url, { body, ...options }={}) {
 
   return new Promise((resolve, reject) => {
     try {
-      const req = getProtocolImplFrom(url).request(url, options, res => {
+      const req = getProtocolImplFrom(url).request({ ...options, ...preserve(url) }, res => {
         res.on('error', reject);
 
         const body = new Readable({ read:() => {} });
@@ -55,4 +56,25 @@ function getProtocolImplFrom(url) {
     case 'https:': return require('node:https');
     default: throw new Error(`Unsupported protocol: ${protocol}`);
   }
+}
+
+/**
+ * Prevent URL path normalisation.
+ * @see https://nodejs.org/api/http.html#httprequesturl-options-callback
+ * @see https://nodejs.org/api/url.html#new-urlinput-base
+ */
+function preserve(urlString) {
+  const url = new URL(urlString);
+  if(url.username || url.password) throw new Error('Basic auth creds not yet supported.');
+
+  const host = safeIpv6(url.hostname);
+  const port = url.port;
+  const path = urlString.replace(/^http(s?):\/\/[^/]*/, '') || '/';
+
+  return { host, port, path };
+}
+
+function safeIpv6(hostname) {
+  const maybeV6 = hostname.replace(/^\[(.*)\]$/, (_, $1) => $1);
+  return isIPv6(maybeV6) ? maybeV6 : hostname;
 }
