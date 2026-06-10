@@ -93,7 +93,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
-    - run: ./test/check-docker-context.sh --min-size 90000 --max-size 110000 --min-count 1500 --max-count 1700
+    - run: ./test/check-docker-context.sh --min-size 15000 --max-size 25000 --min-count 1400 --max-count 1500
     - run: ./test/test-images.sh
     - if: always()
       run: docker compose logs
