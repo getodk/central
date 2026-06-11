@@ -13,9 +13,14 @@ RUN files/prebuild/build-frontend.sh
 
 
 
-# when upgrading, look for upstream changes to redirector.conf
-# also, confirm setup-odk.sh strips out HTTP-01 ACME challenge location
-FROM jonasal/nginx-certbot:6.1.0
+# When upgrading:
+#
+# 1. Use full-length tag, including nginx version.  See:
+#    * https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/dockerhub_tags.md
+#    * https://hub.docker.com/r/jonasal/nginx-certbot/tags
+# 2. Look for upstream changes to redirector.conf
+# 3. Confirm setup-odk.sh strips out HTTP-01 ACME challenge location.
+FROM jonasal/nginx-certbot:6.1.0-nginx1.29.7
 
 EXPOSE 80
 EXPOSE 443
