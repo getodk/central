@@ -2,6 +2,24 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+# Check for illegal DB_SSL environment variable.
+if ! [[ "${DB_SSL-}" = null ]]; then
+  echo "!!!"
+  echo "!!! You have the DB_SSL variable defined (in your .env file, probably)."
+  echo "!!! This variable is no longer supported from Central 2026.1 onwards."
+  echo "!!! There is a new way of configuring SSL for your database, please see:"
+  echo "!!!"
+  echo "!!!   https://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server"
+  echo "!!!"
+  echo "!!! Please refer to the Central 2026.1.0 release notes for more information on this change."
+  echo "!!!"
+  echo "!!! ODK Central backend will not start until this issue is resolved."
+  echo "!!!"
+  sleep 60 # reduce resource waste from quick restart and instant failure
+  exit 1
+fi
+unset DB_SSL
+
 # Serialize (as a raw env block) the environment set up by docker, for later
 # availability to processes running with a reset environment (such as cronjobs).
 # See https://github.com/getodk/central/issues/1747 .
