@@ -166,7 +166,6 @@ services:
     restart: always
 volumes:
   secrets:
-  transfer:
   postgres14:
   enketo_redis_main:
   enketo_redis_cache:
