@@ -35,5 +35,6 @@
         "email": "support@getodk.org"
     },
     "text field character limit": 1000000,
-    "exclude non-relevant": true
+    "exclude non-relevant": true,
+    "hide powered by": true
 }

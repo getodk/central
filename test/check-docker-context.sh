@@ -59,6 +59,13 @@ docker \
 FROM busybox
 COPY . /build-context
 WORKDIR /build-context
+
+# Ignore .git files - ideally they wouldn't be included in the Docker
+# context, but while they still are they cloud these checks because
+# their count and size can vary between branches/forks/PRs.
+# See: https://github.com/getodk/central/issues/1810
+RUN rm -rf ./.git/
+
 RUN find . -type f
 RUN du -s .
 EOF
