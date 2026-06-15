@@ -18,6 +18,7 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo > dist/favicon-16x16.png
   echo > dist/favicon-32x32.png
   echo > dist/favicon.ico
+  echo > dist/apps/forms/index.html '<div id="web-forms"></div>'
   echo > dist/site.webmanifest
 
   echo > dist/assets/actor-link-CHKNLRJ6.js
