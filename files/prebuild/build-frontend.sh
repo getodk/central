@@ -8,7 +8,7 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo "[build-frontend] Skipping frontend build."
 
   # Create minimal fake frontend to allow tests to pass:
-  mkdir dist dist/assets dist/fonts
+  mkdir dist dist/assets dist/fonts dist/apps dist/apps/forms
   echo > dist/blank.html
   echo > dist/index.html '<div id="app"></div>'
   echo > dist/android-chrome-192x192.png
@@ -17,6 +17,7 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo > dist/favicon-16x16.png
   echo > dist/favicon-32x32.png
   echo > dist/favicon.ico
+  echo > dist/apps/forms/index.html '<div id="web-forms"></div>'
   echo > dist/site.webmanifest
 
   echo > dist/assets/actor-link-CHKNLRJ6.js
