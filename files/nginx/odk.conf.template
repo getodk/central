@@ -240,6 +240,7 @@ server {
     try_files $uri $uri/ $spa_html;
 
     add_header Content-Security-Policy "$central_frontend_csp" always;
+
     include /usr/share/odk/nginx/common-headers.conf;
   }
 
