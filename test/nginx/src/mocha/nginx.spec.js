@@ -165,7 +165,7 @@ const contentSecurityPolicies = {
     }),
   },
   'web-forms': {
-    block: allowGoogleTranslate({
+    reportOnly: allowGoogleTranslate({
       'default-src': [
         reportSample,
         none,
