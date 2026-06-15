@@ -832,7 +832,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assert.equal(await res.text(), '<div id="web-forms"></div>\n');
         assertSecurityHeaders(res, { csp:'web-forms' });
       });
     });
