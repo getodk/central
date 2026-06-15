@@ -472,11 +472,14 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
     [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
     [ '/apple-touch-icon.png',       'image/png',                 /^\n$/ ],
-    [ '/f/i-am-a-form-id',           'text/html',                 /<div id="web-forms"><\/div>/ ],
     [ '/favicon.ico',                'image/x-icon',              /^\n$/ ],
     [ '/favicon-16x16.png',          'image/png',                 /^\n$/ ],
     [ '/favicon-32x32.png',          'image/png',                 /^\n$/ ],
     [ '/site.webmanifest',           'application/manifest+json', /^\n$/ ],
+
+    // fake web-forms paths
+    [ '/bypass/projects/123/forms/myform/preview',             'text/html', /<div id="root-app"><\/div>/ ],
+    [ '/static/assets/projects/5/forms/form1/submissions/new', 'text/html', /<div id="root-app"><\/div>/ ],
   ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
@@ -795,7 +798,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     assert.equal(body['x-forwarded-proto'], 'https');
   });
 
-  describe('web-forms Content-Security-Policy special handling', () => {
+  describe('web-forms', () => {
     // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
       '/projects/1/forms/some_xml_form_id/submissions/new',
@@ -816,6 +819,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/projects/1/forms/some_xml_form_id/draft/preview/',
       '/f/anything',
       '/f/anything/',
+      '/f/i-am-a-webform',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
 
@@ -826,8 +830,17 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // longer project id, shorter form ID
       '/projects/99999/forms/_/submissions/new',
       '/projects/99999/forms/_/submissions/new/',
+
+      // query params on project paths
+      //'/projects/123/forms/form_abc/preview?version=2',
+      //'/projects/5/forms/xyz/submissions/new?source=mobile',
+      //'/projects/99/forms/abc/submissions/new/offline?status=pending',
+      //'/projects/1/forms/f/draft/preview?test=true',
+      //'/projects/123/forms/abc/submissions/xyz/edit/',
+      //'/projects/123/forms/abc/preview//',
+      //'/projects/123/forms/abc/draft/preview?token=xyz',
     ].forEach(path => {
-      it.only(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
+      it(`should serve specific HTML and Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
         const res = await apiFetch(path);
 
