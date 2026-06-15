@@ -869,6 +869,10 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // all /f/* should be valid
       '/f',
       '/f/',
+
+      // look like web-forms paths, but have unexpected prefixes
+      '/bypass/projects/123/forms/myform/preview',
+      '/static/assets/projects/5/forms/form1/submissions/new',
     ].forEach(path => {
       it(`should serve standard frontend Content Security Policy for fake webforms path: ${path}`, async () => {
         // when
