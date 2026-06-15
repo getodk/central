@@ -47,7 +47,6 @@ services:
       - enketo
     volumes:
       - secrets:/etc/secrets
-      - /data/transfer:/data/transfer
     env_file:
       - ".env"
     environment:
