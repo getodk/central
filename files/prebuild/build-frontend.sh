@@ -14,7 +14,6 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo > dist/android-chrome-192x192.png
   echo > dist/android-chrome-512x512.png
   echo > dist/apple-touch-icon.png
-  echo > dist/apps/forms/index.html '<div id="web-forms"></div>'
   echo > dist/favicon-16x16.png
   echo > dist/favicon-32x32.png
   echo > dist/favicon.ico
