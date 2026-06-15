@@ -8,7 +8,6 @@ RUN apt-get update \
 COPY ./ ./
 RUN files/prebuild/write-version.sh
 
-ARG NODE_OPTIONS="--max-old-space-size=4096"
 ARG SKIP_FRONTEND_BUILD
 RUN files/prebuild/build-frontend.sh
 
