@@ -224,9 +224,13 @@ server {
   #   - /projects/123/forms/abc/preview
   #   - /projects/123/forms/abc/submissions/new
   #   - /projects/123/forms/abc/submissions/{id}/edit
-  location ~ ^/(f/[^/]+(/.*)?|projects/\d+/forms/[^/]+/((draft/)?(preview|submissions/new(/offline)?)|submissions/[^/]+/edit)(/)?)(\?.*)?$ {
+  location ~ ^/f/.+|/projects/\d+/forms/[^/]+(?:/draft)?(?:/preview|/submissions/new(?:/offline)?/?|/submissions/[^/]+/edit)/?$ {
     root /usr/share/nginx/html;
     try_files $uri $uri/ /apps/forms/index.html;
+
+    add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
+
+    include /usr/share/odk/nginx/common-headers.conf;
   }
 
   # central-frontend
