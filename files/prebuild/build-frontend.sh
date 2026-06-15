@@ -43,5 +43,5 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   exit
 else
   npm clean-install --no-audit --fund=false --update-notifier=false
-  NODE_OPTIONS="--max-old-space-size=4096" npm run build
+  NODE_OPTIONS="--max-old-space-size=2048" npm run build
 fi
