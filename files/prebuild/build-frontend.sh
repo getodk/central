@@ -10,7 +10,7 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   # Create minimal fake frontend to allow tests to pass:
   mkdir dist dist/assets dist/fonts dist/apps dist/apps/forms
   echo > dist/blank.html
-  echo > dist/index.html '<div id="root-app"></div>'
+  echo > dist/index.html '<div id="app"></div>'
   echo > dist/android-chrome-192x192.png
   echo > dist/android-chrome-512x512.png
   echo > dist/apple-touch-icon.png

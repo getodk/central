@@ -467,7 +467,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',                 'text/html',                 /<div id="root-app"><\/div>/ ],
+    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
     [ '/version.txt',                'text/plain',                /^versions:/ ],
     [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
     [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
@@ -478,8 +478,8 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     [ '/site.webmanifest',           'application/manifest+json', /^\n$/ ],
 
     // fake web-forms paths
-    [ '/bypass/projects/123/forms/myform/preview',             'text/html', /<div id="root-app"><\/div>/ ],
-    [ '/static/assets/projects/5/forms/form1/submissions/new', 'text/html', /<div id="root-app"><\/div>/ ],
+    [ '/bypass/projects/123/forms/myform/preview',             'text/html', /<div id="app"><\/div>/ ],
+    [ '/static/assets/projects/5/forms/form1/submissions/new', 'text/html', /<div id="app"><\/div>/ ],
   ].forEach(([ path, expectedContentType, expectedContent ]) => {
     it(`${path} file should serve expected content`, async () => {
       // when
@@ -527,7 +527,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
       // then
       assert.equal(res.status, 200);
-      assert.equal(await res.text(), '<div id="root-app"></div>\n');
+      assert.equal(await res.text(), '<div id="app"></div>\n');
       assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
@@ -890,7 +890,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="root-app"></div>\n');
+        assert.equal(await res.text(), '<div id="app"></div>\n');
         assertSecurityHeaders(res, { csp:'central-frontend' });
       });
     });
