@@ -467,11 +467,12 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
+    [ '/index.html',                 'text/html',                 /<div id="root-app"><\/div>/ ],
     [ '/version.txt',                'text/plain',                /^versions:/ ],
     [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
     [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
     [ '/apple-touch-icon.png',       'image/png',                 /^\n$/ ],
+    [ '/f/i-am-a-form-id',           'text/html',                 /<div id="web-forms"><\/div>/ ],
     [ '/favicon.ico',                'image/x-icon',              /^\n$/ ],
     [ '/favicon-16x16.png',          'image/png',                 /^\n$/ ],
     [ '/favicon-32x32.png',          'image/png',                 /^\n$/ ],
@@ -523,7 +524,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
       // then
       assert.equal(res.status, 200);
-      assert.equal(await res.text(), '<div id="app"></div>\n');
+      assert.equal(await res.text(), '<div id="root-app"></div>\n');
       assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
@@ -826,13 +827,13 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/projects/99999/forms/_/submissions/new',
       '/projects/99999/forms/_/submissions/new/',
     ].forEach(path => {
-      it(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
+      it.only(`should add specific Content Security Policy restrictions for webforms path: ${path}`, async () => {
         // when
         const res = await apiFetch(path);
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assert.equal(await res.text(), '<div id="web-forms"></div>\n');
         assertSecurityHeaders(res, { csp:'web-forms' });
       });
     });
@@ -876,7 +877,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assert.equal(await res.text(), '<div id="root-app"></div>\n');
         assertSecurityHeaders(res, { csp:'central-frontend' });
       });
     });
