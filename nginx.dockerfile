@@ -8,11 +8,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./ ./
+
+ARG FRONTEND_VERSION
 RUN files/prebuild/write-version.sh
 
 ARG SKIP_FRONTEND_BUILD
 ARG FRONTEND_REPO=getodk/frontend
-ARG FRONTEND_VERSION
 RUN files/prebuild/build-frontend.sh
 
 

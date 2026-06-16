@@ -2,8 +2,10 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+log() { echo >&2 "[build-frontend] $*"; }
+
 if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
-  echo "[build-frontend] Skipping frontend build."
+  log "Skipping frontend build."
 
   # Create minimal fake frontend to allow tests to pass:
   mkdir dist dist/assets dist/fonts dist/apps dist/apps/forms
@@ -40,6 +42,30 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
 
   exit
 else
-  curl --location "https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/dist-$FRONTEND_VERSION.tar.gz" -o dist.tar.gz
-  tar --extract --file dist.tar.gz
+  filename="dist-$FRONTEND_VERSION.tar.gz"
+  releaseMetadataUrl="https://api.github.com/repos/$FRONTEND_REPO/releases/tags/$FRONTEND_VERSION"
+
+  log "Fetching release information from $releaseMetadataUrl ..."
+  expectedShaSum="$(
+    node -e "
+      const res = await fetch('$releaseMetadataUrl');
+      const body = await res.json();
+      const { assets } = body;
+      const { digest } = assets.find(a => a.name === '$filename');
+      const [ , sha256sum ] = digest.split(':', 2);
+      console.log(sha256sum);
+    "
+  )"
+
+  artifactUrl="https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/$filename"
+  log "Fetching release artifact from $artifactUrl ..."
+  curl --location "$artifactUrl" -o "$filename"
+
+  log "Checking download hash..."
+  echo "$expectedShaSum $filename" | sha256sum --check
+
+  log "Extracting dist bundle..."
+  tar --extract --file "$filename"
 fi
+
+log "Completed OK."
