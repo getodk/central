@@ -795,7 +795,6 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   describe('web-forms Content-Security-Policy special handling', () => {
-    // See https://github.com/getodk/central/pull/1467 for relevant paths
     [
       '/projects/1/forms/some_xml_form_id/submissions/new',
       '/projects/1/forms/some_xml_form_id/submissions/new/',
