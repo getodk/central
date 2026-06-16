@@ -11,24 +11,11 @@ not_rel() {
 }
 
 check_submodules() {
-  local actualClientSubmodule
   local actualServerSubmodule
 
-  actualClientSubmodule="$(git config --file .gitmodules --get submodule.client.url)"
   actualServerSubmodule="$(git config --file .gitmodules --get submodule.server.url)"
 
-  local expectedClientSubmodule=https://github.com/getodk/central-frontend.git
   local expectedServerSubmodule=https://github.com/getodk/central-backend.git
-
-  if ! [[ "$actualClientSubmodule" = "$expectedClientSubmodule" ]]; then
-    log "!!!"
-    log "!!! client submodule is pointing to unexpected repo:"
-    log "!!!"
-    log "!!!       actual: $actualClientSubmodule"
-    log "!!!     expected: $expectedClientSubmodule"
-    log "!!!"
-    exit 1
-  fi
 
   if ! [[ "$actualServerSubmodule" = "$expectedServerSubmodule" ]]; then
     log "!!!"
