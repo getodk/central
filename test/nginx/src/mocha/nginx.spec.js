@@ -593,7 +593,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     '/-/preview',
     '/-/edit/enketoid',
   ].forEach(path => {
-    it(`should not redirect ${path}`, async () => {
+    it(`should not redirect ${path} to central-frontend`, async () => {
       // when
       const res = await apiFetch(path);
 
