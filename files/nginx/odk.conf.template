@@ -225,7 +225,7 @@ server {
   #   - /projects/123/forms/abc/submissions/new
   #   - /projects/123/forms/abc/submissions/{id}/edit
   location ~ ^/f/.+|/projects/\d+/forms/[^/]+(?:/draft)?(?:/preview|/submissions/new(?:/offline)?/?|/submissions/[^/]+/edit)/?$ {
-    try_files $uri $uri/ /apps/forms/index.html;
+    try_files $uri /apps/forms/index.html;
   }
 
   # central-frontend
