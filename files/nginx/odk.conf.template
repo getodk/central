@@ -85,23 +85,23 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
-map $request_uri $is_web_form {
+map $request_uri $spa_name {
   # Web Forms CSP for /f/... and /projects/.../forms/... routes
   ~^/(?:f/[^/]+(?:/.*)?|projects/\d+/forms/[^/]+/(?:(?:draft/)?(?:preview|submissions/new(?:/offline)?)|submissions/[^/]+/edit)(?:/)?)(?:\?.*)?$
-    1;
+    web-forms;
   default
-    0;
+    root-app;
 }
-map $is_web_form $spa_html {
-  1       "/apps/forms/index.html";
-  default "/index.html";
+map $spa_name $spa_html {
+  web-forms "/apps/forms/index.html";
+  default   "/index.html";
 }
 # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
 # Note: using $request_uri here remains safe while percent-encodings are not
 # normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
-map $is_web_form $central_frontend_csp {
+map $spa_name $spa_csp {
   # Web Forms CSP for /f/... and /projects/.../forms/... routes
-  1
+  web-forms
     "default-src 'report-sample' 'none'; connect-src 'self' https:; font-src 'self' data:; form-action 'self'; frame-ancestors 'self'; frame-src 'self' https://getodk.github.io/central/; img-src blob: data: https:; manifest-src 'self'; media-src blob:; object-src 'none'; script-src 'report-sample' 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'report-sample' blob: data:; report-uri /csp-report";
 
   default
@@ -231,7 +231,7 @@ server {
     root /usr/share/nginx/html;
     try_files $uri $uri/ $spa_html;
 
-    add_header Content-Security-Policy "$central_frontend_csp" always;
+    add_header Content-Security-Policy "$spa_csp" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
