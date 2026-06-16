@@ -226,15 +226,6 @@ server {
     try_files $uri @blank.html;
   }
 
-  location /apps/forms/ {
-    root /usr/share/nginx/html;
-    index index.html;
-
-    add_header Content-Security-Policy "$central_frontend_csp" always;
-
-    include /usr/share/odk/nginx/common-headers.conf;
-  }
-
   # central-frontend
   location / {
     root /usr/share/nginx/html;
