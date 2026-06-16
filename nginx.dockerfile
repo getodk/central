@@ -2,6 +2,8 @@ FROM node:24.14.1-slim AS intermediate
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
         git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -9,6 +11,8 @@ COPY ./ ./
 RUN files/prebuild/write-version.sh
 
 ARG SKIP_FRONTEND_BUILD
+ARG FRONTEND_REPO=getodk/frontend
+ARG FRONTEND_VERSION
 RUN files/prebuild/build-frontend.sh
 
 
@@ -39,7 +43,7 @@ COPY files/nginx/setup-odk.sh \
 COPY files/nginx/redirector.conf /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
 COPY files/nginx/robots.txt /usr/share/nginx/html
-COPY --from=intermediate client/dist/ /usr/share/nginx/html
+COPY --from=intermediate dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
 
 ENTRYPOINT [ "/scripts/setup-odk.sh" ]

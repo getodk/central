@@ -2,8 +2,6 @@
 set -o pipefail
 shopt -s inherit_errexit
 
-cd client
-
 if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
   echo "[build-frontend] Skipping frontend build."
 
@@ -42,6 +40,6 @@ if [[ ${SKIP_FRONTEND_BUILD-} != "" ]]; then
 
   exit
 else
-  npm clean-install --no-audit --fund=false --update-notifier=false
-  NODE_OPTIONS="--max-old-space-size=2048" npm run build
+  curl --location "https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/dist-$FRONTEND_VERSION.tar.gz" -o dist.tar.gz
+  tar --extract --file dist.tar.gz
 fi

@@ -95,6 +95,9 @@ services:
     build:
       context: .
       dockerfile: nginx.dockerfile
+      args:
+        FRONTEND_REPO: alxndrsn/odk-central-frontend
+        FRONTEND_VERSION: v0.0.0-oidjfroifgjroijgfoijdg
     depends_on:
       - service
       - enketo
