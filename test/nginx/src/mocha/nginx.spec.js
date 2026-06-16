@@ -164,7 +164,7 @@ const contentSecurityPolicies = {
       'report-uri': '/csp-report',
     }),
   },
-  'web-forms': {
+  'form-wrapper': { // web-forms, and the enketo iframe owner
     block: allowGoogleTranslate({
       'default-src': [
         reportSample,
@@ -181,7 +181,7 @@ const contentSecurityPolicies = {
       'form-action': self,
       'frame-ancestors': self,
       'frame-src': [
-        self, // web-forms pages also host /enketo-passthrough/ URLs via iframes
+        self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
         centralNotifications,
       ],
       'img-src': [
@@ -467,7 +467,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   [
-    [ '/index.html',                 'text/html',                 /<div id="app"><\/div>/ ],
+    [ '/index.html',                 'text/html',                 /<div id="root-app"><\/div>/ ],
     [ '/version.txt',                'text/plain',                /^versions:/ ],
     [ '/android-chrome-192x192.png', 'image/png',                 /^\n$/ ],
     [ '/android-chrome-512x512.png', 'image/png',                 /^\n$/ ],
@@ -523,7 +523,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
       // then
       assert.equal(res.status, 200);
-      assert.equal(await res.text(), '<div id="app"></div>\n');
+      assert.equal(await res.text(), '<div id="root-app"></div>\n');
       assertSecurityHeaders(res, { csp:'central-frontend' });
 
       // and
@@ -572,7 +572,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       expected: `f/${enketoId}?st=${sessionToken}&single=false` },
   ];
   enketoRedirectTestData.forEach(t => {
-    it('should redirect old enketo links to central-frontend; ' + t.description, async () => {
+    it('should redirect old enketo links to forms-wrapper; ' + t.description, async () => {
       // when
       const res = await apiFetch(t.request);
 
@@ -831,8 +831,8 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="web-forms"></div>\n');
-        assertSecurityHeaders(res, { csp:'web-forms' });
+        assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
+        assertSecurityHeaders(res, { csp:'form-wrapper' });
       });
     });
 
@@ -879,7 +879,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // then
         assert.equal(res.status, 200);
-        assert.equal(await res.text(), '<div id="app"></div>\n');
+        assert.equal(await res.text(), '<div id="root-app"></div>\n');
         assertSecurityHeaders(res, { csp:'central-frontend' });
       });
     });

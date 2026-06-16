@@ -85,12 +85,23 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
-# Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
 # Note: using $request_uri here remains safe while percent-encodings are not
 # normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
-map $request_uri $central_frontend_csp {
-  # Web Forms CSP for /f/... and /projects/.../forms/... routes
+map $request_uri $spa_name {
+  # form routes: approximately /f/... and /projects/.../forms/...
   ~^/(?:f/[^/]+(?:/.*)?|projects/\d+/forms/[^/]+/(?:(?:draft/)?(?:preview|submissions/new(?:/offline)?)|submissions/[^/]+/edit)(?:/)?)(?:\?.*)?$
+    form-wrapper;
+  default
+    root-app;
+}
+map $spa_name $spa_html {
+  form-wrapper "/apps/forms/index.html";
+  default      "/index.html";
+}
+map $spa_name $spa_csp {
+  # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
+
+  form-wrapper
     "default-src 'report-sample' 'none'; connect-src 'self' https:; font-src 'self' data:; form-action 'self'; frame-ancestors 'self'; frame-src 'self' https://getodk.github.io/central/; img-src blob: data: https:; manifest-src 'self'; media-src blob:; object-src 'none'; script-src 'report-sample' 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'report-sample' blob: data:; report-uri /csp-report";
 
   default
@@ -215,25 +226,12 @@ server {
     try_files $uri @blank.html;
   }
 
-  # Handle requests for the Forms app
-  # The first part of the regex matches public link paths and Enketo style paths, eg:
-  #   - /f/sCTIfjC5LrUto4yVXRYJkNKzP7e53vo?st=8T2mGshoNDbmWCUV7yd6qsYeojHrJSxih6EO3tJq5zVbJFHOx6ZLhif!$RUdmCHT
-  # The second part matches the restful paths, eg:
-  #   - /projects/123/forms/abc
-  #   - /projects/123/forms/abc/draft
-  #   - /projects/123/forms/abc/preview
-  #   - /projects/123/forms/abc/submissions/new
-  #   - /projects/123/forms/abc/submissions/{id}/edit
-  location ~ ^/f/.+|/projects/\d+/forms/[^/]+(?:/draft)?(?:/preview|/submissions/new(?:/offline)?/?|/submissions/[^/]+/edit)/?$ {
-    try_files $uri /apps/forms/index.html;
-  }
-
   # central-frontend
   location / {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ /index.html;
+    try_files $uri $uri/ $spa_html;
 
-    add_header Content-Security-Policy "$central_frontend_csp" always;
+    add_header Content-Security-Policy "$spa_csp" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
   }
