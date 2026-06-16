@@ -2,6 +2,10 @@ name: Test, Build, Publish
 
 on:
   push:
+    branches:
+    - '**'
+    tags:
+    - 'v**'
   pull_request:
   workflow_dispatch:
     inputs:
@@ -112,7 +116,13 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [nginx, service]
+        image:
+        - postgres14
+        - postgres
+        - service
+        - nginx
+        - secrets
+        - enketo
     env:
       REGISTRY: ghcr.io
     steps:
@@ -144,11 +154,12 @@ jobs:
       uses: docker/setup-buildx-action@v4
 
     - name: Build and push ${{ matrix.image }} Docker image
-      uses: docker/build-push-action@v7
+      uses: docker/bake-action@v7
       with:
-        file: ${{ matrix.image }}.dockerfile
-        context: .
+        files: docker-compose.yml
+        targets: ${{ matrix.image }}
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        platforms: 'linux/amd64,linux/arm64'
+        set: |
+          *.labels=${{ steps.meta.outputs.labels }}
+          *.tags=${{ steps.meta.outputs.tags }}
+          *.platform=linux/amd64,linux/arm64

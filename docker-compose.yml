@@ -1,8 +1,6 @@
 services:
   postgres14:
-    build:
-      context: .
-      dockerfile: postgres14.dockerfile
+    image: 'ghcr.io/getodk/central-postgres14:v0.0.1-testing-3'
     shm_size: 512m
     volumes:
       - postgres14:/var/lib/odk/postgresql/14
@@ -14,9 +12,7 @@ services:
   postgres:
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
-    build:
-      context: .
-      dockerfile: postgres-upgrade.dockerfile
+    image: 'ghcr.io/getodk/central-postgres:v0.0.1-testing-3'
     platform: linux/amd64
     volumes:
       - /var/lib/postgresql/data
@@ -36,9 +32,7 @@ services:
       - DKIM_KEY_PATH=/etc/exim4/dkim.key.temp
     restart: always
   service:
-    build:
-      context: .
-      dockerfile: service.dockerfile
+    image: 'ghcr.io/getodk/central-service:v0.0.1-testing-3'
     depends_on:
       - secrets
       - postgres14
@@ -92,9 +86,7 @@ services:
     logging:
       driver: local
   nginx:
-    build:
-      context: .
-      dockerfile: nginx.dockerfile
+    image: 'ghcr.io/getodk/central-nginx:v0.0.1-testing-3'
     depends_on:
       - service
       - enketo
@@ -124,18 +116,14 @@ services:
     image: 'ghcr.io/getodk/pyxform-http:v4.4.1'
     restart: always
   secrets:
+    image: 'ghcr.io/getodk/central-secrets:v0.0.1-testing-3'
     volumes:
       - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: secrets.dockerfile
     command: './generate-secrets.sh'
   enketo:
+    image: 'ghcr.io/getodk/central-enketo:v0.0.1-testing-3'
     volumes:
       - secrets:/etc/secrets
-    build:
-      context: .
-      dockerfile: enketo.dockerfile
     restart: always
     depends_on:
       - secrets

@@ -1,0 +1,19 @@
+services:
+  postgres14:
+    build:
+      dockerfile: postgres14.dockerfile
+  postgres:
+    build:
+      dockerfile: postgres-upgrade.dockerfile
+  service:
+    build:
+      dockerfile: service.dockerfile
+  nginx:
+    build:
+      dockerfile: nginx.dockerfile
+  secrets:
+    build:
+      dockerfile: secrets.dockerfile
+  enketo:
+    build:
+      dockerfile: enketo.dockerfile
