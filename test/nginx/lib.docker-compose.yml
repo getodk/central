@@ -5,6 +5,7 @@ services:
       dockerfile: nginx.dockerfile
       args:
         SKIP_FRONTEND_BUILD: true
+        FRONTEND_VERSION: v0.0.0
     depends_on:
       - service
       - enketo
