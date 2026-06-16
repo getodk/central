@@ -47,13 +47,13 @@ docker buildx rm docker_context_checker || true
 docker buildx create --name docker_context_checker \
     --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1 \
     --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=-1
-docker buildx use docker_context_checker
 
 log "Building docker image..."
 iidfile="$(mktemp)"
 (
 docker \
     buildx build --load \
+    --builder docker_context_checker \
     --iidfile "$iidfile" \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
