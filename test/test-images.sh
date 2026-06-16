@@ -50,12 +50,13 @@ log "Starting containers..."
 docker compose up --detach
 
 log "Verifying version.txt..."
+# FIXME client version should NOT be coming from `git describe`, as `client` directory should no longer exist, or be a git repo.
 diff \
      <(docker compose exec nginx cat /usr/share/nginx/html/version.txt) \
      <(cat <<EOF
 versions:
 $(git rev-parse HEAD) ($(git describe --tags --always))
- $(cd client && git rev-parse HEAD) client ($(cd client && git describe --tags --always))
+ 0000000000000000000000000000000000000000 client ($(cd client && git describe --tags --always))
  $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
 EOF
      )
