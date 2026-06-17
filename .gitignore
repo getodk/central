@@ -2,6 +2,7 @@
 *.swp
 *.swo
 /.env
+/client/
 /docker-compose.override.yml
 /version.txt
 

@@ -1,20 +1,47 @@
-FROM node:24.14.1-slim AS intermediate
+ARG FRONTEND_BUILD_MODE
 
+FROM node:24.14.1-slim AS intermediate-classic
+ARG FRONTEND_BUILD_MODE
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
         git \
     && rm -rf /var/lib/apt/lists/*
-
 COPY ./ ./
+RUN files/prebuild/write-version-classic.sh
+RUN files/prebuild/build-frontend-classic.sh
 
+
+
+FROM node:24.14.1-slim AS intermediate-test
+ARG FRONTEND_BUILD_MODE
 ARG FRONTEND_VERSION
-RUN files/prebuild/write-version.sh
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+    && rm -rf /var/lib/apt/lists/*
+COPY ./ ./
+RUN files/prebuild/write-version-fetch.sh
+COPY test/nginx/src/mock-frontend/dist/ ./dist/
+RUN files/prebuild/build-frontend-classic.sh
 
-ARG SKIP_FRONTEND_BUILD
+
+
+FROM node:24.14.1-slim AS intermediate-fetch
+ARG FRONTEND_VERSION
 ARG FRONTEND_REPO=getodk/frontend
-RUN files/prebuild/build-frontend.sh
+RUN apt-get update \
+		&& apt-get install -y --no-install-recommends \
+				ca-certificates \
+				curl \
+				git \
+		&& rm -rf /var/lib/apt/lists/*
+COPY ./ ./
+RUN files/prebuild/write-version-fetch.sh
+RUN files/prebuild/fetch-frontend.sh
+
+
+
+FROM intermediate-${FRONTEND_BUILD_MODE} AS intermediate
 
 
 
