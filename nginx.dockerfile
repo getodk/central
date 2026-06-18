@@ -9,6 +9,7 @@ COPY ./ ./
 RUN files/prebuild/write-version.sh
 
 ARG SKIP_FRONTEND_BUILD
+ARG ODK_CENTRAL_FRONTEND_SENTRY_DSN
 RUN files/prebuild/build-frontend.sh
 
 
