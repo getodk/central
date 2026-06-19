@@ -2,6 +2,10 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+log() {
+  echo >&2 "[write-version] $*"
+}
+
 print_version() {
   printf ' %s %s (%s)\n' "$1" "$2" "$3"
 }
@@ -22,11 +26,19 @@ git_version() {
   if [[ "$FRONTEND_BUILD_MODE" = fetch ]] || [[ "$FRONTEND_BUILD_MODE" = test ]]; then
     print_version 0000000000000000000000000000000000000000 client "$FRONTEND_VERSION"
   elif [[ "$FRONTEND_BUILD_MODE" = source ]]; then
+    if ! [[ -d ./client/.git ]]; then
+      log "!!!"
+      log "!!! No frontend git repository found at ./client/.git"
+      log "!!!"
+      log "!!! Make sure this directory is present, or change FRONTEND_BUILD_MODE."
+      log "!!!"
+      exit 1
+    fi
     git_version client
   else
-    echo >&2 "!!!"
-    echo >&2 "!!! Unrecognised FRONTEND_BUILD_MODE: '$FRONTEND_BUILD_MODE'"
-    echo >&2 "!!!"
+    log "!!!"
+    log "!!! Unrecognised FRONTEND_BUILD_MODE: '$FRONTEND_BUILD_MODE'"
+    log "!!!"
     exit 1
   fi
 
