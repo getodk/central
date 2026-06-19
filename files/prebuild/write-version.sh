@@ -34,6 +34,7 @@ git_version() {
       log "!!!"
       exit 1
     fi
+
     git_version client
   else
     log "!!!"
