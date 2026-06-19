@@ -94,7 +94,8 @@ jobs:
         fetch-tags: true
         submodules: recursive
     - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 600 --max-count 700
-    - run: ./test/test-images.sh
+    - run: ./test/test-images.sh FRONTEND_BUILD_MODE=fetch
+    - run: ./test/test-images.sh FRONTEND_BUILD_MODE=source
     - if: always()
       run: docker compose logs
   build-push-image:
