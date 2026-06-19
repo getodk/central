@@ -43,14 +43,13 @@ To learn how to run such a stack in production, please take a look at [our Digit
 
 ### Sentry (optional)
 
-To enable frontend error reporting and performance monitoring via Sentry, set `ODK_CENTRAL_FRONTEND_SENTRY_DSN` in your `.env` file (see `.env.template`) and rebuild:
+To enable frontend error reporting and performance monitoring via Sentry, set `ODK_CENTRAL_FRONTEND_SENTRY_DSN` in your `.env` file (see `.env.template`) and restart:
 
 ```sh
-docker compose build
 docker compose up -d
 ```
 
-The DSN is embedded into the frontend bundle at build time by Vite. Deployments that omit this variable are unaffected — Sentry will remain disabled.
+Deployments that omit this variable are unaffected — Sentry will remain disabled.
 
 ## Node.js version
 

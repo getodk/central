@@ -95,8 +95,6 @@ services:
     build:
       context: .
       dockerfile: nginx.dockerfile
-      args:
-        ODK_CENTRAL_FRONTEND_SENTRY_DSN: ${ODK_CENTRAL_FRONTEND_SENTRY_DSN:-}
     depends_on:
       - service
       - enketo
@@ -108,6 +106,7 @@ services:
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
       - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - ODK_CENTRAL_FRONTEND_SENTRY_DSN=${ODK_CENTRAL_FRONTEND_SENTRY_DSN:-}
     volumes:
       - ./files/local/customssl/:/etc/customssl/live/local/:ro
       - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
