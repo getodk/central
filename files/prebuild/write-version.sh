@@ -3,7 +3,7 @@ set -o pipefail
 shopt -s inherit_errexit
 
 print_version() {
-  echo ' %s %s (%s)\n' "$1" "$2" "$3"
+  printf ' %s %s (%s)\n' "$1" "$2" "$3"
 }
 
 git_version() {
