@@ -55,7 +55,7 @@ diff \
      <(cat <<EOF
 versions:
 $(git rev-parse HEAD) ($(git describe --tags --always))
- 0000000000000000000000000000000000000000 client ($(grep FRONTEND_VERSION docker-compose.yml | cut -d: -f2 | tr -d ' '))
+ 0000000000000000000000000000000000000000 client ($(grep FRONTEND_VERSION docker-compose.yml | sed -E 's/.*\$\{FRONTEND_VERSION:-(.*)\}/\1/'))
  $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
 EOF
      )
