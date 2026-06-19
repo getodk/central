@@ -39,7 +39,7 @@ if [[ $FRONTEND_BUILD_MODE = test ]]; then
   }
 
   generateFile 10k-file.txt 10240
-elif [[ $FRONTEND_BUILD_MODE = classic ]]; then
+elif [[ $FRONTEND_BUILD_MODE = source ]]; then
   log "Building frontend from source..."
 
   if ! [[ -d client ]]; then

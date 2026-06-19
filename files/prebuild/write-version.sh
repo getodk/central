@@ -21,7 +21,7 @@ git_version() {
 
   if [[ "$FRONTEND_BUILD_MODE" = fetch ]] || [[ "$FRONTEND_BUILD_MODE" = test ]]; then
     print_version 0000000000000000000000000000000000000000 client "$FRONTEND_VERSION"
-  elif [[ "$FRONTEND_BUILD_MODE" = classic ]]; then
+  elif [[ "$FRONTEND_BUILD_MODE" = source ]]; then
     git_version client
   else
     echo >&2 "!!!"
