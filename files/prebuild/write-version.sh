@@ -8,11 +8,11 @@ print_version() {
 
 git_version() {
   local path="$1"
-  cd "$path"
+  pushd "$path" >/dev/null
   commit="$(git rev-parse HEAD)"
   tag="$(git describe --tags --always)"
   print_version "$commit" "$path" "$tag"
-  cd -
+  popd >/dev/null
 }
 
 {
