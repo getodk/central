@@ -50,12 +50,21 @@ log "Starting containers..."
 docker compose up --detach
 
 log "Verifying version.txt..."
+case "$FRONTEND_BUILD_MODE" in
+  source)     expectedClientHash="$(   cd client && git rev-parse HEAD)"
+              expectedClientVersion="$(cd client && git describe --tags --always)"
+              ;;
+  fetch|test) expectedClientHash="0000000000000000000000000000000000000000"
+              expectedClientVersion="$(grep FRONTEND_VERSION docker-compose.yml | sed -E 's/.*\$\{FRONTEND_VERSION:-(.*)\}/\1/')"
+              ;;
+  *) exit 1
+esac
 diff \
      <(docker compose exec nginx cat /usr/share/nginx/html/version.txt) \
      <(cat <<EOF
 versions:
 $(git rev-parse HEAD) ($(git describe --tags --always))
- 0000000000000000000000000000000000000000 client ($(grep FRONTEND_VERSION docker-compose.yml | sed -E 's/.*\$\{FRONTEND_VERSION:-(.*)\}/\1/'))
+ $expectedClientHash client ($expectedClientVersion)
  $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
 EOF
      )
