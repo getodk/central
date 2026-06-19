@@ -7,7 +7,27 @@ log() { echo >&2 "[build-frontend] $*"; }
 if [[ $FRONTEND_BUILD_MODE = test ]]; then
   log "Skipping frontend build."
 
-  # TODO revert old echo generators!
+  # Create minimal fake frontend to allow tests to pass:
+  mkdir dist dist/assets dist/fonts dist/apps dist/apps/forms
+  echo > dist/blank.html
+  echo > dist/index.html '<div id="root-app"></div>'
+  echo > dist/android-chrome-192x192.png
+  echo > dist/android-chrome-512x512.png
+  echo > dist/apple-touch-icon.png
+  echo > dist/favicon-16x16.png
+  echo > dist/favicon-32x32.png
+  echo > dist/favicon.ico
+  echo > dist/apps/forms/index.html '<div id="form-wrapper"></div>'
+  echo > dist/site.webmanifest
+  
+  echo > dist/assets/actor-link-CHKNLRJ6.js
+  echo > dist/assets/branch-data-NQSuaxke.js
+  echo > dist/assets/breadcrumbs-P9Q8Sr8V.js
+  echo > dist/assets/chunky-array-CWqL2QBf.js
+  echo > dist/assets/style-BAOwY-Kl.css
+  echo > dist/assets/who-va@2x-KiG_UkDd.jpg
+  echo > dist/assets/socio-economic@2x-DT8M7CaZ.jpg
+  echo > dist/fonts/icomoon.ttf
 
   generateFile() {
     local name="$1"
