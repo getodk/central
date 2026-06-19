@@ -43,7 +43,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
 touch ./files/allow-postgres14-upgrade
 
-log "Building docker containers..."
+log "Building docker containers (FRONTEND_BUILD_MODE='${FRONTEND_BUILD_MODE-}')..."
 docker compose build --build-arg "FRONTEND_BUILD_MODE=$FRONTEND_BUILD_MODE"
 
 log "Starting containers..."
