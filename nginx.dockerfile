@@ -1,14 +1,18 @@
 FROM node:24.14.1-slim AS intermediate
+
 ARG FRONTEND_BUILD_MODE
 ARG FRONTEND_VERSION
 ARG FRONTEND_REPO=getodk/frontend
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         git \
     && rm -rf /var/lib/apt/lists/*
+
 COPY ./ ./
+
 RUN files/prebuild/write-version.sh
 RUN files/prebuild/build-frontend.sh
 
