@@ -39,8 +39,6 @@ if [[ $FRONTEND_BUILD_MODE = test ]]; then
   }
 
   generateFile 10k-file.txt 10240
-
-  exit
 elif [[ $FRONTEND_BUILD_MODE = classic ]]; then
   log "Building frontend from source..."
 
@@ -60,13 +58,13 @@ elif [[ $FRONTEND_BUILD_MODE = classic ]]; then
     log "!!!"
     exit 1
   fi
+
   cd client
 
   npm clean-install --no-audit --fund=false --update-notifier=false
   NODE_OPTIONS="--max-old-space-size=2048" npm run build
-  log "Built OK."
 
-  exit
+  mv dist ..
 elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
   log "Fetching pre-built frontend..."
 
