@@ -98,7 +98,7 @@ jobs:
 
     - run: FRONTEND_BUILD_MODE=fetch ./test/test-images.sh
 
-    # Check out the current frontend release version, as it should build OK.
+    # Check out the current frontend version referenced by docker-compose, as it should build OK.
     - run: |
            git clone \
                --depth 1 \
