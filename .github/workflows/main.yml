@@ -99,7 +99,8 @@ jobs:
     - run: FRONTEND_BUILD_MODE=fetch  ./test/test-images.sh
 
     # Check out the current frontend release version, as it should build OK.
-    - run: git clone \
+    - run: |
+           git clone \
                --depth 1 \
                --branch "$(grep FRONTEND_VERSION docker-compose.yml | sed -E 's/.*\$\{FRONTEND_VERSION:-(.*)\}/\1/')" \
                https://github.com/alxndrsn/odk-central-frontend.git \
