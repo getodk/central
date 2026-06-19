@@ -72,7 +72,7 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
 
   filename="dist-$FRONTEND_VERSION.tar.gz"
   releaseMetadataUrl="https://api.github.com/repos/$FRONTEND_REPO/releases/tags/$FRONTEND_VERSION"
-  
+
   log "Fetching release information from $releaseMetadataUrl ..."
   expectedShaSum="$(
     node -e "
@@ -84,14 +84,14 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
       console.log(sha256sum);
     "
   )"
-  
+
   artifactUrl="https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/$filename"
   log "Fetching release artifact from $artifactUrl ..."
   curl --location "$artifactUrl" -o "$filename"
-  
+
   log "Checking download hash..."
   echo "$expectedShaSum $filename" | sha256sum --check
-  
+
   log "Extracting dist bundle..."
   tar --extract --file "$filename"
 else
