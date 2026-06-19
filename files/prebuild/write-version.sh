@@ -19,10 +19,15 @@ git_version() {
   echo "versions:"
   echo "$(git rev-parse HEAD) ($(git describe --tags --always))"
 
-  if [[ "$FRONTEND_BUILD_MODE" = fetch ]]; then
+  if [[ "$FRONTEND_BUILD_MODE" = fetch ]] || [[ "$FRONTEND_BUILD_MODE" = test ]]; then
     print_version 0000000000000000000000000000000000000000 client "$FRONTEND_VERSION"
-  else 
+  elif [[ "$FRONTEND_BUILD_MODE" = classic ]]; then
     git_version client
+  else
+    echo >&2 "!!!"
+    echo >&2 "!!! Unrecognised FRONTEND_BUILD_MODE: '$FRONTEND_BUILD_MODE'"
+    echo >&2 "!!!"
+    exit 1
   fi
 
   git_version server
