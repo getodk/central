@@ -42,7 +42,7 @@ if [[ $FRONTEND_BUILD_MODE = test ]]; then
 elif [[ $FRONTEND_BUILD_MODE = source ]]; then
   log "Building frontend from source..."
 
-  if ! [[ -d client ]] || ! [[ -f client/package.json ]]; then
+  if ! [[ -f client/package.json ]]; then
     log "!!!"
     log "!!! No frontend repository found at ./client"
     log "!!!"
