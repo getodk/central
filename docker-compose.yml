@@ -97,8 +97,7 @@ services:
       dockerfile: nginx.dockerfile
       args:
         FRONTEND_BUILD_MODE: ${FRONTEND_BUILD_MODE:-fetch}
-        FRONTEND_REPO: ${FRONTEND_REPO:-alxndrsn/odk-central-frontend}
-        FRONTEND_VERSION: ${FRONTEND_VERSION:-v0.0.0-oidjfroifgjroijgfoijdg}
+        FRONTEND_VERSION: v2026.2.0-beta.0
     depends_on:
       - service
       - enketo

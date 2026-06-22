@@ -70,7 +70,7 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
 
   filename="dist-$FRONTEND_VERSION.tar.gz"
 
-  artifactUrl="https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/$filename"
+  artifactUrl="https://github.com/getodk/frontend/releases/download/$FRONTEND_VERSION/$filename"
   log "Fetching release artifact from $artifactUrl ..."
   curl \
       --connect-timeout 60 \

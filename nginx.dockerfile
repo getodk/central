@@ -2,7 +2,6 @@ FROM node:24.14.1-slim AS intermediate
 
 ARG FRONTEND_BUILD_MODE
 ARG FRONTEND_VERSION
-ARG FRONTEND_REPO=getodk/frontend
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
