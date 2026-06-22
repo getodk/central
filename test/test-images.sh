@@ -55,7 +55,7 @@ case "$FRONTEND_BUILD_MODE" in
               expectedClientVersion="$(cd client && git describe --tags --always)"
               ;;
   fetch|test) expectedClientHash="0000000000000000000000000000000000000000"
-              expectedClientVersion="$(grep FRONTEND_VERSION docker-compose.yml | sed -E 's/.*\$\{FRONTEND_VERSION:-(.*)\}/\1/')"
+              expectedClientVersion="$FRONTEND_VERSION"
               ;;
   *) exit 1
 esac
