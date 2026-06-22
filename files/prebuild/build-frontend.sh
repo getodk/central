@@ -42,19 +42,11 @@ if [[ $FRONTEND_BUILD_MODE = test ]]; then
 elif [[ $FRONTEND_BUILD_MODE = source ]]; then
   log "Building frontend from source..."
 
-  if ! [[ -d client ]]; then
+  if ! [[ -d client ]] || ! [[ -f client/package.json ]]; then
     log "!!!"
     log "!!! No frontend repository found at ./client"
     log "!!!"
     log "!!! Make sure this directory is present, or change FRONTEND_BUILD_MODE."
-    log "!!!"
-    exit 1
-  fi
-  if ! [[ -f client/package.json ]]; then
-    log "!!!"
-    log "!!! No NodeJS project found in ./client"
-    log "!!!"
-    log "!!! Make sure this file is present, or change FRONTEND_BUILD_MODE."
     log "!!!"
     exit 1
   fi
