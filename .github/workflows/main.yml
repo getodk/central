@@ -30,6 +30,7 @@ jobs:
 
     #- run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 600 --max-count 700
 
+    - run: jq -r .services.nginx.build.args.FRONTEND_VERSION
     - run: echo "FRONTEND_VERSION=$(docker compose config --format json | jq -r .services.nginx.build.args.FRONTEND_VERSION)" >> "$GITHUB_ENV"
     - run: |
            [[ -n "$FRONTEND_VERSION" ]] && echo "FRONTEND_VERSION: '$FRONTEND_VERSION'"
