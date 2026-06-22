@@ -41,6 +41,16 @@ This repository serves administrative functions, but it also contains the Docker
 
 To learn how to run such a stack in production, please take a look at [our DigitalOcean installation guide](https://docs.getodk.org/central-install-digital-ocean/).
 
+### Sentry (optional)
+
+To enable frontend error reporting and performance monitoring via Sentry, set `ODK_CENTRAL_FRONTEND_SENTRY_DSN` in your `.env` file (see `.env.template`) and restart:
+
+```sh
+docker compose up -d
+```
+
+Deployments that omit this variable are unaffected — Sentry will remain disabled.
+
 ## Node.js version
 
 We aim to use the latest [active LTS version of Node.js](https://github.com/nodejs/release/blob/main/README.md#release-schedule). This means that we generally update the major Node version used across all Central components once a year. Each time we do a Central release, we update to the latest version within the active LTS line. Node updates are done near the end of the release cycle but before regression testing.

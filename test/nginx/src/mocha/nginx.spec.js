@@ -442,7 +442,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled: false });
+    assert.deepEqual(await res.json(), { oidcEnabled: false, sentryDsn: 'https://fake-dsn.fake-sentry' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
@@ -452,7 +452,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled: false });
+    assert.deepEqual(await res.json(), { oidcEnabled: false, sentryDsn: 'https://fake-dsn.fake-sentry' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 

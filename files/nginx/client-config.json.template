@@ -1,3 +1,4 @@
 {
-  "oidcEnabled": ${OIDC_ENABLED}
+  "oidcEnabled": ${OIDC_ENABLED},
+  "sentryDsn": "${ODK_CENTRAL_FRONTEND_SENTRY_DSN}"
 }
