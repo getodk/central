@@ -75,7 +75,12 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
   expectedShaSum="$(
     node -e "
       const res = await fetch('$releaseMetadataUrl');
-      if(!res.ok) abort('Non-OK response received:', res.status);
+      if(!res.ok) {
+        switch(res.status) {
+          case 403: handle403(res);
+          default:  abort('Non-OK response received:', res.status);
+        }
+      }
 
       const body = await res.json();
       const { assets } = body;
@@ -83,6 +88,12 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
       const [ , sha256sum ] = digest.split(':', 2);
 
       console.log(sha256sum);
+
+      function handle403(res) {
+        const resetsAt = res.headers.get('X-RateLimit-Reset');
+        if(!resetsAt) return; // fall through to default handling
+        abort('GitHub API rate-limit hit; retry at/after:', new Date(1000 * Number(resetsAt)).toISOString());
+      }
 
       function abort(...args) {
         console.error('[build-frontend|fetch-sha]', '!!! Fatal error:', ...args);
