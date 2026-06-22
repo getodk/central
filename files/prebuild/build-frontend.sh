@@ -75,11 +75,19 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
   expectedShaSum="$(
     node -e "
       const res = await fetch('$releaseMetadataUrl');
+      if(!res.ok) abort('Non-OK response received:', res.status);
+
       const body = await res.json();
       const { assets } = body;
       const { digest } = assets.find(a => a.name === '$filename');
       const [ , sha256sum ] = digest.split(':', 2);
+
       console.log(sha256sum);
+
+      function abort(...args) {
+        console.error('[build-frontend|fetch-sha]', '!!! Fatal error:', ...args);
+        process.exit(1);
+      }
     "
   )"
 
