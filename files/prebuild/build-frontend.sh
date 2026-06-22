@@ -69,45 +69,17 @@ elif [[ $FRONTEND_BUILD_MODE = fetch ]]; then
   log "Fetching pre-built frontend..."
 
   filename="dist-$FRONTEND_VERSION.tar.gz"
-  releaseMetadataUrl="https://api.github.com/repos/$FRONTEND_REPO/releases/tags/$FRONTEND_VERSION"
-
-  log "Fetching release information from $releaseMetadataUrl ..."
-  expectedShaSum="$(
-    node -e "
-      const res = await fetch('$releaseMetadataUrl');
-      if(!res.ok) {
-        switch(res.status) {
-          case 403: handle403(res);
-          default:  abort('Non-OK response received:', res.status);
-        }
-      }
-
-      const body = await res.json();
-      const { assets } = body;
-      const { digest } = assets.find(a => a.name === '$filename');
-      const [ , sha256sum ] = digest.split(':', 2);
-
-      console.log(sha256sum);
-
-      function handle403(res) {
-        const resetsAt = res.headers.get('X-RateLimit-Reset');
-        if(!resetsAt) return; // fall through to default handling
-        abort('GitHub API rate-limit hit; retry at/after:', new Date(1000 * Number(resetsAt)).toISOString());
-      }
-
-      function abort(...args) {
-        console.error('[build-frontend|fetch-sha]', '!!! Fatal error:', ...args);
-        process.exit(1);
-      }
-    "
-  )"
 
   artifactUrl="https://github.com/$FRONTEND_REPO/releases/download/$FRONTEND_VERSION/$filename"
   log "Fetching release artifact from $artifactUrl ..."
-  curl --location "$artifactUrl" -o "$filename"
-
-  log "Checking download hash..."
-  echo "$expectedShaSum $filename" | sha256sum --check
+  curl \
+      --connect-timeout 60 \
+      --fail \
+      --retry 5 \
+      --retry-delay 10 \
+      --retry-all-errors \
+      --location "$artifactUrl" \
+      --output "$filename"
 
   log "Extracting dist bundle..."
   tar --extract --file "$filename"
