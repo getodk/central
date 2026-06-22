@@ -49,7 +49,7 @@ jobs:
            git clone \
                --depth 1 \
                --branch "$FRONTEND_VERSION" \
-               https://github.com/alxndrsn/odk-central-frontend.git \
+               https://github.com/getodk/central-frontend.git \
                client
     - run: FRONTEND_BUILD_MODE=source ./test/test-images.sh
 
