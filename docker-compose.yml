@@ -109,7 +109,7 @@ services:
       - SENTRY_KEY=${SENTRY_KEY:-3cf75f54983e473da6bd07daddf0d2ee}
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
       - OIDC_ENABLED=${OIDC_ENABLED:-false}
-      - ODK_CENTRAL_FRONTEND_SENTRY_DSN=${ODK_CENTRAL_FRONTEND_SENTRY_DSN:-}
+      - SENTRY_DSN_FRONTEND=${SENTRY_DSN_FRONTEND:-}
     volumes:
       - ./files/local/customssl/:/etc/customssl/live/local/:ro
       - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro

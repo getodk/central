@@ -43,7 +43,7 @@ To learn how to run such a stack in production, please take a look at [our Digit
 
 ### Sentry (optional)
 
-To enable frontend error reporting and performance monitoring via Sentry, set `ODK_CENTRAL_FRONTEND_SENTRY_DSN` in your `.env` file (see `.env.template`) and restart:
+To enable frontend error reporting and performance monitoring via Sentry, set `SENTRY_DSN_FRONTEND` in your `.env` file (see `.env.template`) and restart:
 
 ```sh
 docker compose up -d

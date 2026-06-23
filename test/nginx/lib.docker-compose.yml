@@ -18,7 +18,7 @@ services:
       - SENTRY_ORG_SUBDOMAIN=o-fake-dsn
       - SENTRY_PROJECT=example-sentry-project
       - OIDC_ENABLED=false
-      - ODK_CENTRAL_FRONTEND_SENTRY_DSN=https://fake-dsn.fake-sentry
+      - SENTRY_DSN_FRONTEND=https://fake-dsn.fake-sentry
     volumes:
       - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
       - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
