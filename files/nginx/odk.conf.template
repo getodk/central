@@ -117,7 +117,7 @@ server {
   add_header Content-Security-Policy-Report-Only "default-src 'report-sample' 'none'; connect-src https://translate.google.com https://translate.googleapis.com; img-src https://translate.google.com; report-uri /csp-report" always;
   include /usr/share/odk/nginx/common-headers.conf;
 
-  client_max_body_size 100m;
+  client_max_body_size 128M;
 
   gzip on;
   gzip_comp_level 6;
@@ -207,10 +207,5 @@ server {
     add_header Content-Security-Policy-Report-Only "$central_frontend_csp" always;
 
     include /usr/share/odk/nginx/common-headers.conf;
-  }
-
-  location /csp-report {
-    proxy_pass https://${SENTRY_ORG_SUBDOMAIN}.ingest.sentry.io/api/${SENTRY_PROJECT}/security/?sentry_key=${SENTRY_KEY};
-    proxy_ssl_server_name on;
   }
 }
