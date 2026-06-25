@@ -14,6 +14,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 ## Steps
 
+- [ ] Decide the release version (`vXXXX.X.Y`). The same version is used for `central`, `central-backend`, and `central-frontend`, so the `central` release URL (`https://github.com/getodk/central/releases/tag/vXXXX.X.Y`) can be referenced from the `central-frontend` and `central-backend` release bodies.
 - [ ] Write an announcement about the release for the forum.
 - [ ] 🚀 Create a new topic in the forum for the release. Use the **Scheduled** category and add the `odk-central` label.
 
