@@ -1,3 +1,11 @@
+---
+name: QA create issue
+about: Issues verified by the team.
+title: ''
+labels: ''
+assignees: ''
+---
+
 <!--
 The Central team uses GitHub issues for project management. Most bug reports and feature requests should start in the ODK forum: https://forum.getodk.org
 

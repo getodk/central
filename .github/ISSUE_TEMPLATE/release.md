@@ -1,4 +1,10 @@
-# ODK Central Release Guide
+---
+name: Release
+about: Checklist for releasing a new version of ODK Central
+title: 'Release vXXXX.X.Y'
+labels: ''
+assignees: ''
+---
 
 Complete the steps below to release a new version of ODK Central.
 
@@ -31,7 +37,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 > Applies when `central-frontend` has changed since the last release. Major releases always include `central-frontend`; for patches, skip this section if no central-frontend changes are included.
 
-- [ ] Run `npm run changeset version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
+- [ ] Run `npm run version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
 - [ ] Commit the changes on a new branch (e.g., `release-version-bumps`) and open a PR targeting `master`.
 - [ ] 🔎 Review the PR. Verify the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files.
 - [ ] Merge the PR.
@@ -98,7 +104,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   For a detailed list of technical updates, fixes, and improvements, please review the specific changelogs below:
 
   * [back-end](https://github.com/getodk/central-backend/blob/master/docs/api.yaml)
-  * [apps/central](link-to-CHANGELOG#version)
+  * [apps/central](https://github.com/getodk/central-frontend/blob/master/packages/web-forms/CHANGELOG.md#<version>)
   * [apps/forms](link-to-CHANGELOG#version)
   * [packages/web-forms](link-to-CHANGELOG#version)
   * [packages/xforms-engine](link-to-CHANGELOG#version)
