@@ -96,6 +96,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   ## Release Notes
 
   📢 **[Read the official release announcement on the Forum!](insert-forum-link-here)**
+
   We highly recommend checking out the forum post for a user-friendly overview of new features, enhanced with screenshots and guides.
 
   ---
@@ -103,12 +104,13 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   ### 🛠 Technical Changelogs
   For a detailed list of technical updates, fixes, and improvements, please review the specific changelogs below:
 
+  <!-- CHANGELOG section anchors drop dots from the version number: 0.25.0 → #0250 -->
   * [back-end](https://github.com/getodk/central-backend/blob/master/docs/api.yaml)
-  * [apps/central](https://github.com/getodk/central-frontend/blob/master/packages/web-forms/CHANGELOG.md#<version>)
-  * [apps/forms](link-to-CHANGELOG#version)
-  * [packages/web-forms](link-to-CHANGELOG#version)
-  * [packages/xforms-engine](link-to-CHANGELOG#version)
-  * [packages/xpath](link-to-CHANGELOG#version)
+  * [apps/central](https://github.com/getodk/central-frontend/tree/master/apps/central/CHANGELOG.md#<version-without-dots>)
+  * [apps/forms](https://github.com/getodk/central-frontend/tree/master/apps/forms/CHANGELOG.md#<version-without-dots>)
+  * [packages/web-forms](https://github.com/getodk/central-frontend/blob/master/packages/web-forms/CHANGELOG.md#<version-without-dots>)
+  * [packages/xforms-engine](https://github.com/getodk/central-frontend/blob/master/packages/xforms-engine/CHANGELOG.md#<version-without-dots>)
+  * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md#<version-without-dots>)
   ```
 
   </details>
