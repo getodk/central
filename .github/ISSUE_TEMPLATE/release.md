@@ -2,6 +2,7 @@
 name: Release
 about: Checklist for releasing a new version of ODK Central
 title: 'Release vXXXX.X.Y'
+type: 'Task'
 labels: ''
 assignees: ''
 ---

@@ -1,7 +1,8 @@
 ---
-name: QA create issue
+name: Verified bug
 about: Issues verified by the team.
 title: ''
+type: 'Bug'
 labels: ''
 assignees: ''
 ---
@@ -20,7 +21,7 @@ The QA team uses the template below to file bug reports. If you are not filing a
 
 #### Screenshot
 
-Please don't attach images of QR codes, as those provide access to the server.
+<!-- Please don't attach images of QR codes, as those provide access to the server. -->
 
 #### Expected behavior
 
