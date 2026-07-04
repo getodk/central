@@ -43,6 +43,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
+    - id: get_frontend_version
+      run: |
+           echo "FRONTEND_VERSION=$(
+             docker compose config --format json | jq -r .services.nginx.build.args.FRONTEND_VERSION
+           )" >> "$GITHUB_OUTPUT"
+
     - name: Build and push ${{ matrix.image }} Docker image
       uses: docker/build-push-action@v7
       with:
@@ -52,3 +58,6 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: 'linux/amd64,linux/arm64'
+        build-args: |
+          FRONTEND_BUILD_MODE=fetch
+          FRONTEND_VERSION=${{ steps.get_frontend_version.outputs.FRONTEND_VERSION }}
