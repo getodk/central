@@ -213,7 +213,6 @@ server {
     proxy_request_buffering on;
     proxy_buffering on;
     proxy_read_timeout 2m;
-    proxy_temp_file_write_size 100m;
   }
 
   location @blank.html {
