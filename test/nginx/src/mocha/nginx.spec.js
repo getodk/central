@@ -1162,7 +1162,7 @@ function assertBackendReceived(...expectedRequests) {
 }
 
 async function assertMockHttpReceived(port, expectedRequests) {
-  const res = await request(`http://localhost:${port}/request-log`);
+  const res = await request(`http://localhost:${port}/__mock_http_server/request-log`);
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
 }
@@ -1176,7 +1176,7 @@ function resetBackendMock() {
 }
 
 async function resetMock(port) {
-  const res = await request(`http://localhost:${port}/reset`);
+  const res = await request(`http://localhost:${port}/__mock_http_server/reset`);
   assert.isTrue(res.ok);
 }
 
