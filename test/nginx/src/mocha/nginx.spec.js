@@ -290,7 +290,7 @@ describe('nginx config', () => {
     resetBackendMock(),
   ]));
 
-  describe.only('SSL_TYPE=selfsign', () => {
+  describe('SSL_TYPE=selfsign', () => {
     const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(9000, 9001);
 
     it('HTTP should forward to HTTPS', async () => {
@@ -363,7 +363,7 @@ describe('nginx config', () => {
     });
   });
 
-  describe.skip('SSL_TYPE=upstream', () => {
+  describe('SSL_TYPE=upstream', () => {
     const { fetchHttp, fetchHttp6, fetchHttps, fetchHttps6 } = fetchFunctionsForPorts(10000, 10001);
 
     it('should not respond to HTTPS requests (IPv4)', async () => {
@@ -437,7 +437,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
   });
 
-  describe.only('response buffering', () => {
+  describe('response buffering', () => {
     async function getOpenProcessorCount() {
       const res = await request(`http://localhost:8383/open-processor-count`);
       assert.isTrue(res.ok);
