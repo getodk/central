@@ -439,10 +439,11 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
   describe.only('response buffering', () => {
     async function assertOpenResponseProcessors(expectedCount) {
-      const res = await apiFetch('/open-processor-count');
+      const res = await request(`http://localhost:8383/open-processor-count`);
       assert.isTrue(res.ok);
 
       const body = await res.text();
+      console.log(`[open-processor-count: ${body}]`);
       const actualCount = Number(body);
 
       assert.equal(actualCount, expectedCount);
@@ -457,16 +458,20 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         const { signal } = controller;
 
         // when
-        const res = await apiFetch('/v1/endless.csv', { throttleAt:KBperSecond(100), signal });
+        const res = await apiFetch('/v1/25MB.csv', { throttleAt:KBperSecond(100), signal });
         const reader = res.body.getReader();
-        const { done, value } = reader.read();
+        const { done, value } = await reader.read();
         console.log({ done, value });
 
         // then
-        await sleep(100); // give a chance for something to download // FIXME confirm this is required
         assert.equal(res.status, 200);
         // and
         await assertOpenResponseProcessors(1);
+
+        // when
+        await sleep(100); // should be long enough for nginx to download the full stream from service
+        // then
+        await assertOpenResponseProcessors(0);
       } finally {
         controller.abort();
       }

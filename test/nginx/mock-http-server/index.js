@@ -36,28 +36,43 @@ app.get('/reset',       (req, res) => {
   res.json('OK');
 });
 
-app.get('/v1/endless.csv', (req, res) => {
+app.get('/v1/25MB.csv', (req, res) => {
   // TODO confirm from IRL what headers should be set, e.g.
   // content-type
   // content-length
   // transfer-encoding
 
   ++openProcessorCount;
-  let rowCount = 0;
-  const randomStream = new Readable({
-    read() {
-      randomStream.pipe(`${++rowCount},${new Date().toISOString()},${Math.random()}`, 'utf-8');
-    },
-  });
-  randomStream.pipe(`row_number,timestamp,random-number`, 'utf-8');
 
+  async function* generateCsv(targetByteLength) {
+    let rowCount = 0;
+    let written = 0;
+
+    const writeLine = line => {
+      const buf = Buffer.from(line + '\n', 'utf8');
+      written += buf.byteLength;
+      console.log('Writing; total written:', written);
+      return buf;
+    };
+
+    yield writeLine(`row_number,timestamp,random-number`);
+
+    while(written < targetByteLength) {
+      yield writeLine(`${++rowCount},${new Date().toISOString()},${Math.random()}`);
+    }
+  }
+
+  const randomStream = Readable.from(generateCsv(25_000_000));
   randomStream.pipe(res);
   req.on('close', () => {
     randomStream.destroy();
-    openProcessorCount = 0;
+    --openProcessorCount;
   });
 });
-app.get('open-processor-count', (req, res) => {
+app.get('/open-processor-count', (req, res) => {
+  console.log(`
+    /open-processor-count called; count: ${openProcessorCount}
+  `);
   res.send(openProcessorCount);
 });
 
