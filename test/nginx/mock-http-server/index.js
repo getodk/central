@@ -73,7 +73,6 @@ app.get('/v1/100MB.csv', (req, res) => {
     ++completedProcessorCount;
   }
 
-  // TODO up this to 100MiB
   const randomStream = Readable.from(generateCsv(csvSizeBytes));
   randomStream.pipe(res);
   req.on('close', () => {
