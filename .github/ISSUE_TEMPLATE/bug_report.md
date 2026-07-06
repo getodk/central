@@ -1,3 +1,12 @@
+---
+name: Verified bug
+about: Issues verified by the team.
+title: ''
+type: 'Bug'
+labels: ''
+assignees: ''
+---
+
 <!--
 The Central team uses GitHub issues for project management. Most bug reports and feature requests should start in the ODK forum: https://forum.getodk.org
 
@@ -12,7 +21,7 @@ The QA team uses the template below to file bug reports. If you are not filing a
 
 #### Screenshot
 
-Please don't attach images of QR codes, as those provide access to the server.
+<!-- Please don't attach images of QR codes, as those provide access to the server. -->
 
 #### Expected behavior
 
