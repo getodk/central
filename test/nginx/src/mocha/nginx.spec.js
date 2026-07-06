@@ -447,12 +447,28 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       return Number(body);
     }
 
+    async function untilOpenProcessorCountIs(expectedCount) {
+      while(await getOpenProcessorCount() !== expectedCount) {
+        await sleep(100);
+      }
+    }
+
+    function withTimeout(ms, promise) {
+      let timeoutId;
+      const timeout = new Promise(resolve => timeoutId = setTimeout(resolve, ms));
+
+      return Promise
+          .race([ /*timeout,*/ promise ])
+          .finally(() => clearTimeout(timeoutId));
+    }
+
     it('should buffer responses in nginx, not backend services', async function() {
       // NOTE the final check should pass before the test timeout.  If it's taking longer,
       // especially significantly longer, that implies that there is back-pressure on the
       // NodeJS server.  This would imply that nginx buffering is not working correctly.
       // !!! ONLY CHANGE THIS TIMEOUT IF THE ABOVE COMMENT IS WELL UNDERSTOOD !!!
-      this.timeout(5_000);
+      const testTimeout = 5_000;
+      this.timeout(testTimeout);
 
       let controller;
 
@@ -472,14 +488,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         // and
         assert.equal(await getOpenProcessorCount(), 1);
 
-        let openProcessorCount;
-        do {
-          // when
-          await sleep(100);
-          openProcessorCount = await getOpenProcessorCount();
-
-          // then
-        } while(openProcessorCount !== 0);
+        await withTimeout(testTimeout, untilOpenProcessorCountIs(0));
       } finally {
         controller.abort();
       }
