@@ -441,25 +441,29 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     async function getOpenProcessorCount() {
       const res = await request(`http://localhost:8383/open-processor-count`);
       assert.isTrue(res.ok);
-
-      const body = await res.text();
-      console.log(`[open-processor-count: ${body}]`);
-      return Number(body);
+      return await res.json();
     }
 
-    async function untilOpenProcessorCountIs(expectedCount) {
-      while(await getOpenProcessorCount() !== expectedCount) {
-        await sleep(100);
-      }
-    }
-
-    function withTimeout(ms, promise) {
+    async function untilOpenProcessorCountIs({ timeout, ...expected }) {
       let timeoutId;
-      const timeout = new Promise(resolve => timeoutId = setTimeout(resolve, ms));
+      try {
+        let timedOut;
+        timeoutId = setTimeout(() => { timedOut = true; }, timeout);
 
-      return Promise
-          .race([ /*timeout,*/ promise ])
-          .finally(() => clearTimeout(timeoutId));
+        while(true) {
+          const { openProcessorCount, completedProcessorCount } = await getOpenProcessorCount();
+          if(openProcessorCount === expected.openProcessorCount &&
+              completedProcessorCount === expected.completedProcessorCount) {
+            break;
+          }
+
+          if(timedOut) throw new Error(`Timeout of ${timeout} ms exceeded.`);
+
+          await sleep(100);
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
 
     it('should buffer responses in nginx, not backend services', async function() {
@@ -480,15 +484,14 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         // when
         const res = await apiFetch('/v1/100MB.csv', { signal });
         const reader = res.body.getReader();
-        const { done, value } = await reader.read();
-        console.log({ done, value });
+        await reader.read();
 
         // then
         assert.equal(res.status, 200);
         // and
-        assert.equal(await getOpenProcessorCount(), 1);
+        assert.deepEqual(await getOpenProcessorCount(), { openProcessorCount:1, completedProcessorCount:0 });
 
-        await withTimeout(testTimeout, untilOpenProcessorCountIs(0));
+        await untilOpenProcessorCountIs({ timeout:testTimeout, openProcessorCount:0, completedProcessorCount:1 });
       } finally {
         controller.abort();
       }

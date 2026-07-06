@@ -7,6 +7,7 @@ const log = (...args) => console.log('[mock-http-server]', ...args);
 
 const requests = [];
 let openProcessorCount = 0;
+let completedProcessorCount = 0;
 
 const app = express();
 app.set('case sensitive routing', true);
@@ -33,6 +34,7 @@ app.get('/request-log', (req, res) => res.json(requests));
 app.get('/reset',       (req, res) => {
   requests.length = 0;
   openProcessorCount = 0;
+  completedProcessorCount = 0;
   res.json('OK');
 });
 
@@ -65,25 +67,22 @@ app.get('/v1/100MB.csv', (req, res) => {
         bufpos += batch.write(line, bufpos, 'utf8');
       }
       written += batchSize;
-      console.log('written:', written);
       yield batch;
     }
+
+    ++completedProcessorCount;
   }
 
   // TODO up this to 100MiB
   const randomStream = Readable.from(generateCsv(csvSizeBytes));
   randomStream.pipe(res);
   req.on('close', () => {
-    console.log('req.closed; destroying randomStream');
     randomStream.destroy();
     --openProcessorCount;
   });
 });
 app.get('/open-processor-count', (req, res) => {
-  console.log(`
-    /open-processor-count called; count: ${openProcessorCount}
-  `);
-  res.send(openProcessorCount);
+  res.send({ openProcessorCount, completedProcessorCount });
 });
 
 app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
