@@ -36,7 +36,9 @@ app.get('/reset',       (req, res) => {
   res.json('OK');
 });
 
-app.get('/v1/25MB.csv', (req, res) => {
+app.get('/v1/100MB.csv', (req, res) => {
+  const csvSizeBytes = 100_000_000;
+
   // TODO confirm from IRL what headers should be set, e.g.
   // content-type
   // content-length
@@ -48,7 +50,7 @@ app.get('/v1/25MB.csv', (req, res) => {
     let rowCount = 0;
     let written = 0;
 
-    const batchSize = Math.pow(2, 16);
+    const batchSize = Math.pow(2, 18);
 
     const header = Buffer.from('row_number,timestamp,random-number\n', 'utf8');
     written += header.byteLength;
@@ -69,7 +71,7 @@ app.get('/v1/25MB.csv', (req, res) => {
   }
 
   // TODO up this to 100MiB
-  const randomStream = Readable.from(generateCsv(25_000_000));
+  const randomStream = Readable.from(generateCsv(csvSizeBytes));
   randomStream.pipe(res);
   req.on('close', () => {
     console.log('req.closed; destroying randomStream');

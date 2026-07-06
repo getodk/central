@@ -438,19 +438,21 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   describe.only('response buffering', () => {
-    async function assertOpenResponseProcessors(expectedCount) {
+    async function getOpenProcessorCount() {
       const res = await request(`http://localhost:8383/open-processor-count`);
       assert.isTrue(res.ok);
 
       const body = await res.text();
       console.log(`[open-processor-count: ${body}]`);
-      const actualCount = Number(body);
-
-      assert.equal(actualCount, expectedCount);
+      return Number(body);
     }
 
     it('should buffer responses in nginx, not backend services', async function() {
-      this.timeout(20_000); // FIXME hopefully remove this
+      // NOTE the final check should pass before the test timeout.  If it's taking longer,
+      // especially significantly longer, that implies that there is back-pressure on the
+      // NodeJS server.  This would imply that nginx buffering is not working correctly.
+      // !!! ONLY CHANGE THIS TIMEOUT IF THE ABOVE COMMENT IS WELL UNDERSTOOD !!!
+      this.timeout(5_000);
 
       let controller;
 
@@ -460,7 +462,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         const { signal } = controller;
 
         // when
-        const res = await apiFetch('/v1/25MB.csv', { signal });
+        const res = await apiFetch('/v1/100MB.csv', { signal });
         const reader = res.body.getReader();
         const { done, value } = await reader.read();
         console.log({ done, value });
@@ -468,12 +470,16 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         // then
         assert.equal(res.status, 200);
         // and
-        await assertOpenResponseProcessors(1);
+        assert.equal(await getOpenProcessorCount(), 1);
 
-        // when
-        await sleep(10_000); // should be long enough for nginx to download the full stream from service
-        // then
-        await assertOpenResponseProcessors(0);
+        let openProcessorCount;
+        do {
+          // when
+          await sleep(100);
+          openProcessorCount = await getOpenProcessorCount();
+
+          // then
+        } while(openProcessorCount !== 0);
       } finally {
         controller.abort();
       }
