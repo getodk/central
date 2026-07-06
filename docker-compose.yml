@@ -97,7 +97,7 @@ services:
       dockerfile: nginx.dockerfile
       args:
         FRONTEND_BUILD_MODE: ${FRONTEND_BUILD_MODE:-fetch}
-        FRONTEND_VERSION: v2026.2.0-beta.1
+        FRONTEND_VERSION: v2026.2.0
     depends_on:
       - service
       - enketo
