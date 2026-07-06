@@ -200,8 +200,6 @@ server {
 
   # central-backend
   location ~ ^/v\d {
-    error_log /dev/stderr info;
-
     proxy_hide_header Content-Security-Policy;
     add_header Content-Security-Policy $central_backend_csp always;
 
