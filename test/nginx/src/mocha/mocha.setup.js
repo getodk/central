@@ -4,11 +4,13 @@ const https = require('node:https');
 const log = (...args) => console.log('[mocha-setup]', ...args);
 
 module.exports = {
-  afterAll() {
-    log('Cleaning up HTTP(S) Response objects whose bodies have not been read...');
-    http.globalAgent.destroy();
-    https.globalAgent.destroy();
+  mochaHooks: {
+    afterAll() {
+      log('Cleaning up HTTP(S) Response objects whose bodies have not been read...');
+      http.globalAgent.destroy();
+      https.globalAgent.destroy();
 
-    log('Cleanup complete.');
+      log('Cleanup complete.');
+    },
   },
 };
