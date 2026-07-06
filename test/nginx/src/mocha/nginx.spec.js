@@ -438,34 +438,6 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
   });
 
   describe('response buffering', () => {
-    async function getOpenProcessorCount() {
-      const res = await request(`http://localhost:8383/open-processor-count`);
-      assert.isTrue(res.ok);
-      return await res.json();
-    }
-
-    async function untilOpenProcessorCountIs({ timeout, ...expected }) {
-      let timeoutId;
-      try {
-        let timedOut;
-        timeoutId = setTimeout(() => { timedOut = true; }, timeout);
-
-        while(true) {
-          const { openProcessorCount, completedProcessorCount } = await getOpenProcessorCount();
-          if(openProcessorCount === expected.openProcessorCount &&
-              completedProcessorCount === expected.completedProcessorCount) {
-            break;
-          }
-
-          if(timedOut) throw new Error(`Timeout of ${timeout} ms exceeded.`);
-
-          await sleep(100);
-        }
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    }
-
     it('should buffer responses in nginx, not backend services', async function() {
       // NOTE the final check should pass before the test timeout.  If it's taking longer,
       // especially significantly longer, that implies that there is back-pressure on the
@@ -496,6 +468,34 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         controller.abort();
       }
     });
+
+    async function getOpenProcessorCount() {
+      const res = await request(`http://localhost:8383/open-processor-count`);
+      assert.isTrue(res.ok);
+      return await res.json();
+    }
+
+    async function untilOpenProcessorCountIs({ timeout, ...expected }) {
+      let timeoutId;
+      try {
+        let timedOut;
+        timeoutId = setTimeout(() => { timedOut = true; }, timeout);
+
+        while(true) {
+          const { openProcessorCount, completedProcessorCount } = await getOpenProcessorCount();
+          if(openProcessorCount === expected.openProcessorCount &&
+              completedProcessorCount === expected.completedProcessorCount) {
+            break;
+          }
+
+          if(timedOut) throw new Error(`Timeout of ${timeout} ms exceeded.`);
+
+          await sleep(100);
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
   });
 
   it('should serve generated client-config.json', async () => {
