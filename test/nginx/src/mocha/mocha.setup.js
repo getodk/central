@@ -1,9 +1,9 @@
-import http from 'node:http';
-import https from 'node:https';
+const http = require('node:http');
+const https = require('node:https');
 
 const log = (...args) => console.log('[mocha-setup]', ...args);
 
-export const mochaHooks = {
+module.exports = {
   afterAll() {
     log('Cleaning up HTTP(S) Response objects whose bodies have not been read...');
     http.globalAgent.destroy();
