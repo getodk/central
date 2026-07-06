@@ -5,6 +5,7 @@ const {
   assertSentryReceived,
   requestSentryMock,
   resetSentryMock,
+  sleep,
 } = require('../lib');
 const request = require('./request');
 
@@ -434,6 +435,46 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.isNull(res.headers.get('Content-Encoding'));
       });
     });
+  });
+
+  describe('response buffering', () => {
+    async function assertOpenResponseProcessors(expectedCount) {
+      const res = await apiFetch('/open-processor-count');
+      assert.isTrue(res.ok);
+
+      const body = await res.text();
+      const actualCount = Number(body);
+
+      assert.equal(actualCount, expectedCount);
+    }
+
+    it('should buffer responses in nginx, not backend services', async () => {
+      let controller;
+
+      try {
+        // given
+        controller = new AbortController();
+        const { signal } = controller;
+
+        // when
+        const res = await apiFetch('/v1/endless.csv', { throttleAt:KBperSecond(100), signal });
+        const reader = res.body.getReader();
+        const { done, value } = reader.read();
+        console.log({ done, value });
+
+        // then
+        await sleep(100); // give a chance for something to download // FIXME confirm this is required
+        assert.equal(res.status, 200);
+        // and
+        await assertOpenResponseProcessors(1);
+      } finally {
+        controller.abort();
+      }
+    });
+
+    function KBperSecond(kilobytes) {
+      return 1000 * kilobytes;
+    }
   });
 
   it('should serve generated client-config.json', async () => {

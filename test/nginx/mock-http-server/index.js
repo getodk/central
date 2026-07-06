@@ -1,9 +1,12 @@
+const { Readable } = require('node:stream');
+
 const express = require('express');
 
 const port = process.env.PORT || 80;
 const log = (...args) => console.log('[mock-http-server]', ...args);
 
 const requests = [];
+let openProcessorCount = 0;
 
 const app = express();
 app.set('case sensitive routing', true);
@@ -29,7 +32,33 @@ app.get('/health',      (req, res) => res.send('OK'));
 app.get('/request-log', (req, res) => res.json(requests));
 app.get('/reset',       (req, res) => {
   requests.length = 0;
+  openProcessorCount = 0;
   res.json('OK');
+});
+
+app.get('/v1/endless.csv', (req, res) => {
+  // TODO confirm from IRL what headers should be set, e.g.
+  // content-type
+  // content-length
+  // transfer-encoding
+
+  ++openProcessorCount;
+  let rowCount = 0;
+  const randomStream = new Readable({
+    read() {
+      randomStream.pipe(`${++rowCount},${new Date().toISOString()},${Math.random()}`, 'utf-8');
+    },
+  });
+  randomStream.pipe(`row_number,timestamp,random-number`, 'utf-8');
+
+  randomStream.pipe(res);
+  req.on('close', () => {
+    randomStream.destroy();
+    openProcessorCount = 0;
+  });
+});
+app.get('open-processor-count', (req, res) => {
+  res.send(openProcessorCount);
 });
 
 app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
