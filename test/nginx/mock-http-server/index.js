@@ -48,23 +48,31 @@ app.get('/v1/25MB.csv', (req, res) => {
     let rowCount = 0;
     let written = 0;
 
-    const writeLine = line => {
-      const buf = Buffer.from(line + '\n', 'utf8');
-      written += buf.byteLength;
-      console.log('Writing; total written:', written);
-      return buf;
-    };
+    const batchSize = Math.pow(2, 16);
 
-    yield writeLine(`row_number,timestamp,random-number`);
+    const header = Buffer.from('row_number,timestamp,random-number\n', 'utf8');
+    written += header.byteLength;
+    yield header;
 
     while(written < targetByteLength) {
-      yield writeLine(`${++rowCount},${new Date().toISOString()},${Math.random()}`);
+      await new Promise(resolve => setTimeout(resolve, 1));
+      const batch = Buffer.allocUnsafe(batchSize);
+      let bufpos = 0;
+      while(bufpos < batchSize) {
+        const line = `${++rowCount},${new Date().toISOString()},${Math.random()}\n`;
+        bufpos += batch.write(line, bufpos, 'utf8');
+      }
+      written += batchSize;
+      console.log('written:', written);
+      yield batch;
     }
   }
 
+  // TODO up this to 100MiB
   const randomStream = Readable.from(generateCsv(25_000_000));
   randomStream.pipe(res);
   req.on('close', () => {
+    console.log('req.closed; destroying randomStream');
     randomStream.destroy();
     --openProcessorCount;
   });

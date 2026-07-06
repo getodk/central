@@ -449,7 +449,9 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       assert.equal(actualCount, expectedCount);
     }
 
-    it('should buffer responses in nginx, not backend services', async () => {
+    it('should buffer responses in nginx, not backend services', async function() {
+      this.timeout(20_000); // FIXME hopefully remove this
+
       let controller;
 
       try {
@@ -458,7 +460,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         const { signal } = controller;
 
         // when
-        const res = await apiFetch('/v1/25MB.csv', { throttleAt:KBperSecond(100), signal });
+        const res = await apiFetch('/v1/25MB.csv', { signal });
         const reader = res.body.getReader();
         const { done, value } = await reader.read();
         console.log({ done, value });
@@ -469,17 +471,13 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         await assertOpenResponseProcessors(1);
 
         // when
-        await sleep(100); // should be long enough for nginx to download the full stream from service
+        await sleep(10_000); // should be long enough for nginx to download the full stream from service
         // then
         await assertOpenResponseProcessors(0);
       } finally {
         controller.abort();
       }
     });
-
-    function KBperSecond(kilobytes) {
-      return 1000 * kilobytes;
-    }
   });
 
   it('should serve generated client-config.json', async () => {

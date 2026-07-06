@@ -200,6 +200,8 @@ server {
 
   # central-backend
   location ~ ^/v\d {
+    error_log /dev/stderr info;
+
     proxy_hide_header Content-Security-Policy;
     add_header Content-Security-Policy $central_backend_csp always;
 
@@ -211,8 +213,14 @@ server {
 
     # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
-    proxy_buffering off;
+    proxy_buffering on;
     proxy_read_timeout 2m;
+    proxy_temp_path /tmp;
+    proxy_max_temp_file_size 64m;
+    proxy_temp_file_write_size 64m;
+    proxy_buffers 64 64k;
+    proxy_buffer_size 64k;
+    proxy_busy_buffers_size 128k;
   }
 
   location @blank.html {
