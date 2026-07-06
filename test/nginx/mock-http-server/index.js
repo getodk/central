@@ -38,6 +38,7 @@ app.get('/reset',       (req, res) => {
   res.json('OK');
 });
 
+// TODO make this path more realistic
 app.get('/v1/100MB.csv', (req, res) => {
   const csvSizeBytes = 100_000_000;
 
