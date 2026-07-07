@@ -100,7 +100,7 @@ jobs:
       run: |
            touch .env
            echo "FRONTEND_VERSION=$(
-             docker compose config --format json | jq -er .services.nginx.build.args.FRONTEND_VERSION
+             docker compose config --format json | jq -er .services.nginx.build.args.FRONTEND_VERSION_DELIBERATELY_INCORRECT
            )" >> "$GITHUB_ENV"
 
     - run: FRONTEND_BUILD_MODE=fetch ./test/test-images.sh
