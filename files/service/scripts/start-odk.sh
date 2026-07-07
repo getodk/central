@@ -43,7 +43,10 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 export SENTRY_TAGS
 
 echo "waiting for PostgreSQL to become connectable to..."
-while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
+while ! pg_isready --quiet; do
+  echo "sleeping 1 second waiting for a database connection"
+  sleep 1
+done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
