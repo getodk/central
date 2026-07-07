@@ -41,10 +41,8 @@ app.get('/__mock_http_server/reset',       (req, res) => {
 app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
   const csvSizeBytes = 100_000_000;
 
-  // TODO confirm from IRL what headers should be set, e.g.
-  // content-type
-  // content-length
-  // transfer-encoding
+  res.set('Content-Disposition', `attachment; filename="100MB.csv"; filename*=UTF-8''100MB.csv`);
+  res.set('Content-Type', 'text/csv; charset=utf-8');
 
   ++openProcessorCount;
 
