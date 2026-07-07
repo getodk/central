@@ -29,9 +29,9 @@ app.use('/-/', (req, res, next) => {
   next();
 });
 
-app.get('/health',      (req, res) => res.send('OK'));
-app.get('/request-log', (req, res) => res.json(requests));
-app.get('/reset',       (req, res) => {
+app.get('/__mock_http_server/health',      (req, res) => res.send('OK'));
+app.get('/__mock_http_server/request-log', (req, res) => res.json(requests));
+app.get('/__mock_http_server/reset',       (req, res) => {
   requests.length = 0;
   openProcessorCount = 0;
   completedProcessorCount = 0;
@@ -81,7 +81,7 @@ app.get('/v1/100MB.csv', (req, res) => {
     --openProcessorCount;
   });
 });
-app.get('/open-processor-count', (req, res) => {
+app.get('/__mock_http_server/open-processor-count', (req, res) => {
   res.send({ openProcessorCount, completedProcessorCount });
 });
 

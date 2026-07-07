@@ -470,7 +470,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
 
     async function getOpenProcessorCount() {
-      const res = await request(`http://localhost:8383/open-processor-count`);
+      const res = await request(`http://localhost:8383/__mock_http_server/open-processor-count`);
       assert.isTrue(res.ok);
       return await res.json();
     }
@@ -1224,7 +1224,7 @@ function assertBackendReceived(...expectedRequests) {
 }
 
 async function assertMockHttpReceived(port, expectedRequests) {
-  const res = await request(`http://localhost:${port}/request-log`);
+  const res = await request(`http://localhost:${port}/__mock_http_server/request-log`);
   assert.isTrue(res.ok);
   assert.deepEqual(expectedRequests, await res.json());
 }
@@ -1238,7 +1238,7 @@ function resetBackendMock() {
 }
 
 async function resetMock(port) {
-  const res = await request(`http://localhost:${port}/reset`);
+  const res = await request(`http://localhost:${port}/__mock_http_server/reset`);
   assert.isTrue(res.ok);
 }
 
