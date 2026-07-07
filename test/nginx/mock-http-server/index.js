@@ -38,7 +38,7 @@ app.get('/__mock_http_server/reset',       (req, res) => {
   res.json('OK');
 });
 
-app.get(new RegExp('^/v1/.*\\.csv$'), (req, res) => {
+app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
   const csvSizeBytes = 100_000_000;
 
   // TODO confirm from IRL what headers should be set, e.g.

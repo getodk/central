@@ -454,7 +454,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         const { signal } = controller;
 
         // when
-        const res = await apiFetch('/v1/100MB.csv', { signal });
+        const res = await apiFetch('/v1/projects/123/forms/some_form_id/attachments/100MB.csv', { signal });
         const reader = res.body.getReader();
         await reader.read();
 
