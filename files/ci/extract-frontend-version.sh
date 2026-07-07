@@ -16,6 +16,6 @@ if ! frontendVersion="$(docker compose config --format json | jq -er .services.n
 fi
 
 log "Writing FRONTEND_VERSION to GITHUB_ENV file ($GITHUB_ENV)..."
-echo "FRONTEND_VERSION=$FRONTEND_VERSION" >> "$GITHUB_ENV"
+echo "FRONTEND_VERSION=$frontendVersion" >> "$GITHUB_ENV"
 
 log "Completed OK."
