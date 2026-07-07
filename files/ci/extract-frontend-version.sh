@@ -8,7 +8,7 @@ log "Ensuring .env exists for docker compose..."
 touch .env
 
 log "Reading FRONTEND_VERSION from docker-compose.yml..."
-if ! frontendVersion="$(docker compose config --format json | jq -er .services.nginx.build.args.FRONTEND_VERSION_DELIBERATELY_INCORRECT)"; then
+if ! frontendVersion="$(docker compose config --format json | jq -er .services.nginx.build.args.FRONTEND_VERSION)"; then
   log "!!!"
   log "!!! Failed to read FRONTEND_VERSION from docker-compose.yml (got: '$frontendVersion')."
   log "!!!"
