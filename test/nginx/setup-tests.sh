@@ -31,9 +31,9 @@ log "Starting test services..."
 docker_compose up --build --detach
 
 log "Waiting for mock backend..."
-wait_for_http_response 5 localhost:8383/health 200
+wait_for_http_response 5 localhost:8383/__mock_http_server/health 200
 log "Waiting for mock enketo..."
-wait_for_http_response 5 localhost:8005/health 200
+wait_for_http_response 5 localhost:8005/__mock_http_server/health 200
 log "Waiting for nginx..."
 wait_for_http_response 5 localhost:9000 421
 
