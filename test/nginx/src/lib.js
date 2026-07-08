@@ -13,7 +13,7 @@ module.exports = {
 };
 
 async function assertSentryReceived(...expectedRequests) {
-  const { status, body } = await requestSentryMock({ path:'/event-log' });
+  const { status, body } = await requestSentryMock({ path:'/__mock_sentry/event-log' });
   assert.equal(status, 200);
 
   const actual = JSON.parse(body);
@@ -27,7 +27,7 @@ async function assertSentryReceived(...expectedRequests) {
 }
 
 async function resetSentryMock() {
-  const res = await requestSentryMock({ path:'/reset' });
+  const res = await requestSentryMock({ path:'/__mock_sentry/reset' });
   assert.equal(res.status, 200);
 }
 

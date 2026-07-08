@@ -27,8 +27,8 @@ app.use(express.json({
     'application/reports+json', // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-to#violation_report_syntax
   ],
 }));
-app.get('/event-log', (req, res) => res.json(events));
-app.get('/reset',       (req, res) => {
+app.get('/__mock_sentry/event-log', (req, res) => res.json(events));
+app.get('/__mock_sentry/reset',       (req, res) => {
   events.length = 0;
   res.json('OK');
 });
