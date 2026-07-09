@@ -5,8 +5,8 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      publish_image:
-        description: 'Publish image to registry?'
+      publish_images:
+        description: 'Publish images to registry?'
         required: true
         type: boolean
         default: false
@@ -118,7 +118,7 @@ jobs:
       run: docker compose logs
   build-push-image:
     if: |
-      (github.event_name == 'workflow_dispatch' && inputs.publish_image == true) ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish_images == true) ||
       (github.event_name != 'workflow_dispatch' && (
         github.ref == 'refs/heads/master' ||
         startsWith(github.ref, 'refs/tags/v')
