@@ -156,7 +156,7 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/central-${{ matrix.image }}
         tags: |
-          type=raw,value=v26.2.0
+          type=raw,value=v2026.2.0
           type=raw,value=latest
 
     - name: Set up QEMU emulator for multi-arch images
