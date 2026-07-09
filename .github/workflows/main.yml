@@ -155,6 +155,9 @@ jobs:
       uses: docker/metadata-action@v6
       with:
         images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/central-${{ matrix.image }}
+        tags: |
+          type=raw,value=v26.2.0
+          type=raw,value=latest
 
     - name: Set up QEMU emulator for multi-arch images
       uses: docker/setup-qemu-action@v4
