@@ -3,7 +3,7 @@ set -o pipefail
 shopt -s inherit_errexit
 
 # Check for illegal DB_SSL environment variable.
-if ! [[ "${DB_SSL-}" = null ]]; then
+if [[ -v DB_SSL ]] && ! [[ "$DB_SSL" = null ]]; then
   echo "!!!"
   echo "!!! You have the DB_SSL variable defined (in your .env file, probably)."
   echo "!!! This variable is no longer supported from Central 2026.1 onwards."

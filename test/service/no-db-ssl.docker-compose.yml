@@ -1,0 +1,6 @@
+services:
+  service:
+    environment:
+      # Setting this to `null` in YAML actually UNSETS the variable, in
+      # contrast to the string "null", which is set in the parent YAML.
+      DB_SSL: null
