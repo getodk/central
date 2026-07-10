@@ -96,13 +96,7 @@ jobs:
 
     - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 600 --max-count 700
 
-    - name: Extract FRONTEND_VERSION
-      run: |
-           touch .env
-           echo "FRONTEND_VERSION=$(
-             docker compose config --format json | jq -r .services.nginx.build.args.FRONTEND_VERSION
-           )" >> "$GITHUB_ENV"
-
+    - run: ./files/ci/extract-frontend-version.sh
     - run: FRONTEND_BUILD_MODE=fetch ./test/test-images.sh
 
     # Check out the current frontend version referenced by docker-compose, as it should build OK.
@@ -162,12 +156,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
-    - name: Extract FRONTEND_VERSION
-      run: |
-           touch .env
-           echo "FRONTEND_VERSION=$(
-             docker compose config --format json | jq -r .services.nginx.build.args.FRONTEND_VERSION
-           )" >> "$GITHUB_ENV"
+    - run: ./files/ci/extract-frontend-version.sh
 
     - name: Build and push ${{ matrix.image }} Docker image
       uses: docker/build-push-action@v7
