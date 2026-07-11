@@ -42,7 +42,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: Playwright Artifacts
-        path: ./test/.playwright-report
+        path: test/.playwright-report/
 
     - if: always()
       run: find . -type d
