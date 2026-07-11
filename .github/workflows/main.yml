@@ -35,12 +35,13 @@ jobs:
     - run: cd test/nginx && npx playwright install --with-deps chromium-headless-shell
     - id: playwright-tests
       run: cd test/nginx && npm run test:nginx:playwright
+    - run: ls ./test/.playwright-report
     - name: Archive playwright result                                                                                   
       if: steps.playwright-tests.outcome == 'failure'
       uses: actions/upload-artifact@v7
       with:
         name: Playwright Artifacts
-        path: test/.playwright-report
+        path: ./test/.playwright-report
 
     - if: always()
       run: find . -type d
