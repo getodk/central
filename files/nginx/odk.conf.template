@@ -209,7 +209,6 @@ server {
     proxy_pass http://service:8383;
     proxy_redirect off;
 
-    # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
     proxy_buffering on;
     proxy_read_timeout 2m;
