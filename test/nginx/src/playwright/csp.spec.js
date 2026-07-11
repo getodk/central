@@ -13,6 +13,46 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test.describe('API calls', () => {
+  [
+    '/',
+    // TODO some webforms URL
+  ].forEach(path => {
+    test(`should not be blocked from ${path}`, () => {
+      // given
+      await page.goto(`https://odk-nginx.example.test:9001/${path}`);
+
+      // when
+      await page.evaluate(async () => {
+        await fetch('https://o-fake-dsn.ingest.sentry.io/api/0/envelope/', { method:'POST' });
+      });
+
+      // then
+      // TODO assert something about the response
+    });
+  });
+});
+
+test.describe('frontend Sentry reports', () => {
+  [
+    '/',
+    // TODO some webforms URL
+  ].forEach(path => {
+    test(`should not be blocked from ${path}`, () => {
+      // given
+      await page.goto(`https://odk-nginx.example.test:9001/${path}`);
+
+      // when
+      await page.evaluate(async () => {
+        await fetch('https://odk-nginx.example.test:9001/v1/some-api-endpoint');
+      });
+
+      // then
+      // TODO assert something about the response
+    });
+  });
+});
+
 test('catches style-src-elem violation samples', async ({ page }) => {
   // given
   await page.goto('https://odk-nginx.example.test:9001');
