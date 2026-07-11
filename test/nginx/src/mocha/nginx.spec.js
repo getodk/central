@@ -77,7 +77,7 @@ const contentSecurityPolicies = {
       ],
       'connect-src': [
         self,
-        'https://o-fake-dsn.ingest.sentry.io/api/0/',
+        'https://o-fake-dsn.ingest.sentry.io',
       ],
       'font-src':       self,
       'form-action': self,

@@ -48,7 +48,7 @@ test.describe('frontend Sentry reports', () => {
 
       // when
       const res = await page.evaluate(async () => {
-        const res = await fetch('https://o-fake-dsn.ingest.sentry.io/api/0/envelope/', { method:'POST', body:'{"test":true}' });
+        const res = await fetch('https://o-fake-dsn.ingest.sentry.io/api/1234567890123456/envelope/', { method:'POST', body:'{"test":true}' });
         const { status } = res;
         const body = await res.text();
         return { status, body };
