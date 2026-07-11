@@ -77,6 +77,7 @@ const contentSecurityPolicies = {
       ],
       'connect-src': [
         self,
+        'https://o-fake-dsn.ingest.sentry.io/api/0/',
       ],
       'font-src':       self,
       'form-action': self,
@@ -442,7 +443,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled: false, sentryDsn: 'https://fake-dsn.fake-sentry' });
+    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://o-fake-dsn.ingest.sentry.io' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
@@ -452,7 +453,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled: false, sentryDsn: 'https://fake-dsn.fake-sentry' });
+    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://o-fake-dsn.ingest.sentry.io' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 

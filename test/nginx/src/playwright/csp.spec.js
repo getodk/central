@@ -18,7 +18,6 @@ test.beforeEach(async ({ page }) => {
 test.describe('API calls', () => {
   [
     '/',
-    // TODO some webforms URL
   ].forEach(path => {
     test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
@@ -42,7 +41,6 @@ test.describe('API calls', () => {
 test.describe('frontend Sentry reports', () => {
   [
     '/',
-    // TODO some webforms URL
   ].forEach(path => {
     test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
@@ -86,7 +84,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
           'referrer': '',
           'violated-directive': 'style-src-elem',
           'effective-directive': 'style-src-elem',
-          'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
+          'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://o-fake-dsn.ingest.sentry.io/api/0/ https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
           'disposition': 'enforce',
           'blocked-uri': 'inline',
           'line-number': 5,
