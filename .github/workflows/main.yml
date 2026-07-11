@@ -36,6 +36,9 @@ jobs:
     - run: cd test/nginx && npm run test:nginx:playwright
 
     - if: always()
+      run: cd test && find . -type d && -name .playwright-report | xargs -I{} bash -c "find {} -type f"
+
+    - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-upstream
