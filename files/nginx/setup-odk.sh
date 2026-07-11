@@ -45,6 +45,7 @@ echo "writing fresh nginx templates..."
   > /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
+SENTRY_DSN_FRONTEND_ROOT="$(sed -E -e 's:/[a-f0-9]*@:/:' -e 's:/[0-9]*$::' <<<"$SENTRY_DSN_FRONTEND")" \
 /scripts/envsub.awk \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf

@@ -42,9 +42,6 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 # shellcheck disable=SC2090
 export SENTRY_TAGS
 
-SENTRY_DSN_FRONTEND_ROOT="$(sed -E -e 's:/[a-f0-9]*@:/:' -e 's:/[0-9]*$::' <<<"$SENTRY_DSN_FRONTEND")"
-export SENTRY_DSN_FRONTEND_ROOT
-
 echo "waiting for PostgreSQL to become connectable to..."
 while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
 
