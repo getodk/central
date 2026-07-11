@@ -1,3 +1,5 @@
+const assert = require('node:assert/strict');
+
 const { test }  = require('@playwright/test');
 
 const {
@@ -47,7 +49,7 @@ test.describe('frontend Sentry reports', () => {
       await page.goto(`https://odk-nginx.example.test:9001/${path}`);
 
       // when
-      await page.evaluate(async () => {
+      const res = await page.evaluate(async () => {
         const res = await fetch('https://o-fake-dsn.ingest.sentry.io/api/0/envelope/', { method:'POST', body:'{"test":true}' });
         const { status } = res;
         const body = await res.text();
