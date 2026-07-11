@@ -23,12 +23,16 @@ test.describe('API calls', () => {
       await page.goto(`https://odk-nginx.example.test:9001/${path}`);
 
       // when
-      await page.evaluate(async () => {
-        await fetch('https://o-fake-dsn.ingest.sentry.io/api/0/envelope/', { method:'POST' });
+      const res = await page.evaluate(async () => {
+        const res = await fetch('https://odk-nginx.example.test:9001/v1/projects');
+        const { status } = res;
+        const body = await res.text();
+        return { status, body };
       });
 
       // then
-      // TODO assert something about the response
+      assert.deepEqual(res, { status:200, body:'OK' });
+      await assertSentryReceived(/* nothing */);
     });
   });
 });
@@ -44,11 +48,15 @@ test.describe('frontend Sentry reports', () => {
 
       // when
       await page.evaluate(async () => {
-        await fetch('https://odk-nginx.example.test:9001/v1/some-api-endpoint');
+        const res = await fetch('https://o-fake-dsn.ingest.sentry.io/api/0/envelope/', { method:'POST', body:'{"test":true}' });
+        const { status } = res;
+        const body = await res.text();
+        return { status, body };
       });
 
       // then
-      // TODO assert something about the response
+      assert.deepEqual(res, { status:200, body:'envelope:OK' });
+      await assertSentryReceived(/* nothing */);
     });
   });
 });

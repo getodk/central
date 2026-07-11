@@ -49,6 +49,7 @@ app.use('/api', (req, res, next) => {
 
   next();
 });
+app.post('/api/0/envelope/', (req, res) => res.send('envelope:OK'));
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   const { sentry_key } = req.query;
