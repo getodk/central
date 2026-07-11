@@ -49,7 +49,15 @@ app.use('/api', (req, res, next) => {
 
   next();
 });
-app.post('/api/:publicKey/envelope/', (req, res) => res.send('envelope:OK'));
+app.use('/api/:projectId/envelope/', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://odk-nginx.example.test:9001');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  if(req.method === 'OPTIONS') return res.sendStatus(204);
+
+  next();
+});
+app.post('/api/:projectId/envelope/', (req, res) => res.send('envelope:OK'));
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   const { sentry_key } = req.query;
