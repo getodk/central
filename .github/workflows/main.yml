@@ -43,6 +43,7 @@ jobs:
       with:
         name: Playwright Artifacts
         path: test/.playwright-report/
+        include-hidden-files: true
 
     - if: always()
       run: find . -type d
