@@ -42,6 +42,9 @@ jobs:
         path: test/.playwright-report
 
     - if: always()
+      run: find . -type d
+
+    - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-upstream
