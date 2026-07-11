@@ -18,7 +18,7 @@ test.describe('API calls', () => {
     '/',
     // TODO some webforms URL
   ].forEach(path => {
-    test(`should not be blocked from ${path}`, () => {
+    test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
       await page.goto(`https://odk-nginx.example.test:9001/${path}`);
 
@@ -38,7 +38,7 @@ test.describe('frontend Sentry reports', () => {
     '/',
     // TODO some webforms URL
   ].forEach(path => {
-    test(`should not be blocked from ${path}`, () => {
+    test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
       await page.goto(`https://odk-nginx.example.test:9001/${path}`);
 
