@@ -37,7 +37,7 @@ jobs:
       run: cd test/nginx && npm run test:nginx:playwright
     - run: ls -al ./test/.playwright-report
       if: always()
-    - name: Archive playwright result                                                                                   
+    - name: Archive playwright result
       if: always() && steps.playwright-tests.outcome == 'failure'
       uses: actions/upload-artifact@v7
       with:
