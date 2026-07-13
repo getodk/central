@@ -57,7 +57,10 @@ app.use('/api/:projectId/envelope/', (req, res, next) => {
 
   next();
 });
-app.post('/api/:projectId/envelope/', (req, res) => res.send('envelope:OK'));
+app.post('/api/:projectId/envelope/', (req, res) => {
+  if(req.params.projectId !== '1234567890123456') return res.status(400).send('Unexpected Sentry projectId.');
+  res.send('envelope:OK');
+});
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   const { sentry_key } = req.query;
