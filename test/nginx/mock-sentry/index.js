@@ -51,7 +51,7 @@ app.use('/api', (req, res, next) => {
 });
 app.use('/api/:projectId/envelope/', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://odk-nginx.example.test:9001');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
 
   if(req.method === 'OPTIONS') return res.sendStatus(204);
 
