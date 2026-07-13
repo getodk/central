@@ -21,7 +21,7 @@ test.describe('API calls', () => {
   ].forEach(path => {
     test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
-      await page.goto(`https://odk-nginx.example.test:9001/${path}`);
+      await page.goto(`https://odk-nginx.example.test:9001/${stripLeadingSlash(path)}`);
 
       // when
       const res = await page.evaluate(async () => {
@@ -44,7 +44,7 @@ test.describe('frontend Sentry reports', () => {
   ].forEach(path => {
     test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
-      await page.goto(`https://odk-nginx.example.test:9001/${path}`);
+      await page.goto(`https://odk-nginx.example.test:9001/${stripLeadingSlash(path)}`);
 
       // when
       const res = await page.evaluate(async () => {
@@ -96,3 +96,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
     },
   );
 });
+
+function stripLeadingSlash(path) {
+  return path.startsWith('/') ? path.substring(1) : path;
+}
