@@ -20,9 +20,9 @@ module.exports = defineConfig({
         launchOptions: {
           args: [
             '--host-resolver-rules=' + [
-              'MAP odk-nginx.example.test 127.0.0.1',
-              'MAP o-fake-dsn.ingest.sentry.io 127.0.0.1',
-            ].join(', '),
+              'odk-nginx.example.test',
+              'o-fake-dsn.ingest.sentry.io',
+            ].map(host => `MAP ${host} 127.0.0.1`).join(', '),
           ],
         },
       },
