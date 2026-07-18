@@ -29,7 +29,7 @@ describe('service image', () => {
     const runService = (...args) => new Promise(resolve => {
       const stdcombi = [];
 
-      const process = spawn('docker', [ 'compose', 'run', ...args, 'service' ], { cwd:'..' });
+      const process = spawn('docker', [ 'compose', ...args, 'service' ], { cwd:'..' });
 
       const appendOutput = data => {
         const str = data.toString();
@@ -73,7 +73,7 @@ describe('service image', () => {
         this.timeout(10_000);
 
         // when
-        const { stdcombi } = await runService('--env', `DB_SSL=${badVal}`);
+        const { stdcombi } = await runService('run', '--env', `DB_SSL=${badVal}`);
 
         // then
         assertIncludes(stdcombi, unresolvedIssue);
@@ -88,7 +88,7 @@ describe('service image', () => {
         this.timeout(10_000);
 
         // when
-        const { stdcombi } = await runService('--env', `DB_SSL=${goodVal}`);
+        const { stdcombi } = await runService('run', '--env', `DB_SSL=${goodVal}`);
 
         // then
         assertIncludes(stdcombi, generatingServiceConfig);
@@ -100,7 +100,22 @@ describe('service image', () => {
       this.timeout(10_000);
 
       // when
-      const { stdcombi } = await runService();
+      const { stdcombi } = await runService('run');
+
+      // then
+      assertIncludes(stdcombi, generatingServiceConfig);
+      assertNotIncludes(stdcombi, unresolvedIssue);
+    });
+
+    it('should start OK if DB_SSL is not set at all', async function() {
+      this.timeout(10_000);
+
+      // when
+      const { stdcombi } = await runService(
+        '--file', 'docker-compose.yml',
+        '--file', './test/service/no-db-ssl.docker-compose.yml',
+        'run',
+      );
 
       // then
       assertIncludes(stdcombi, generatingServiceConfig);
