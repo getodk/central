@@ -59,15 +59,15 @@ app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
     while(totalWritten < targetByteLength) {
       await new Promise(resolve => setTimeout(resolve, 1));
 
-      const batch = Buffer.allocUnsafe(batchSize);
+      const batch = Buffer.allocUnsafe(Math.min(batchSize, targetByteLength - totalWritten));
       let bufpos = 0;
-      while(bufpos < batchSize && totalWritten < targetByteLength) {
+      while(bufpos < batch.length) {
         const line = `${++rowCount},${new Date().toISOString()},${Math.random()}\n`;
-        const writtenNow = batch.write(line.substring(0, targetByteLength-totalWritten), bufpos, 'utf8');
-        bufpos += writtenNow;
-        totalWritten += writtenNow;
+        const bytesWritten = batch.write(line, bufpos, batch.length-bufpos, 'utf8');
+        bufpos += bytesWritten;
+        totalWritten += bytesWritten;
       }
-      yield batch.subarray(0, bufpos);
+      yield batch;
     }
 
     ++completedProcessorCount;
