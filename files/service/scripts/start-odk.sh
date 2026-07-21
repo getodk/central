@@ -45,16 +45,15 @@ export SENTRY_TAGS
 echo "waiting for PostgreSQL to become connectable to..."
 maxRetries=10
 retries=$maxRetries
-while ! pg_isready --timeout 10 && [[ $retries -gt 0 ]]; do
+while ! pg_isready --timeout 10; do
   echo "sleeping 1 second waiting for a database connection"
   retries=$((retries-1))
   sleep 1
+  if [[ "$retries" = 0 ]]; then
+    echo "Postgres not available after $maxRetries attempts."
+    exit 1
+  fi
 done
-if [[ "$retries" = 0 ]]; then
-  echo "Postgres not available after $maxRetries attempts."
-  sleep 1 # reduce thrashing
-  exit 1
-fi
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
