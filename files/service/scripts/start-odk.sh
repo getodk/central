@@ -50,7 +50,7 @@ while ! pg_isready --timeout 10; do
   retries=$((retries-1))
   sleep 1
   if [[ "$retries" = 0 ]]; then
-    echo "Postgres not available after $maxRetries attempts."
+    echo "PostgreSQL not available after $maxRetries attempts."
     exit 1
   fi
 done
