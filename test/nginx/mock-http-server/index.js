@@ -48,24 +48,26 @@ app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
 
   async function* generateCsv(targetByteLength) {
     let rowCount = 0;
-    let written = 0;
+    let totalWritten = 0;
 
     const batchSize = Math.pow(2, 18);
 
     const header = Buffer.from('row_number,timestamp,random-number\n', 'utf8');
-    written += header.byteLength;
+    totalWritten += header.byteLength;
     yield header;
 
-    while(written < targetByteLength) {
+    while(totalWritten < targetByteLength) {
       await new Promise(resolve => setTimeout(resolve, 1));
+
       const batch = Buffer.allocUnsafe(batchSize);
       let bufpos = 0;
-      while(bufpos < batchSize) {
+      while(bufpos < batchSize && totalWritten < targetByteLength) {
         const line = `${++rowCount},${new Date().toISOString()},${Math.random()}\n`;
-        bufpos += batch.write(line, bufpos, 'utf8');
+        const writtenNow = batch.write(line.substring(0, targetByteLength-totalWritten), bufpos, 'utf8');
+        bufpos += writtenNow;
+        totalWritten += writtenNow;
       }
-      written += batchSize;
-      yield batch;
+      yield batch.subarray(0, bufpos);
     }
 
     ++completedProcessorCount;

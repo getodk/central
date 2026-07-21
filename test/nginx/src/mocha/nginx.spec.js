@@ -455,15 +455,30 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
         // when
         const res = await apiFetch('/v1/projects/123/forms/some_form_id/attachments/100MB.csv', { signal });
-        const reader = res.body.getReader();
-        await reader.read();
-
         // then
         assert.equal(res.status, 200);
+
+        // when
+        const reader = res.body.getReader();
+        const initialRead = await reader.read();
+        let bytesRead = initialRead.value.length;
+        // then
+        assert.isFalse(initialRead.done);
+        assert.isAtMost(bytesRead, 16_384);
+        assert.equal(new TextDecoder('utf8').decode(initialRead.value).split('\n', 1)[0], 'row_number,timestamp,random-number');
         // and
         assert.deepEqual(await getOpenProcessorCount(), { openProcessorCount:1, completedProcessorCount:0 });
 
+        // when
         await untilOpenProcessorCountIs({ timeout:testTimeout, openProcessorCount:0, completedProcessorCount:1 });
+        // and
+        while(true) {
+          const { done, value } = await reader.read();
+          if(done) break;
+          bytesRead += value.length;
+        }
+        // then
+        assert.equal(bytesRead, 100_000_000);
       } finally {
         controller.abort();
       }
