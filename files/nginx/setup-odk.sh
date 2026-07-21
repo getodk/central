@@ -30,7 +30,7 @@ fi
 SELFSIGN_PATH="/etc/selfsign/live/$DOMAIN"
 if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_PATH/privkey.pem" ]; then
   mkdir -p "$SELFSIGN_PATH"
-  openssl req -x509 -newkey rsa:4086 \
+  openssl req -x509 -newkey rsa:4096 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_PATH/privkey.pem" \
     -out "$SELFSIGN_PATH/fullchain.pem" \
