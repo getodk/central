@@ -43,13 +43,13 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 export SENTRY_TAGS
 
 echo "waiting for PostgreSQL to become connectable to..."
-maxRetries=10
+maxRetries=15
 retries=$maxRetries
-while ! pg_isready --timeout 10; do
+while ! pg_isready; do
   echo "sleeping 1 second waiting for a database connection"
   retries=$((retries-1))
   sleep 1
-  if [[ "$retries" = 0 ]]; then
+  if [[ "$retries" -lt 0 ]]; then
     echo "PostgreSQL not available after $maxRetries attempts."
     exit 1
   fi
