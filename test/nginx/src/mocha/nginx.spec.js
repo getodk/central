@@ -439,10 +439,6 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
   describe('response buffering', () => {
     it('should buffer responses in nginx, not backend services', async function() {
-      // NOTE the final check should pass before the test times out.  If timeout
-      // is reached, there may be back-pressure on the NodeJS server.  This
-      // would imply that nginx buffering is not working correctly.
-      // !!! ONLY CHANGE THIS TIMEOUT IF THE ABOVE COMMENT IS WELL UNDERSTOOD !!!
       const testTimeout = 5_000;
       this.timeout(testTimeout);
 
