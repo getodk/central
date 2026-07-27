@@ -121,7 +121,7 @@ describe('setup-odk.sh', function() {
 
 function dockerCompose(opts, ...args) {
   return execSync(
-    `docker compose --project-name setup-odk_spec --file ./nginx/nginx.test.docker-compose.yml ${args.join(' ')}`,
+    `docker compose --file ./nginx/nginx.test.docker-compose.yml ${args.join(' ')}`,
     { stdio:'inherit', ...opts },
   );
 }
