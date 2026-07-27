@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test.describe('API calls', () => {
+test.describe('odk-central-backend API calls', () => {
   [
     '/',
   ].forEach(path => {
