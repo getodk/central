@@ -53,8 +53,8 @@ services:
     environment:
       SSL_TYPE: ${SSL_TYPE}
     ports:
-      - "${HTTP_PORT}:80"
-      - "${HTTPS_PORT}:443"
+      - "10002:80"
+      - "10003:443"
     volumes:
       - ./src/mocha/setup-odk/certs/nginx.pem:/etc/dh/nginx.pem:ro
       - ./src/mocha/setup-odk/certs/privkey.pem:/etc/selfsign/live/odk-nginx.example.test/privkey.pem:ro
