@@ -51,7 +51,7 @@ services:
       file: lib.docker-compose.yml
       service: nginx
     environment:
-      SSL_TYPE: ${SSL_TYPE}
+      SSL_TYPE: selfsign
     ports:
       - "10002:80"
       - "10003:443"

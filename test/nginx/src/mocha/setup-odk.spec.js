@@ -10,14 +10,8 @@ describe('setup-odk.sh', function() {
   this.timeout(10_000);
 
   afterEach(() => {
-    const requiredEnv = {
-      SSL_TYPE: '',
-      HTTP_PORT: '',
-      HTTPS_PORT: '',
-    };
-
     log('--- CONTAINER LOGS ---');
-    dockerCompose(requiredEnv, `logs --timestamps ${service}`);
+    dockerCompose({}, `logs --timestamps ${service}`);
     log('--- END CONTAINER LOGS ---');
   });
   after(() => {
@@ -25,7 +19,6 @@ describe('setup-odk.sh', function() {
   });
 
   it('should start ok with basic config', withNginx({
-    SSL_TYPE: 'selfsign',
   }, async () => {
     // when
     const res = await request(`https://localhost:10003`);
@@ -55,7 +48,6 @@ describe('setup-odk.sh', function() {
   }));
 
   it('should serve a coherent config with SENTRY_DSN_FRONTEND set', withNginx({
-    SSL_TYPE: 'selfsign',
     SENTRY_DSN_FRONTEND: 'https://abcdef0123456789abcdef0123456789@some-dsn.ingest.sentry.io/1234567890123456',
   }, async () => {
     // when
@@ -86,7 +78,6 @@ describe('setup-odk.sh', function() {
   }));
 
   it('should serve a coherent config with SENTRY_DSN_FRONTEND blank', withNginx({
-    SSL_TYPE: 'selfsign',
     SENTRY_DSN_FRONTEND: '',
   }, async () => {
     // when

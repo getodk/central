@@ -58,6 +58,7 @@ EOF
   log "$service: config looks OK."
 }
 
+docker_compose up --detach --wait
 lint_service nginx-ssl-selfsign
 lint_service nginx-ssl-upstream
 
