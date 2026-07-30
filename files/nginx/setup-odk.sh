@@ -15,15 +15,12 @@ fi
 # Generate self-signed keys for the incorrect (catch-all) HTTPS listener.  This
 # cert should never be seen by legitimate users, so it's not a big deal that
 # it's self-signed and won't expire for 1,000 years.
-BADHOST_DH_PATH=/etc/nginx/ssl/nginx.default
-if ! [ -s "$BADHOST_DH_PATH.key" ] || ! [ -s "$BADHOST_DH_PATH.crt" ]; then
-  mkdir -p /etc/nginx/ssl
-  openssl req -x509 -nodes -newkey rsa:2048 \
-      -subj "/CN=invalid.local" \
-      -keyout "$BADHOST_DH_PATH.key" \
-      -out    "$BADHOST_DH_PATH.crt" \
-      -days 365000
-fi
+mkdir -p /etc/nginx/ssl
+openssl req -x509 -nodes -newkey rsa:2048 \
+    -subj "/CN=invalid.local" \
+    -keyout /etc/nginx/ssl/nginx.default.key \
+    -out    /etc/nginx/ssl/nginx.default.crt \
+    -days 365000
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
