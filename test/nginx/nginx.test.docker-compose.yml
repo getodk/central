@@ -46,3 +46,16 @@ services:
       - "[::1]:10000:80"
       - "127.0.0.1:10001:443"
       - "[::1]:10001:443"
+  nginx-test-setup-odk:
+    extends:
+      file: lib.docker-compose.yml
+      service: nginx
+    environment:
+      SSL_TYPE: selfsign
+    ports:
+      - "10002:80"
+      - "10003:443"
+    volumes:
+      - ./src/mocha/setup-odk/certs/nginx.pem:/etc/dh/nginx.pem:ro
+      - ./src/mocha/setup-odk/certs/privkey.pem:/etc/selfsign/live/odk-nginx.example.test/privkey.pem:ro
+      - ./src/mocha/setup-odk/certs/fullchain.pem:/etc/selfsign/live/odk-nginx.example.test/fullchain.pem:ro
