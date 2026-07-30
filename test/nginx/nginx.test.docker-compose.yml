@@ -59,5 +59,3 @@ services:
       - ./src/mocha/setup-odk/certs/nginx.pem:/etc/dh/nginx.pem:ro
       - ./src/mocha/setup-odk/certs/privkey.pem:/etc/selfsign/live/odk-nginx.example.test/privkey.pem:ro
       - ./src/mocha/setup-odk/certs/fullchain.pem:/etc/selfsign/live/odk-nginx.example.test/fullchain.pem:ro
-      - ./src/mocha/setup-odk/certs/nginx.default.key:/etc/nginx/ssl/nginx.default.key:ro
-      - ./src/mocha/setup-odk/certs/nginx.default.crt:/etc/nginx/ssl/nginx.default.crt:ro
