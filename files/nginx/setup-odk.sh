@@ -28,10 +28,10 @@ if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
 fi
 
 SELFSIGN_PATH="/etc/selfsign/live/$DOMAIN"
-if [ "$SSL_TYPE" = "selfsign" ] && (
+if [ "$SSL_TYPE" = "selfsign" ] && {
   ! [ -s "$SELFSIGN_PATH/privkey.pem" ] ||
-  ! [ -s "$SELFSIGN_PATH/fullchain.pem" ]
-); then
+  ! [ -s "$SELFSIGN_PATH/fullchain.pem" ];
+}; then
   mkdir -p "$SELFSIGN_PATH"
   openssl req -x509 -newkey rsa:4096 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
