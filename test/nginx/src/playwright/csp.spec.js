@@ -44,7 +44,11 @@ test.describe('odk-central-backend API calls', () => {
 
 test.describe('frontend Sentry reports', () => {
   [
+    // root-app
     '/',
+
+    // forms-app
+    '/f/Xaa1G84VxWFgEQlXQny3AzzWBAzOzGQ?st=d3RVbGZZeX0paTNxxPIUbiyNzevgu9X1GToIIodO9bgu2UZsZMQ8V4QlETre3D9a',
   ].forEach(path => {
     test(`should not be blocked from ${path}`, async ({ page }) => {
       // given
