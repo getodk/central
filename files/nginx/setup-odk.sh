@@ -30,7 +30,7 @@ fi
 SELFSIGN_PATH="/etc/selfsign/live/$DOMAIN"
 if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_PATH/privkey.pem" ]; then
   mkdir -p "$SELFSIGN_PATH"
-  openssl req -x509 -newkey rsa:4086 \
+  openssl req -x509 -newkey rsa:4096 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_PATH/privkey.pem" \
     -out "$SELFSIGN_PATH/fullchain.pem" \
@@ -45,6 +45,7 @@ echo "writing fresh nginx templates..."
   > /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
+SENTRY_DSN_FRONTEND_ROOT="$(awk 'sub(/:\/\/[a-z0-9]*@/, "://") && sub(/\/[0-9]+$/, "")' <<<"$SENTRY_DSN_FRONTEND")" \
 /scripts/envsub.awk \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf

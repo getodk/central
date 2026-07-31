@@ -1,5 +1,4 @@
 const { isIPv6 } = require('node:net');
-const { Readable } = require('node:stream');
 
 module.exports = request;
 
@@ -16,29 +15,11 @@ function request(url, { body, ...options }={}) {
       const req = getProtocolImplFrom(url).request({ ...options, ...preserve(url) }, res => {
         res.on('error', reject);
 
-        const body = new Readable({ read:() => {} });
-        res.on('error', err => body.destroy(err));
-        res.on('data', data => body.push(data));
-        res.on('end', () => body.push(null));
-
-        const text = () => new Promise((resolve, reject) => {
-          const chunks = [];
-          body.on('error', reject);
-          body.on('data', data => chunks.push(data));
-          body.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-        });
-
-        const status = res.statusCode;
-
-        resolve({
-          status,
-          ok: status >= 200 && status < 300,
-          statusText: res.statusText,
-          body,
-          text,
-          json: async () => JSON.parse(await text()),
+        resolve(new Response(res, {
+          status: res.statusCode,
+          statusText: res.statusMessage,
           headers: new Headers(res.headers),
-        });
+        }));
       });
       req.on('error', reject);
       if(body !== undefined) req.write(body);

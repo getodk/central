@@ -27,11 +27,12 @@ app.use(express.json({
     'application/reports+json', // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-to#violation_report_syntax
   ],
 }));
-app.get('/event-log', (req, res) => res.json(events));
-app.get('/reset',       (req, res) => {
+app.get('/__mock_sentry/event-log', (req, res) => res.json(events));
+app.get('/__mock_sentry/reset',       (req, res) => {
   events.length = 0;
   res.json('OK');
 });
+
 app.use('/api', (req, res, next) => {
   log(new Date(), req.method, req.originalUrl);
 
@@ -49,6 +50,20 @@ app.use('/api', (req, res, next) => {
 
   next();
 });
+
+app.use('/api/:projectId/envelope/', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://odk-nginx.example.test:9001');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
+
+  if(req.method === 'OPTIONS') return res.sendStatus(204);
+
+  next();
+});
+app.post('/api/:projectId/envelope/', (req, res) => {
+  if(req.params.projectId !== '1234567890123456') return res.status(400).send('Unexpected Sentry projectId.');
+  res.send('envelope:OK');
+});
+
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   const { sentry_key } = req.query;

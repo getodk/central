@@ -3,7 +3,7 @@ set -o pipefail
 shopt -s inherit_errexit
 
 # Check for illegal DB_SSL environment variable.
-if ! [[ "${DB_SSL-}" = null ]]; then
+if [[ -v DB_SSL ]] && ! [[ "$DB_SSL" = "null" ]]; then
   echo "!!!"
   echo "!!! You have the DB_SSL variable defined (in your .env file, probably)."
   echo "!!! This variable is no longer supported from Central 2026.1 onwards."
@@ -43,7 +43,17 @@ SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"versio
 export SENTRY_TAGS
 
 echo "waiting for PostgreSQL to become connectable to..."
-while ! (psql --no-password --quiet --command "" > /dev/null 2>&1 || (echo "sleeping 1 second waiting for a database connection"; false)); do sleep 1; done
+maxTries=15
+retries=$((maxTries-1))
+while ! pg_isready; do
+  if [[ "$retries" = 0 ]]; then
+    echo "PostgreSQL not available after $maxTries attempts."
+    exit 1
+  fi
+  echo "PostgreSQL not yet available; sleeping 1 second..."
+  sleep 1
+  retries=$((retries-1))
+done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations
