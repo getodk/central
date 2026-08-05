@@ -10,6 +10,7 @@ module.exports = {
   assertSentryReceived,
   requestSentryMock,
   resetSentryMock,
+  sleep,
 };
 
 async function assertSentryReceived(...expectedRequests) {
@@ -55,4 +56,8 @@ function requestSentryMock(opts) {
     req.on('error', reject);
     req.end();
   });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
