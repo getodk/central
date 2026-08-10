@@ -7,7 +7,7 @@ labels: ''
 assignees: ''
 ---
 
-Complete the steps below to release a patch version of ODK Central.
+Complete the steps below to release a patch version of ODK Central. For a major release, use the **Release** issue template instead.
 
 > **Legend**
 > - 🔎 Requires the second person (reviewer)
