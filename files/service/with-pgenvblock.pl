@@ -16,7 +16,7 @@ close $fh;
 my @entries = split /\x00/, $content;
 
 for my $entry (@entries) {
-    if ($entry =~ /\A(?<varname>PG[^=]+)=(?<varvalue>.*)\Z/m) {
+    if ($entry =~ /\A(?<varname>(PG[^=]+|NODE_EXTRA_CA_CERTS))=(?<varvalue>.*)\Z/m) {
         $ENV{$+{varname}} = $+{varvalue};
     }
 }
