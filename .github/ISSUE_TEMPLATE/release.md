@@ -1,13 +1,13 @@
 ---
 name: Release
-about: Checklist for releasing a new major version of ODK Central
+about: Checklist for releasing a new version of ODK Central
 title: 'Release vXXXX.X.0'
 type: 'Task'
 labels: ''
 assignees: ''
 ---
 
-Complete the steps below to release a new major version of ODK Central. For a patch release, use the **Patch release** issue template instead.
+Complete the steps below to release a new version of ODK Central. For a patch release, use the **Patch release** issue template instead.
 
 > **Legend**
 > - 🔎 Requires the second person (reviewer)
@@ -31,7 +31,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 ### Release `central-frontend`
 
-> Major releases always include `central-frontend`.
+> Releases always include `central-frontend`.
 
 - [ ] Run `npm run version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
 - [ ] Commit the changes on a new branch (e.g., `release-version-bumps`) and open a PR targeting `master`.
@@ -49,7 +49,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 ### Release `central-backend`
 
-> Major releases always include `central-backend`.
+> Releases always include `central-backend`.
 
 - [ ] Create a GitHub release on the latest `master` commit of `central-backend`.
   - Tag: `v*.*.*` (no pre-release suffix).
@@ -57,18 +57,19 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   - Set as the **latest release**. Don't set as a pre-release.
   - Body: a single line pointing to the upcoming `central` release, e.g., `See release notes at https://github.com/getodk/central/releases/tag/vX.Y.Z`.
 
-### Update submodules
+### Update versions
 
-- [ ] For each of the server and client submodules, `cd` into the directory and run:
+- [ ] `cd server` and run:
   - `git fetch`
   - `git switch -d origin/master` or `git checkout origin/master`
-- [ ] Commit the submodule updates using a new branch (e.g., `update-submodules`). Create a new PR for the branch.
+- [ ] Update `FRONTEND_VERSION` in `docker-compose.yml` to the tag of the `central-frontend` release created above.
+- [ ] Commit the updates using a new branch (e.g., `update-versions`). Create a new PR for the branch.
   - Target the `next` branch.
-- [ ] 🔎 Review the PR. For each submodule, the diff in GitHub will link to a page that indicates the old and new commit hashes.
+- [ ] 🔎 Review the PR. Verify that the `server` diff links to the expected commit hashes and that `FRONTEND_VERSION` matches the `central-frontend` release tag.
 
 ### Merge
 
-- [ ] Once the submodules PR has been merged into the `next` branch, use the existing release PR to merge `next` into the `master` branch.
+- [ ] Once the versions PR has been merged into the `next` branch, use the existing release PR to merge `next` into the `master` branch.
   - Select **"Create a merge commit"** when you merge.
   - Don't delete the `next` branch after merging.
 

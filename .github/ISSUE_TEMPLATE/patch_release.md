@@ -55,14 +55,15 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   - Set as the **latest release**. Don't set as a pre-release.
   - Body: a single line pointing to the upcoming `central` release, e.g., `See release notes at https://github.com/getodk/central/releases/tag/vX.Y.Z`.
 
-### Update submodules
+### Update versions
 
-- [ ] For each of the server and client submodules, `cd` into the directory and run:
+- [ ] If the patch includes `central-backend` changes, `cd server` and run:
   - `git fetch`
   - `git switch -d origin/master` or `git checkout origin/master`
-- [ ] Commit the submodule updates using a new branch (e.g., `update-submodules`). Create a new PR for the branch.
-  - If the only change/PR to the `central` repository is the submodule updates, target the `master` branch. Otherwise, a different branch will be used for the patch (possibly `next`); target that branch.
-- [ ] 🔎 Review the PR. For each submodule, the diff in GitHub will link to a page that indicates the old and new commit hashes.
+- [ ] If the patch includes `central-frontend` changes, update `FRONTEND_VERSION` in `docker-compose.yml` to the tag of the `central-frontend` release created above.
+- [ ] Commit the updates using a new branch (e.g., `update-versions`). Create a new PR for the branch.
+  - If the only change/PR to the `central` repository is these updates, target the `master` branch. Otherwise, a different branch will be used for the patch (possibly `next`); target that branch.
+- [ ] 🔎 Review the PR. Verify that the `server` diff links to the expected commit hashes and that `FRONTEND_VERSION` matches the `central-frontend` release tag.
 
 ### Merge
 
