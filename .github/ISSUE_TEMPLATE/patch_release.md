@@ -32,10 +32,11 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 > Optional section: skip it if no `central-frontend` changes are included in the patch.
 
-- [ ] Run `npm run version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
-- [ ] Commit the changes on a new branch (e.g., `release-version-bumps`) and open a PR targeting `master`.
-- [ ] 🔎 Review the PR. Verify the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files.
-- [ ] Merge the PR.
+- [ ] Check out the `central-frontend` hotfix branch for the patch, and cherry-pick the commits for the patch from `master` onto it.
+- [ ] Run `npm run version` in `central-frontend`, then `npm install`. This consumes the `.changeset/` files, bumps package versions, updates each `CHANGELOG.md`, and updates `package-lock.json`.
+- [ ] Commit the changes on a new branch and open a PR targeting the hotfix branch.
+- [ ] 🔎 Review the PR. Verify the cherry-picked commits, the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files, and that `package-lock.json` was updated.
+- [ ] Merge the PR into the hotfix branch.
 - [ ] In `central-frontend`, create a minimal GitHub release on the merged commit. The tag push is what triggers `.github/workflows/wf-publish.yml` to publish packages to npm — full release notes live only in the `central` release.
   - Tag: `v*.*.*` (no pre-release suffix).
   - Set as the **latest release**. Don't set as a pre-release.
@@ -45,6 +46,8 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   - The expected packages were published to npm.
   - Per-package tags were pushed to the repository.
   - If the workflow fails, do not proceed with the rest of the release — investigate and resolve before creating the `central` release.
+- [ ] Bring the release notes back to `master`: on a new branch off `central-frontend`'s `master`, copy the new `CHANGELOG.md` entries from the hotfix branch and delete the `.changeset/` files that the patch consumed (leave changesets for changes that weren't part of the patch). Open a PR targeting `master`.
+- [ ] 🔎 Review the PR. Verify the `CHANGELOG.md` entries match the hotfix branch and that only the changesets included in the patch were deleted. Merge it.
 
 ### Release `central-backend`
 
