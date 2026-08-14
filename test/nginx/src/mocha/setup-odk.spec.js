@@ -27,7 +27,7 @@ describe('setup-odk.sh', function() {
       [ 'bad-format', '' ],
       [ 'https://abcdef0123456789abcdef0123456789@some-dsn.ingest.sentry.io/', '' ],
     ].forEach(([ SENTRY_DSN_FRONTEND, expectedCspEntry ]) => {
-      it(`should generated expected CSP for SENTRY_DSN_FRONTEND='${SENTRY_DSN_FRONTEND}'`, withNginx({
+      it(`should generate expected CSP for SENTRY_DSN_FRONTEND='${SENTRY_DSN_FRONTEND}'`, withNginx({
         SENTRY_DSN_FRONTEND,
       }, async () => {
         // when
