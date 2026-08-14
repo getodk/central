@@ -13,7 +13,8 @@ describe('setup-odk.sh', function() {
       dockerCompose({}, `logs --timestamps ${service}`);
       log('--- END CONTAINER LOGS ---');
     });
-    after(() => {
+    after(function() {
+      this.timeout(5000);
       dockerCompose({}, `down --remove-orphans --volumes`);
     });
 
