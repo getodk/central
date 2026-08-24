@@ -1,3 +1,5 @@
+/* global document */
+
 const assert = require('node:assert/strict');
 
 const { test }  = require('@playwright/test');
@@ -75,7 +77,6 @@ test('catches style-src-elem violation samples', async ({ page }) => {
 
   // when
   await page.evaluate(() => {
-    /* global document */
     const style = document.createElement('style');
     style.textContent = 'body { background-color:red }';
     document.head.appendChild(style);
@@ -106,13 +107,12 @@ test('catches style-src-elem violation samples', async ({ page }) => {
 });
 
 test.describe('bug: https://github.com/getodk/central/issues/2080', () => {
-  test('allows central-frontend to show itself in a frame', async () => {
+  test('allows central-frontend to show itself in a frame', async ({ page }) => {
     // given
     await page.goto('https://odk-nginx.example.test:9001');
 
     // when
     await page.evaluate(() => {
-      /* global document */
       const frame = document.createElement('iframe');
       frame.src = '/';
       document.head.appendChild(frame);
