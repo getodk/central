@@ -43,7 +43,7 @@ describe('setup-odk.sh', function() {
             `connect-src 'self' ${expectedCspEntry} https://translate.google.com https://translate.googleapis.com`,
             `font-src 'self'`,
             `form-action 'self'`,
-            `frame-ancestors 'none'`,
+            `frame-ancestors 'self'`,
             `frame-src 'self' https://getodk.github.io/central/`,
             `img-src data: https:`,
             `manifest-src 'self'`,
