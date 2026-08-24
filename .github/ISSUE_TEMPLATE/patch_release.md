@@ -26,16 +26,17 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 - [ ] Get the latest version of the `central` repository locally.
   - If you have **not** cloned the repository: clone it.
   - If you had **already** cloned the repository: `git pull`
-- [ ] Check out the correct branch. If the patch involves a single change/PR to the `central` repository, check out the `master` branch. Otherwise, a different branch will be used for the patch (possibly `next`); check out that branch.
+- [ ] Check out the correct branch. If the patch involves a single change/PR to the `central` repository, check out the `master` branch. Otherwise, use a hotfix branch off `master` (never `next`, which may contain changes not intended for the patch); check out that branch.
 
 ### Release `central-frontend`
 
 > Optional section: skip it if no `central-frontend` changes are included in the patch.
 
-- [ ] Run `npm run version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
-- [ ] Commit the changes on a new branch (e.g., `release-version-bumps`) and open a PR targeting `master`.
-- [ ] 🔎 Review the PR. Verify the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files.
-- [ ] Merge the PR.
+- [ ] Check out the `central-frontend` hotfix branch for the patch (create it from the previous release tag if it doesn't exist), and cherry-pick the commits for the patch from `master` onto it.
+- [ ] Run `npm run version` in `central-frontend`, then `npm install`. This consumes the `.changeset/` files, bumps package versions, updates each `CHANGELOG.md`, and updates `package-lock.json`.
+- [ ] Commit the changes on a new branch and open a PR targeting the hotfix branch.
+- [ ] 🔎 Review the PR. Verify the cherry-picked commits, the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files, and that `package-lock.json` was updated.
+- [ ] Merge the PR into the hotfix branch.
 - [ ] In `central-frontend`, create a minimal GitHub release on the merged commit. The tag push is what triggers `.github/workflows/wf-publish.yml` to publish packages to npm — full release notes live only in the `central` release.
   - Tag: `v*.*.*` (no pre-release suffix).
   - Set as the **latest release**. Don't set as a pre-release.
@@ -45,12 +46,16 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   - The expected packages were published to npm.
   - Per-package tags were pushed to the repository.
   - If the workflow fails, do not proceed with the rest of the release — investigate and resolve before creating the `central` release.
+- [ ] On a new branch off `central-frontend`'s `master`, cherry-pick the version commit from the hotfix branch. Open a PR targeting `master`.
+- [ ] 🔎 Review the PR. Verify it matches the version commit on the hotfix branch. Merge it to `master`.
 
 ### Release `central-backend`
 
 > Optional section: skip it if no `central-backend` changes are included in the patch.
 
-- [ ] Create a GitHub release on the latest `master` commit of `central-backend`.
+- [ ] Check out the `central-backend` hotfix branch for the patch (create it from the previous release tag if it doesn't exist), cherry-pick the commits for the patch from `master` onto it, and push the branch.
+- [ ] 🔎 Verify the cherry-picked commits on the hotfix branch match what's expected for the patch.
+- [ ] Create a GitHub release on the tip of the hotfix branch.
   - Tag: `v*.*.*` (no pre-release suffix).
   - Set as the **latest release**. Don't set as a pre-release.
   - Body: a single line pointing to the upcoming `central` release, e.g., `See release notes at https://github.com/getodk/central/releases/tag/vX.Y.Z`.
@@ -59,17 +64,16 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 - [ ] If the patch includes `central-backend` changes, `cd server` and run:
   - `git fetch`
-  - `git switch -d origin/master` or `git checkout origin/master`
+  - `git switch -d vXXXX.X.Y` (the `central-backend` release tag created above)
 - [ ] If the patch includes `central-frontend` changes, update `FRONTEND_VERSION` in `docker-compose.yml` to the tag of the `central-frontend` release created above.
 - [ ] Commit the updates using a new branch (e.g., `update-versions`). Create a new PR for the branch.
-  - If the only change/PR to the `central` repository is these updates, target the `master` branch. Otherwise, a different branch will be used for the patch (possibly `next`); target that branch.
+  - If the only change/PR to the `central` repository is these updates, target the `master` branch. Otherwise, target the hotfix branch.
 - [ ] 🔎 Review the PR. Verify that the `server` diff links to the expected commit hashes and that `FRONTEND_VERSION` matches the `central-frontend` release tag.
 
 ### Merge
 
-- [ ] If the patch involves more than a single change/PR to the `central` repository, then there should be a PR for the patch as a whole. Merge it.
+- [ ] If the patch involves more than a single change/PR to the `central` repository, then there should be a PR for the patch as a whole, targeting `master`. Merge it to `master`.
   - Select **"Create a merge commit"** when you merge.
-  - If the PR used the `next` branch, don't delete the `next` branch after merging.
 
 ### Release `central`
 

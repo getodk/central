@@ -33,9 +33,9 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
 > Releases always include `central-frontend`.
 
-- [ ] Run `npm run version` in `central-frontend`. This consumes the `.changeset/` files, bumps package versions, and updates each `CHANGELOG.md`.
+- [ ] Run `npm run version` in `central-frontend`, then `npm install`. This consumes the `.changeset/` files, bumps package versions, updates each `CHANGELOG.md`, and updates `package-lock.json`.
 - [ ] Commit the changes on a new branch (e.g., `release-version-bumps`) and open a PR targeting `master`.
-- [ ] 🔎 Review the PR. Verify the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files.
+- [ ] 🔎 Review the PR. Verify the version bumps and `CHANGELOG.md` entries match what's expected from the `.changeset/` files, and that `package-lock.json` was updated.
 - [ ] Merge the PR.
 - [ ] In `central-frontend`, create a minimal GitHub release on the merged commit. The tag push is what triggers `.github/workflows/wf-publish.yml` to publish packages to npm — full release notes live only in the `central` release.
   - Tag: `v*.*.*` (no pre-release suffix).
