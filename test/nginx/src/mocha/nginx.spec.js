@@ -82,7 +82,7 @@ const contentSecurityPolicies = {
       ],
       'font-src':       self,
       'form-action': self,
-      'frame-ancestors': none,
+      'frame-ancestors': self,
       'frame-src':      [
         self,
         centralNotifications,
