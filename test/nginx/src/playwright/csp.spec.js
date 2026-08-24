@@ -105,6 +105,26 @@ test('catches style-src-elem violation samples', async ({ page }) => {
   );
 });
 
+test.describe('bug: https://github.com/getodk/central/issues/2080', () => {
+  test('allows central-frontend to show itself in a frame', async () => {
+    // given
+    await page.goto('https://odk-nginx.example.test:9001');
+
+    // when
+    await page.evaluate(() => {
+      /* global document */
+      const frame = document.createElement('iframe');
+      frame.src = '/';
+      document.head.appendChild(frame);
+    });
+    // and
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // then
+    await assertSentryReceived();
+  });
+});
+
 function stripLeadingSlash(path) {
   return path.startsWith('/') ? path.substring(1) : path;
 }
