@@ -121,7 +121,7 @@ test.describe('bug: https://github.com/getodk/central/issues/2080', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // then
-    await assertSentryReceived();
+    await assertSentryReceived(/* nothing */);
   });
 });
 
