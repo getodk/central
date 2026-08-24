@@ -123,6 +123,72 @@ test.describe('bug: https://github.com/getodk/central/issues/2080', () => {
     // then
     await assertSentryReceived(/* nothing */);
   });
+
+  test('does not allow other domains as iframe ancestor', async ({ page }) => {
+    // given
+    await page.goto('https://o-fake-dsn.ingest.sentry.io/__mock_sentry/no-csp');
+
+    // when
+    await page.evaluate(() => {
+      const frame = document.createElement('iframe');
+      frame.src = 'https://odk-nginx.example.test:9001';
+      document.head.appendChild(frame);
+    });
+    // and
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // then
+    await assertSentryReceived(
+      {
+        'report': {
+          'csp-report': {
+            'document-uri': 'https://odk-nginx.example.test:9001/',
+            'referrer': '',
+            'violated-directive': 'frame-ancestors',
+            'effective-directive': 'frame-ancestors',
+            'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://o-fake-dsn.ingest.sentry.io https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'self'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
+            'disposition': 'enforce',
+            'blocked-uri': 'https://odk-nginx.example.test:9001/',
+            'status-code': 200,
+            'script-sample': '',
+          },
+        },
+      },
+    );
+  });
+
+  test('does not allow other domains as iframe src', async ({ page }) => {
+    // given
+    await page.goto('https://odk-nginx.example.test:9001');
+
+    // when
+    await page.evaluate(() => {
+      const frame = document.createElement('iframe');
+      frame.src = 'https://example.com';
+      document.head.appendChild(frame);
+    });
+    // and
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // then
+    await assertSentryReceived(
+      {
+        'report': {
+          'csp-report': {
+            'document-uri': 'https://odk-nginx.example.test:9001/',
+            'referrer': '',
+            'violated-directive': 'frame-src',
+            'effective-directive': 'frame-src',
+            'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://o-fake-dsn.ingest.sentry.io https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'self'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
+            'disposition': 'enforce',
+            'blocked-uri': 'https://example.com',
+            'status-code': 200,
+            'script-sample': '',
+          },
+        },
+      },
+    );
+  });
 });
 
 function stripLeadingSlash(path) {
