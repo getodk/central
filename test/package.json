@@ -3,17 +3,23 @@
   "scripts": {
     "lint": "ESLINT_USE_FLAT_CONFIG=false npx eslint --cache .",
     "test:github-actions": "mocha ./github-actions.spec.js",
-    "test:nginx": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha ./nginx/test-nginx.js",
-    "test": "npm run lint && npm run test:github-actions && npm run test:nginx"
+    "test:nginx": "npm run test:nginx:mocha && npm run test:nginx:playwright",
+    "test:nginx:mocha": "NODE_TLS_REJECT_UNAUTHORIZED=0 mocha './nginx/src/mocha/**/*.spec.js' --require ./nginx/src/mocha/mocha.setup.js",
+    "test:nginx:playwright": "NODE_TLS_REJECT_UNAUTHORIZED=0 playwright test",
+    "test:service": "mocha ./service/service.spec.js",
+    "test": "npm run lint && npm run test:github-actions && npm run test:nginx && npm run test:service"
   },
   "dependencies": {
-    "chai": "^5.2.0",
-    "deep-equal-in-any-order": "^2.1.0",
+    "@playwright/test": "^1.60.0",
+    "chai": "^5.3.3",
+    "deep-equal-in-any-order": "^2.2.0",
     "eslint": "^9.28.0",
-    "mocha": "^11.6.0",
-    "yaml": "^2.8.2"
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "express": "^4.22.2",
+    "mocha": "^11.7.6",
+    "yaml": "^2.9.0"
   },
   "volta": {
-    "node": "24.13.0"
+    "node": "24.16.0"
   }
 }

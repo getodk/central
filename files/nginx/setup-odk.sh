@@ -15,12 +15,15 @@ fi
 # Generate self-signed keys for the incorrect (catch-all) HTTPS listener.  This
 # cert should never be seen by legitimate users, so it's not a big deal that
 # it's self-signed and won't expire for 1,000 years.
-mkdir -p /etc/nginx/ssl
-openssl req -x509 -nodes -newkey rsa:2048 \
-    -subj "/CN=invalid.local" \
-    -keyout /etc/nginx/ssl/nginx.default.key \
-    -out    /etc/nginx/ssl/nginx.default.crt \
-    -days 365000
+BADHOST_DH_PATH=/etc/nginx/ssl/nginx.default
+if ! [ -s "$BADHOST_DH_PATH.key" ] || ! [ -s "$BADHOST_DH_PATH.crt" ]; then
+  mkdir -p /etc/nginx/ssl
+  openssl req -x509 -nodes -newkey rsa:2048 \
+      -subj "/CN=invalid.local" \
+      -keyout "$BADHOST_DH_PATH.key" \
+      -out    "$BADHOST_DH_PATH.crt" \
+      -days 365000
+fi
 
 DH_PATH=/etc/dh/nginx.pem
 if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
@@ -28,9 +31,12 @@ if [ "$SSL_TYPE" != "upstream" ] && [ ! -s "$DH_PATH" ]; then
 fi
 
 SELFSIGN_PATH="/etc/selfsign/live/$DOMAIN"
-if [ "$SSL_TYPE" = "selfsign" ] && [ ! -s "$SELFSIGN_PATH/privkey.pem" ]; then
+if [ "$SSL_TYPE" = "selfsign" ] && {
+  ! [ -s "$SELFSIGN_PATH/privkey.pem" ] ||
+  ! [ -s "$SELFSIGN_PATH/fullchain.pem" ];
+}; then
   mkdir -p "$SELFSIGN_PATH"
-  openssl req -x509 -newkey rsa:4086 \
+  openssl req -x509 -newkey rsa:4096 \
     -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
     -keyout "$SELFSIGN_PATH/privkey.pem" \
     -out "$SELFSIGN_PATH/fullchain.pem" \
@@ -45,6 +51,7 @@ echo "writing fresh nginx templates..."
   > /etc/nginx/conf.d/redirector.conf
 
 CERT_DOMAIN=$( [ "$SSL_TYPE" = "customssl" ] && echo "local" || echo "$DOMAIN") \
+SENTRY_DSN_FRONTEND_ROOT="$(awk 'sub(/:\/\/[a-z0-9]*@/, "://") && sub(/\/[0-9]+$/, "")' <<<"$SENTRY_DSN_FRONTEND")" \
 /scripts/envsub.awk \
   < /usr/share/odk/nginx/odk.conf.template \
   > /etc/nginx/conf.d/odk.conf
@@ -59,7 +66,7 @@ else
     # strip out all ssl_* directives
     perl -i -ne 's/listen 443.*/listen 80;/; print if ! /\bssl_/' /etc/nginx/conf.d/odk.conf
     # force https because we expect SSL upstream
-    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /usr/share/odk/nginx/backend.conf
+    perl -i -pe 's/X-Forwarded-Proto \$scheme/X-Forwarded-Proto https/;' /etc/nginx/conf.d/odk.conf
     echo "starting nginx for upstream ssl..."
   else
     # remove letsencrypt challenge reply, but keep 80 to 443 redirection

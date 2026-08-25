@@ -43,11 +43,32 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > .env
 
 touch ./files/allow-postgres14-upgrade
 
-log "Building docker containers..."
-docker compose build
+log "Building docker containers (FRONTEND_BUILD_MODE='${FRONTEND_BUILD_MODE-}')..."
+docker compose build --build-arg "FRONTEND_BUILD_MODE=$FRONTEND_BUILD_MODE"
 
 log "Starting containers..."
 docker compose up --detach
+
+log "Verifying version.txt..."
+case "$FRONTEND_BUILD_MODE" in
+  source)     expectedClientHash="$(   cd client && git rev-parse HEAD)"
+              expectedClientVersion="$(cd client && git describe --tags --always)"
+              ;;
+  fetch|test) expectedClientHash="0000000000000000000000000000000000000000"
+              expectedClientVersion="$FRONTEND_VERSION"
+              ;;
+  *) exit 1
+esac
+diff \
+     <(docker compose exec nginx cat /usr/share/nginx/html/version.txt) \
+     <(cat <<EOF
+versions:
+$(git rev-parse HEAD) ($(git describe --tags --always))
+ $expectedClientHash client ($expectedClientVersion)
+ $(cd server && git rev-parse HEAD) server ($(cd server && git describe --tags --always))
+EOF
+     )
+log "version.txt looks OK."
 
 log "Verifying frontend..."
 check_path 180 / 'ODK Central'

@@ -2,6 +2,31 @@
 set -o pipefail
 shopt -s inherit_errexit
 
+# Check for illegal DB_SSL environment variable.
+if [[ -v DB_SSL ]] && ! [[ "$DB_SSL" = "null" ]]; then
+  echo "!!!"
+  echo "!!! You have the DB_SSL variable defined (in your .env file, probably)."
+  echo "!!! This variable is no longer supported from Central 2026.1 onwards."
+  echo "!!! There is a new way of configuring SSL for your database, please see:"
+  echo "!!!"
+  echo "!!!   https://docs.getodk.org/central-install-digital-ocean/#using-a-custom-database-server"
+  echo "!!!"
+  echo "!!! Please refer to the Central 2026.1.0 release notes for more information on this change."
+  echo "!!!"
+  echo "!!! ODK Central backend will not start until this issue is resolved."
+  echo "!!!"
+  sleep 60 # reduce resource waste from quick restart and instant failure
+  exit 1
+fi
+unset DB_SSL
+
+# Serialize (as a raw env block) the environment set up by docker, for later
+# availability to processes running with a reset environment (such as cronjobs).
+# See https://github.com/getodk/central/issues/1747 .
+# See `man 5 proc_pid_environ` .
+cp --preserve=mode,ownership /proc/self/environ /dev/shm/docker-envblock
+
+
 echo "generating local service configuration.."
 
 ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
@@ -16,6 +41,19 @@ export SENTRY_RELEASE
 SENTRY_TAGS="{ \"version.central\": \"$(cat sentry-versions/central)\", \"version.client\": \"$(cat sentry-versions/client)\" }"
 # shellcheck disable=SC2090
 export SENTRY_TAGS
+
+echo "waiting for PostgreSQL to become connectable to..."
+maxTries=15
+retries=$((maxTries-1))
+while ! pg_isready; do
+  if [[ "$retries" = 0 ]]; then
+    echo "PostgreSQL not available after $maxTries attempts."
+    exit 1
+  fi
+  echo "PostgreSQL not yet available; sleeping 1 second..."
+  sleep 1
+  retries=$((retries-1))
+done
 
 echo "running migrations.."
 node ./lib/bin/run-migrations

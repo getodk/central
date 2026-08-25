@@ -47,18 +47,25 @@ docker buildx rm docker_context_checker || true
 docker buildx create --name docker_context_checker \
     --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1 \
     --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=-1
-docker buildx use docker_context_checker
 
 log "Building docker image..."
 iidfile="$(mktemp)"
 (
 docker \
     buildx build --load \
+    --builder docker_context_checker \
     --iidfile "$iidfile" \
     --no-cache --progress plain --file - . 2>&1 <<EOF
 FROM busybox
 COPY . /build-context
 WORKDIR /build-context
+
+# Ignore .git files - ideally they wouldn't be included in the Docker
+# context, but while they still are they cloud these checks because
+# their count and size can vary between branches/forks/PRs.
+# See: https://github.com/getodk/central/issues/1810
+RUN rm -rf ./.git/
+
 RUN find . -type f
 RUN du -s .
 EOF

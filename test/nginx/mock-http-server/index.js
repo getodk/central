@@ -1,18 +1,20 @@
+const { Readable } = require('node:stream');
+
 const express = require('express');
 
 const port = process.env.PORT || 80;
 const log = (...args) => console.log('[mock-http-server]', ...args);
 
 const requests = [];
+let openProcessorCount = 0;
+let completedProcessorCount = 0;
 
 const app = express();
+app.set('case sensitive routing', true);
+app.set('query parser', 'simple');
 
 app.use((req, res, next) => {
   console.log(new Date(), req.method, req.originalUrl);
-
-  // always set CSP header to detect (or allow) leaks from backend through to the client
-  res.set('Content-Security-Policy-Report-Only', 'default-src NOTE:FROM-BACKEND');
-
   next();
 });
 
@@ -20,14 +22,66 @@ app.use((req, res, next) => {
 app.use('/-/', (req, res, next) => {
   res.set('Vary', 'Accept-Encoding');
   res.set('Cache-Control', 'public, max-age=0');
+
+  // Set both CSP headers from enketo.  Eventually nginx should be confident to override both.
+  res.set('Content-Security-Policy',             `NOTE:FROM-BACKEND:block`);
+  res.set('Content-Security-Policy-Report-Only', `NOTE:FROM-BACKEND:reportOnly`);
   next();
 });
 
-app.get('/health',      (req, res) => res.send('OK'));
-app.get('/request-log', (req, res) => res.json(requests));
-app.get('/reset',       (req, res) => {
+app.get('/__mock_http_server/health',      (req, res) => res.send('OK'));
+app.get('/__mock_http_server/request-log', (req, res) => res.json(requests));
+app.get('/__mock_http_server/reset',       (req, res) => {
   requests.length = 0;
+  openProcessorCount = 0;
+  completedProcessorCount = 0;
   res.json('OK');
+});
+
+app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
+  const csvSizeBytes = 100_000_000;
+
+  res.set('Content-Disposition', `attachment; filename="100MB.csv"; filename*=UTF-8''100MB.csv`);
+  res.set('Content-Type', 'text/csv; charset=utf-8');
+
+  ++openProcessorCount;
+
+  async function* generateCsv(targetByteLength) {
+    let rowCount = 0;
+    let totalWritten = 0;
+
+    const batchSize = Math.pow(2, 18);
+
+    const header = Buffer.from('row_number,timestamp,random-number\n', 'utf8');
+    totalWritten += header.byteLength;
+    yield header;
+
+    while(totalWritten < targetByteLength) {
+      await new Promise(resolve => setTimeout(resolve, 1));
+
+      const batch = Buffer.allocUnsafe(Math.min(batchSize, targetByteLength - totalWritten));
+      let bufpos = 0;
+      while(bufpos < batch.length) {
+        const line = `${++rowCount},${new Date().toISOString()},${Math.random()}\n`;
+        const bytesWritten = batch.write(line, bufpos, batch.length-bufpos, 'utf8');
+        bufpos += bytesWritten;
+        totalWritten += bytesWritten;
+      }
+      yield batch;
+    }
+
+    ++completedProcessorCount;
+  }
+
+  const randomStream = Readable.from(generateCsv(csvSizeBytes));
+  randomStream.pipe(res);
+  req.on('close', () => {
+    randomStream.destroy();
+    --openProcessorCount;
+  });
+});
+app.get('/__mock_http_server/open-processor-count', (req, res) => {
+  res.send({ openProcessorCount, completedProcessorCount });
 });
 
 app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));
@@ -37,6 +91,25 @@ app.get('/v1/projects', (_, res) => {
   res.set('Vary', 'Cookie');
   res.set('Cache-Control', 'private, max-age=3600');
   res.send('OK');
+});
+
+app.get('/v1/oidc/callback', (req, res) => {
+  // This endpoint is 100% responsible for its own headers.  Set both, and test they both get through.
+  res.set('Content-Security-Policy',             `NOTE:FROM-BACKEND:block`);
+  res.set('Content-Security-Policy-Report-Only', `NOTE:FROM-BACKEND:reportOnly`);
+
+  res.send('OK');
+});
+
+app.get('/v1/broken-stream', (req, res) => {
+  res.status(200);
+  res.write('beginning stream...', () => {
+    // Write has now flushed from NodeJS.  Give it a chance to flush
+    // from lower-level network buffer.
+    setTimeout(() => {
+       res.socket.destroy();
+    }, 50);
+  });
 });
 
 [
@@ -51,6 +124,6 @@ app.get('/v1/projects', (_, res) => {
   res.send('OK');
 }));
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   log(`Listening on port: ${port}`);
 });

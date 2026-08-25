@@ -1,4 +1,4 @@
-ARG node_version=24.13.0
+ARG node_version=24.16.0
 
 
 
@@ -24,11 +24,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 COPY . .
 RUN mkdir /tmp/sentry-versions
-RUN git describe --tags --dirty > /tmp/sentry-versions/central
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/central
 WORKDIR /server
-RUN git describe --tags --dirty > /tmp/sentry-versions/server
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/server
 WORKDIR /client
-RUN git describe --tags --dirty > /tmp/sentry-versions/client
+RUN git describe --tags --dirty --always > /tmp/sentry-versions/client
 
 
 
@@ -48,10 +48,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gpg \
         cron \
-        wait-for-it \
         procps \
         postgresql-client-14 \
         netcat-traditional \
+        openssl \
     && rm -rf /var/lib/apt/lists/* \
     && npm clean-install --omit=dev --no-audit \
         --fund=false --update-notifier=false
@@ -63,6 +63,7 @@ COPY files/service/scripts/ ./
 COPY files/service/config.json.template /usr/share/odk/
 COPY files/service/crontab /etc/cron.d/odk
 COPY files/service/odk-cmd /usr/bin/
+COPY files/service/with-pgenvblock.pl /usr/bin/
 
 COPY --from=intermediate /tmp/sentry-versions/ ./sentry-versions
 

@@ -4,7 +4,8 @@ services:
       context: ../..
       dockerfile: nginx.dockerfile
       args:
-        SKIP_FRONTEND_BUILD: true
+        FRONTEND_BUILD_MODE: test
+        FRONTEND_VERSION: v0.0.0
     depends_on:
       - service
       - enketo
@@ -17,12 +18,17 @@ services:
       - SENTRY_ORG_SUBDOMAIN=o-fake-dsn
       - SENTRY_PROJECT=example-sentry-project
       - OIDC_ENABLED=false
+      - SENTRY_DSN_FRONTEND=${SENTRY_DSN_FRONTEND-https://abcdef0123456789abcdef0123456789@o-fake-dsn.ingest.sentry.io/1234567890123456}
     volumes:
       - ../../files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
       - ../../files/nginx/client-config.json.template:/usr/share/odk/nginx/client-config.json.template:ro
       - ./files/nginx/dh.pem:/etc/dh/nginx.pem:ro
     healthcheck:
       test: [ "CMD-SHELL", "nc -z localhost 80 || exit 1" ]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+      start_period: 0s
     restart: always
     logging:
       driver: local

@@ -17,7 +17,7 @@ If you are looking for help, please take a look at the [Documentation Website](h
 
 ## Contributing
 
-We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Ideas board](https://forum.getodk.org/c/ideas) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/CONTRIBUTING.md)), or both. To set up a development environment, first follow the [Backend instructions](https://github.com/getodk/central-backend#setting-up-a-development-environment) and then optionally the [Frontend instructions](https://github.com/getodk/central-frontend#setting-up-your-development-environment).
+We would love your contributions to Central. If you have thoughts or suggestions, please share them with us on the [Ideas board](https://forum.getodk.org/c/ideas) on the ODK Forum. If you wish to contribute code, you have the option of working on the Backend server ([contribution guide](https://github.com/getodk/central-backend/blob/master/CONTRIBUTING.md)), the Frontend website ([contribution guide](https://github.com/getodk/central-frontend/blob/master/apps/central/docs/CONTRIBUTING.md)), or both. To set up a development environment, first follow the [Backend instructions](https://github.com/getodk/central-backend#setting-up-a-development-environment) and then optionally the [Frontend instructions](https://github.com/getodk/central-frontend#setting-up-your-development-environment).
 
 ### Branches
 
@@ -40,6 +40,16 @@ If you want to work on the Central codebase and don't want to setup dependent se
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
 
 To learn how to run such a stack in production, please take a look at [our DigitalOcean installation guide](https://docs.getodk.org/central-install-digital-ocean/).
+
+### Sentry (optional)
+
+To enable frontend error reporting and performance monitoring via Sentry, set `SENTRY_DSN_FRONTEND` in your `.env` file (see `.env.template`) and restart:
+
+```sh
+docker compose up -d
+```
+
+Deployments that omit this variable are unaffected — Sentry will remain disabled.
 
 ## Node.js version
 

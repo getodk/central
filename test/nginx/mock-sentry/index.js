@@ -1,4 +1,5 @@
 const { execSync } = require('node:child_process');
+const crypto  = require('node:crypto');
 const { readFileSync } = require('node:fs');
 const { createServer } = require('node:https');
 const { createSecureContext } = require('node:tls');
@@ -17,12 +18,21 @@ const logErrorEvent = error => {
 };
 
 const app = express();
-app.use(express.json());
-app.get('/event-log', (req, res) => res.json(events));
-app.get('/reset',       (req, res) => {
+app.set('case sensitive routing', true);
+app.set('query parser', 'simple');
+app.use(express.json({
+  type: [
+    'application/json',
+    'application/csp-report',   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-uri#violation_report_syntax
+    'application/reports+json', // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/report-to#violation_report_syntax
+  ],
+}));
+app.get('/__mock_sentry/event-log', (req, res) => res.json(events));
+app.get('/__mock_sentry/reset',       (req, res) => {
   events.length = 0;
   res.json('OK');
 });
+
 app.use('/api', (req, res, next) => {
   log(new Date(), req.method, req.originalUrl);
 
@@ -40,6 +50,20 @@ app.use('/api', (req, res, next) => {
 
   next();
 });
+
+app.use('/api/:projectId/envelope/', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://odk-nginx.example.test:9001');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
+
+  if(req.method === 'OPTIONS') return res.sendStatus(204);
+
+  next();
+});
+app.post('/api/:projectId/envelope/', (req, res) => {
+  if(req.params.projectId !== '1234567890123456') return res.status(400).send('Unexpected Sentry projectId.');
+  res.send('envelope:OK');
+});
+
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
   const { sentry_key } = req.query;
@@ -96,12 +120,16 @@ const server = (() => {
       }
       cb(null, createSecureContext(goodCreds));
     },
+    // Disable TLS session-ticket resumption to force nginx to perform
+    // a full TLS handshake, thus exercising SNICallback consistently.
+    // See: https://nodejs.org/api/crypto.html#openssl-options:~:text=SSL_OP_NO_TICKET
+    secureOptions: crypto.constants.SSL_OP_NO_TICKET,
   };
 
   return createServer(opts, app);
 })();
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
   log(`Listening with HTTPS on port: ${port}`);
 });
 

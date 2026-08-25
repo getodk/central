@@ -44,7 +44,9 @@ EOF
                  /usr/share/odk/nginx/
 
     # gixy-ng is a maintained fork of gixy: https://github.com/dvershinin/gixy
-    # For version updates, see: https://pypi.org/project/gixy-ng/#history
+    # For version updates, see:
+    # * https://pypi.org/project/gixy-ng/#history
+    # * https://github.com/dvershinin/gixy/blob/master/CHANGELOG.md
     echo "[lint-config] installing gixy..."
     pip install gixy-ng==0.2.34
     echo "[lint-config] running gixy..."
@@ -56,6 +58,7 @@ EOF
   log "$service: config looks OK."
 }
 
+docker_compose up --detach --wait
 lint_service nginx-ssl-selfsign
 lint_service nginx-ssl-upstream
 
