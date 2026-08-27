@@ -34,6 +34,12 @@
     "support": {
         "email": "support@getodk.org"
     },
+    "maps": [ {
+        "name": "street",
+        "tiles": [ "https://tile.openstreetmap.org/{z}/{x}/{y}.png" ],
+        "attribution": "Map data © <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors",
+        "referrerPolicy": "origin"
+    } ],
     "text field character limit": 1000000,
     "exclude non-relevant": true,
     "hide powered by": true
