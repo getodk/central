@@ -1,13 +1,9 @@
-const { Readable } = require('node:stream');
-
 const express = require('express');
 
 const port = process.env.PORT || 80;
 const log = (...args) => console.log('[mock-http-server]', ...args);
 
 const requests = [];
-let openProcessorCount = 0;
-let completedProcessorCount = 0;
 
 const app = express();
 app.set('case sensitive routing', true);
@@ -33,55 +29,7 @@ app.get('/__mock_http_server/health',      (req, res) => res.send('OK'));
 app.get('/__mock_http_server/request-log', (req, res) => res.json(requests));
 app.get('/__mock_http_server/reset',       (req, res) => {
   requests.length = 0;
-  openProcessorCount = 0;
-  completedProcessorCount = 0;
   res.json('OK');
-});
-
-app.get(new RegExp('^/v1/.*/100MB\\.csv$'), (req, res) => {
-  const csvSizeBytes = 100_000_000;
-
-  res.set('Content-Disposition', `attachment; filename="100MB.csv"; filename*=UTF-8''100MB.csv`);
-  res.set('Content-Type', 'text/csv; charset=utf-8');
-
-  ++openProcessorCount;
-
-  async function* generateCsv(targetByteLength) {
-    let rowCount = 0;
-    let totalWritten = 0;
-
-    const batchSize = Math.pow(2, 18);
-
-    const header = Buffer.from('row_number,timestamp,random-number\n', 'utf8');
-    totalWritten += header.byteLength;
-    yield header;
-
-    while(totalWritten < targetByteLength) {
-      await new Promise(resolve => setTimeout(resolve, 1));
-
-      const batch = Buffer.allocUnsafe(Math.min(batchSize, targetByteLength - totalWritten));
-      let bufpos = 0;
-      while(bufpos < batch.length) {
-        const line = `${++rowCount},${new Date().toISOString()},${Math.random()}\n`;
-        const bytesWritten = batch.write(line, bufpos, batch.length-bufpos, 'utf8');
-        bufpos += bytesWritten;
-        totalWritten += bytesWritten;
-      }
-      yield batch;
-    }
-
-    ++completedProcessorCount;
-  }
-
-  const randomStream = Readable.from(generateCsv(csvSizeBytes));
-  randomStream.pipe(res);
-  req.on('close', () => {
-    randomStream.destroy();
-    --openProcessorCount;
-  });
-});
-app.get('/__mock_http_server/open-processor-count', (req, res) => {
-  res.send({ openProcessorCount, completedProcessorCount });
 });
 
 app.get('/v1/reflect-headers', (req, res) => res.json(req.headers));

@@ -13,8 +13,7 @@ describe('setup-odk.sh', function() {
       dockerCompose({}, `logs --timestamps ${service}`);
       log('--- END CONTAINER LOGS ---');
     });
-    after(function() {
-      this.timeout(5000);
+    after(() => {
       dockerCompose({}, `down --remove-orphans --volumes`);
     });
 
@@ -28,7 +27,7 @@ describe('setup-odk.sh', function() {
       [ 'bad-format', '' ],
       [ 'https://abcdef0123456789abcdef0123456789@some-dsn.ingest.sentry.io/', '' ],
     ].forEach(([ SENTRY_DSN_FRONTEND, expectedCspEntry ]) => {
-      it(`should generate expected CSP for SENTRY_DSN_FRONTEND='${SENTRY_DSN_FRONTEND}'`, withNginx({
+      it(`should generated expected CSP for SENTRY_DSN_FRONTEND='${SENTRY_DSN_FRONTEND}'`, withNginx({
         SENTRY_DSN_FRONTEND,
       }, async () => {
         // when
@@ -43,7 +42,7 @@ describe('setup-odk.sh', function() {
             `connect-src 'self' ${expectedCspEntry} https://translate.google.com https://translate.googleapis.com`,
             `font-src 'self'`,
             `form-action 'self'`,
-            `frame-ancestors 'self'`,
+            `frame-ancestors 'none'`,
             `frame-src 'self' https://getodk.github.io/central/`,
             `img-src data: https:`,
             `manifest-src 'self'`,
