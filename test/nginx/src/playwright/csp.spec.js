@@ -148,7 +148,9 @@ test.describe('frame rules', () => {
     {
       description: 'form-wrapper',
       centralUrl: 'https://odk-nginx.example.test:9001/projects/1/forms/xml-form-id/submissions/new',
-      allowedFrameAncestors: [ /*none*/ ],
+      allowedFrameAncestors: [
+        'odkCentral',
+      ],
       allowedFrameDestinations: [
         'odkCentral',
       ],
