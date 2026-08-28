@@ -179,7 +179,7 @@ test.describe('frame rules', () => {
           await page.evaluate(({ centralUrl }) => {
             const frame = document.createElement('iframe');
             frame.src = centralUrl;
-            document.head.appendChild(frame);
+            document.body.appendChild(frame);
           }, { centralUrl });
           // and
           await new Promise(resolve => setTimeout(resolve, 100));
@@ -218,7 +218,7 @@ test.describe('frame rules', () => {
           await page.evaluate(({ hostUrl }) => {
             const frame = document.createElement('iframe');
             frame.src = hostUrl;
-            document.head.appendChild(frame);
+            document.body.appendChild(frame);
           }, { hostUrl });
           // and
           await new Promise(resolve => setTimeout(resolve, 100));
