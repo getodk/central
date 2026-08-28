@@ -118,7 +118,9 @@ test.describe('frame rules', () => {
     {
       description: 'central-backend',
       centralUrl: 'https://odk-nginx.example.test:9001/v1/projects',
-      allowedFrameAncestors: [ /*none*/ ],
+      allowedFrameAncestors: [
+        'odkCentral',
+      ],
       allowedFrameDestinations: [ /*none*/ ],
     },
     {
