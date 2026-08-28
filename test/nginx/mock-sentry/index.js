@@ -28,6 +28,14 @@ app.use(express.json({
   ],
 }));
 app.get('/__mock_sentry/event-log', (req, res) => res.json(events));
+app.get('/__mock_sentry/no-csp', (req, res) => {
+  // Not really Sentry-related, but a useful page for random tests which require
+  // a browser context on a 3rd-party domain.
+  res.set('Content-Type', 'text/html');
+  res.removeHeader('Content-Security-Policy');
+  res.removeHeader('Content-Security-Policy-Report-Only');
+  res.send('<html><body></body></html>');
+});
 app.get('/__mock_sentry/reset',       (req, res) => {
   events.length = 0;
   res.json('OK');
