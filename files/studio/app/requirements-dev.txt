@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==8.3.4
+# Used to check that generated XLSForms really convert, the way Central does.
+pyxform==4.5.0

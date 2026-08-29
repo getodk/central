@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "odk-docs": {
+      "type": "http",
+      "url": "https://odk-docs.mcp.kapa.ai"
+    }
+  }
+}

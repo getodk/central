@@ -36,6 +36,22 @@ If you want to work on the Central codebase and don't want to setup dependent se
 * Add an entry in your `/etc/hosts` file for `127.0.0.1 central-dev`.
 * Create `local.json` in the central-backend directory and set the value of `default.env.domain` to `http://central-dev:8989`
 
+## Central Studio
+
+This installation includes [Central Studio](files/studio/README.md), an add-on
+served at `/studio/` that adds a questionnaire designer and statistical export
+to Central:
+
+* Design forms in the browser — sections, repeat rosters, choice lists, skip
+  logic, constraints and translations — save them, and publish them to Central
+  as XLSForms.
+* Export submissions as **Stata (`.dta`)** and **SPSS (`.sav`)** files with
+  variable labels, value labels and data types already applied, plus a codebook.
+
+Studio runs as its own container and uses Central's public API with the signed-in
+user's own session, so it adds no new accounts and grants no access beyond what
+Central already allows. See [files/studio/README.md](files/studio/README.md).
+
 ## Operations
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
 

@@ -9,6 +9,7 @@ services:
     depends_on:
       - service
       - enketo
+      - studio
       - sentry-mock
     extra_hosts:
       - o-fake-dsn.ingest.sentry.io:host-gateway

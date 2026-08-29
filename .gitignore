@@ -17,3 +17,9 @@
 
 /files/dkim/*
 /.idea/
+
+# central-studio (python)
+__pycache__/
+*.py[cod]
+/files/studio/app/.pytest_cache/
+/files/studio/app/.venv/

@@ -101,6 +101,7 @@ services:
     depends_on:
       - service
       - enketo
+      - studio
     environment:
       - DOMAIN=${DOMAIN}
       - CERTBOT_EMAIL=${SYSADMIN_EMAIL}
@@ -124,6 +125,22 @@ services:
       driver: local
       options:
         max-file: "30"
+  studio:
+    build:
+      context: .
+      dockerfile: studio.dockerfile
+    depends_on:
+      - service
+    volumes:
+      - studio:/var/lib/odk/studio
+    environment:
+      - CENTRAL_API=${STUDIO_CENTRAL_API:-http://service:8383}
+      - STUDIO_WORKERS=${STUDIO_WORKERS:-2}
+      - STUDIO_MAX_EXPORT_ROWS=${STUDIO_MAX_EXPORT_ROWS:-2000000}
+      - STUDIO_CENTRAL_TIMEOUT=${STUDIO_CENTRAL_TIMEOUT:-900}
+    restart: always
+    logging:
+      driver: local
   pyxform:
     image: 'ghcr.io/getodk/pyxform-http:v4.5.0'
     restart: always
@@ -170,5 +187,6 @@ services:
 volumes:
   secrets:
   postgres14:
+  studio:
   enketo_redis_main:
   enketo_redis_cache:

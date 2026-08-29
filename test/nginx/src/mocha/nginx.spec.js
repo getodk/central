@@ -165,6 +165,38 @@ const contentSecurityPolicies = {
       'report-uri': '/csp-report',
     }),
   },
+  studio: { // central-studio: questionnaire designer and statistical export
+    block: {
+      'default-src': [
+        reportSample,
+        none,
+      ],
+      'base-uri':        none,
+      'connect-src':     self,
+      'font-src':        self,
+      'form-action':     self,
+      'frame-ancestors': none,
+      'frame-src':       none,
+      'img-src': [
+        self,
+        'data:',
+      ],
+      'manifest-src':    none,
+      'media-src':       none,
+      'object-src':      none,
+      'script-src': [
+        reportSample,
+        self,
+      ],
+      'style-src': [
+        reportSample,
+        self,
+      ],
+      'style-src-attr':  unsafeInline,
+      'worker-src':      none,
+      'report-uri':      '/csp-report',
+    },
+  },
   'form-wrapper': { // web-forms, and the enketo iframe owner
     block: allowGoogleTranslate({
       'default-src': [
@@ -288,6 +320,7 @@ describe('nginx config', () => {
   beforeEach(() => Promise.all([
     resetEnketoMock(),
     resetBackendMock(),
+    resetStudioMock(),
   ]));
 
   describe('SSL_TYPE=selfsign', () => {
@@ -699,6 +732,82 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
           await assertEnketoReceived(
             { method:'GET', path:'/-/preview' + (pathRoot.endsWith('/') ? '/' : '') + '?' + queryString },
           );
+        });
+      });
+    });
+  });
+
+  describe('central-studio', () => {
+    [
+      '/studio/',
+      '/studio/static/app.js',
+      '/studio/api/health',
+      '/studio/api/questionnaires?projectId=1',
+    ].forEach(path => {
+      it(`should forward to studio; ${path}`, async () => {
+        // when
+        const res = await apiFetch(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), 'OK');
+        assertSecurityHeaders(res, { csp:'studio' });
+
+        // and: the path prefix is preserved, so the app knows where it is mounted
+        await assertStudioReceived(
+          { method:'GET', path },
+        );
+      });
+    });
+
+    it('should redirect /studio to /studio/', async () => {
+      // when
+      const res = await apiFetch('/studio');
+
+      // then
+      assert.equal(res.status, 308);
+      assert.equal(res.headers.get('location'), '/studio/');
+
+      // and
+      await assertStudioReceivedNoRequests();
+    });
+
+    [
+      '/studios',
+      '/studio-other',
+    ].forEach(path => {
+      it(`should not forward to studio; ${path}`, async () => {
+        // when
+        const res = await apiFetch(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="root-app"></div>\n');
+        assertSecurityHeaders(res, { csp:'central-frontend' });
+
+        // and
+        await assertStudioReceivedNoRequests();
+      });
+    });
+
+    describe('caching', () => {
+      [
+        // Studio's assets are not content-hashed, so they must be revalidated.
+        [ '/studio/static/app.js',    'revalidate' ],
+        [ '/studio/static/styles.css', 'revalidate' ],
+        // Everything else is user data and must not be stored.
+        [ '/studio/',                 'single-use' ],
+        [ '/studio/api/health',       'single-use' ],
+      ].forEach(([ path, expectedCacheStrategy ]) => {
+        [ 'GET', 'HEAD' ].forEach(method => {
+          it(`${method} ${path} should be served with cache strategy: ${expectedCacheStrategy}`, async () => {
+            // when
+            const res = await apiFetch(path, { method });
+
+            // then
+            assert.equal(res.status, 200);
+            assertCacheStrategyApplied(res, expectedCacheStrategy);
+          });
         });
       });
     });
@@ -1162,6 +1271,13 @@ function assertBackendReceived(...expectedRequests) {
   return assertMockHttpReceived(8383, expectedRequests);
 }
 
+function assertStudioReceived(...expectedRequests) {
+  return assertMockHttpReceived(8686, expectedRequests);
+}
+function assertStudioReceivedNoRequests() {
+  return assertStudioReceived();
+}
+
 async function assertMockHttpReceived(port, expectedRequests) {
   const res = await request(`http://localhost:${port}/__mock_http_server/request-log`);
   assert.isTrue(res.ok);
@@ -1174,6 +1290,10 @@ function resetEnketoMock() {
 
 function resetBackendMock() {
   return resetMock(8383);
+}
+
+function resetStudioMock() {
+  return resetMock(8686);
 }
 
 async function resetMock(port) {
