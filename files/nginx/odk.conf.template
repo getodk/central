@@ -38,6 +38,9 @@ map "$request_method::$uri$is_args$args" $cache_strategy {
   # central-frontend - versioned
   ~^(GET|HEAD)::/assets/ "immutable";
 
+  # central-studio
+  ~^(GET|HEAD)::/studio/static/ "revalidate";
+
   # enketo
   ~^(GET|HEAD)::/-(/x)?/css/                 "revalidate";
   ~^(GET|HEAD)::/-(/x)?/fonts/.*\?v=         "immutable";
@@ -224,6 +227,32 @@ server {
   }
   location = /blank.html {
     try_files $uri @blank.html;
+  }
+
+  # Central Studio: questionnaire designer and Stata/SPSS export.
+  location ^~ /studio/ {
+    proxy_pass http://studio:8686;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # Building an export of a large form can take minutes; stream it out
+    # rather than buffering the whole archive first.
+    proxy_read_timeout 30m;
+    proxy_send_timeout 30m;
+    proxy_request_buffering on;
+    proxy_buffering off;
+
+    proxy_hide_header Content-Security-Policy;
+    proxy_hide_header Vary;
+    proxy_hide_header Cache-Control;
+    # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
+    add_header Content-Security-Policy "default-src 'report-sample' 'none'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'none'; img-src 'self' data:; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'none'; report-uri /csp-report" always;
+
+    include /usr/share/odk/nginx/common-headers.conf;
+  }
+  location = /studio {
+    return 308 /studio/;
   }
 
   # central-frontend

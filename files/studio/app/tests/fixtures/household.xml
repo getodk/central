@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml" xmlns:jr="http://openrosa.org/javarosa" xmlns:odk="http://www.opendatakit.org/xforms" xmlns:orx="http://openrosa.org/xforms">
+  <h:head>
+    <h:title>Household Survey</h:title>
+    <model odk:xforms-version="1.0.0">
+      <instance>
+        <household id="household_survey" version="2026013101">
+          <start/>
+          <hh>
+            <village/>
+            <hhsize/>
+            <income/>
+            <interview_date/>
+            <loc/>
+            <photo/>
+          </hh>
+          <member jr:template="">
+            <name/>
+            <sex/>
+            <age/>
+            <langs/>
+          </member>
+          <meta><instanceID/></meta>
+        </household>
+      </instance>
+      <instance id="sex_list">
+        <root>
+          <item><itextId>sex_list-1</itextId><name>1</name></item>
+          <item><itextId>sex_list-2</itextId><name>2</name></item>
+        </root>
+      </instance>
+      <itext>
+        <translation default="" lang="English (en)">
+          <text id="/household/hh/village:label"><value>Name of village</value></text>
+          <text id="/household/hh/hhsize:label"><value>How many people live here?</value></text>
+          <text id="/household/hh/income:label"><value>Monthly income</value></text>
+          <text id="/household/hh/interview_date:label"><value>Date of interview</value></text>
+          <text id="/household/hh:label"><value>Household details</value></text>
+          <text id="/household/member/name:label"><value>Member name</value></text>
+          <text id="/household/member/sex:label"><value>Sex</value></text>
+          <text id="/household/member/age:label"><value>Age in years</value></text>
+          <text id="/household/member/langs:label"><value>Languages spoken</value></text>
+          <text id="sex_list-1"><value>Male</value></text>
+          <text id="sex_list-2"><value>Female</value></text>
+        </translation>
+        <translation lang="Français (fr)">
+          <text id="/household/hh/village:label"><value>Nom du village</value></text>
+          <text id="sex_list-1"><value>Homme</value></text>
+          <text id="sex_list-2"><value>Femme</value></text>
+        </translation>
+      </itext>
+      <bind nodeset="/household/start" type="dateTime" jr:preload="timestamp"/>
+      <bind nodeset="/household/hh/village" type="string" required="true()"/>
+      <bind nodeset="/household/hh/hhsize" type="int"/>
+      <bind nodeset="/household/hh/income" type="decimal"/>
+      <bind nodeset="/household/hh/interview_date" type="date"/>
+      <bind nodeset="/household/hh/loc" type="geopoint"/>
+      <bind nodeset="/household/hh/photo" type="binary"/>
+      <bind nodeset="/household/member/name" type="string"/>
+      <bind nodeset="/household/member/sex" type="string"/>
+      <bind nodeset="/household/member/age" type="int"/>
+      <bind nodeset="/household/member/langs" type="string"/>
+      <bind nodeset="/household/meta/instanceID" type="string" readonly="true()" jr:preload="uid"/>
+    </model>
+  </h:head>
+  <h:body>
+    <group ref="/household/hh">
+      <label ref="jr:itext('/household/hh:label')"/>
+      <input ref="/household/hh/village"><label ref="jr:itext('/household/hh/village:label')"/></input>
+      <input ref="/household/hh/hhsize"><label ref="jr:itext('/household/hh/hhsize:label')"/></input>
+      <input ref="/household/hh/income"><label ref="jr:itext('/household/hh/income:label')"/></input>
+      <input ref="/household/hh/interview_date"><label ref="jr:itext('/household/hh/interview_date:label')"/></input>
+      <input ref="/household/hh/loc"><label>Location</label></input>
+      <upload ref="/household/hh/photo" mediatype="image/*"><label>Photo of dwelling</label></upload>
+    </group>
+    <group ref="/household/member">
+      <label>Household members</label>
+      <repeat nodeset="/household/member">
+        <input ref="/household/member/name"><label ref="jr:itext('/household/member/name:label')"/></input>
+        <select1 ref="/household/member/sex">
+          <label ref="jr:itext('/household/member/sex:label')"/>
+          <itemset nodeset="instance('sex_list')/root/item">
+            <value ref="name"/>
+            <label ref="jr:itext(itextId)"/>
+          </itemset>
+        </select1>
+        <input ref="/household/member/age"><label ref="jr:itext('/household/member/age:label')"/></input>
+        <select ref="/household/member/langs">
+          <label ref="jr:itext('/household/member/langs:label')"/>
+          <item><label>English</label><value>en</value></item>
+          <item><label>Fijian</label><value>fj</value></item>
+          <item><label>Hindi</label><value>hi</value></item>
+        </select>
+      </repeat>
+    </group>
+  </h:body>
+</h:html>

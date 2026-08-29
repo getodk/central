@@ -13,6 +13,13 @@ services:
       - 127.0.0.1:8383:8383
     environment:
       - PORT=8383
+  studio:
+    build:
+      dockerfile: mock-http-service.dockerfile
+    ports:
+      - 127.0.0.1:8686:8686
+    environment:
+      - PORT=8686
   sentry-mock:
     build:
       dockerfile: mock-sentry.dockerfile
