@@ -13,7 +13,8 @@ It runs as its own container and talks to central-backend over its public REST
 and OData API. Nothing in central-backend or central-frontend is patched, so
 Central can be upgraded independently.
 
-Once the stack is up, Studio is at **`https://your.domain.com/studio/`**.
+Once the stack is up, Studio is at **`https://your.domain.com/studio/`**, and a
+**Studio** entry appears in Central's own navbar beside Projects and Users.
 
 ## How it fits together
 
@@ -29,6 +30,27 @@ Central session token, and Studio uses that same token for its calls to
 Central. A user therefore sees exactly the projects, forms and submissions
 their Central account already grants them, and publishing a form is subject to
 Central's own permission checks.
+
+## The navbar link
+
+Central's interface is a prebuilt Vue application fetched from
+`getodk/central-frontend` at image build time, which this project does not fork.
+The navbar entry is therefore added from the outside, in two steps:
+
+1. `nginx.dockerfile` injects a `<script>` tag for `central-nav.js` into
+   Central's `index.html` while building the image.
+2. That script waits for the navbar to render, then appends a plain link to
+   `<ul id="navbar-links">`, and re-adds it if the application re-renders.
+
+This is done at build time rather than with nginx's `sub_filter` on purpose:
+`sub_filter` strips `ETag` and `Last-Modified` from every response it touches,
+which would cost Central's main page its revalidation caching.
+
+The script is served from `/studio/static/`, so Central's existing
+`script-src 'self'` policy already allows it and no CSP change was needed. It is
+also entirely optional: if a future Central release renames the navbar list, no
+link is added and Central is unaffected. To remove the link, drop the `RUN` block
+from `nginx.dockerfile` and rebuild nginx.
 
 ## Statistical export
 

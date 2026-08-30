@@ -50,7 +50,9 @@ to Central:
 
 Studio runs as its own container and uses Central's public API with the signed-in
 user's own session, so it adds no new accounts and grants no access beyond what
-Central already allows. See [files/studio/README.md](files/studio/README.md).
+Central already allows. It is reachable from a **Studio** entry in Central's
+navbar, or directly at `/studio/`. See
+[files/studio/README.md](files/studio/README.md).
 
 ## Operations
 This repository serves administrative functions, but it also contains the Docker code for building and running a production Central stack.
