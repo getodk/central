@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 FORM_ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.\-]*$")
@@ -48,6 +48,23 @@ RESERVED_NAMES = {
 }
 
 
+# Suffixes Studio appends when compiling validation rules into XLSForm. User
+# names must not collide with them.
+GENERATED_SUFFIX = re.compile(r"_studio_(msg(_[A-Za-z0-9]+)?|warn\d+)$")
+
+
+class Rule(BaseModel):
+    """One validation check on a question.
+
+    An error blocks the interviewer until it passes; a warning is shown but can
+    be ignored, which is how Survey Solutions distinguishes the two.
+    """
+
+    expression: str = ""
+    message: dict[str, str] = Field(default_factory=dict)
+    severity: Literal["error", "warning"] = "error"
+
+
 class ChoiceOption(BaseModel):
     value: str = ""
     label: dict[str, str] = Field(default_factory=dict)
@@ -81,7 +98,32 @@ class Item(BaseModel):
     parameters: str = ""
     repeat: bool = False
     repeatCount: str = ""
+    rules: list[Rule] = Field(default_factory=list)
     children: list["Item"] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _fold_legacy_constraint(self) -> "Item":
+        """Move a pre-rules `constraint` into the rules list.
+
+        Questionnaires saved before multi-rule validation carry a single
+        constraint and message. Folding them in on load keeps `rules` the only
+        thing the rest of the code has to read.
+        """
+        if self.constraint.strip():
+            self.rules.insert(
+                0,
+                Rule(
+                    expression=self.constraint,
+                    message=dict(self.constraintMessage),
+                    severity="error",
+                ),
+            )
+            self.constraint = ""
+            self.constraintMessage = {}
+        return self
+
+    def rules_of(self, severity: str) -> list[Rule]:
+        return [r for r in self.rules if r.severity == severity and r.expression.strip()]
 
 
 Item.model_rebuild()
@@ -193,6 +235,15 @@ def validate(questionnaire: Questionnaire) -> list[Issue]:
             issues.append(Issue(level="error", where=where, message=f"Duplicate name '{item.name}'."))
         elif item.name.lower() in RESERVED_NAMES:
             issues.append(Issue(level="error", where=where, message=f"'{item.name}' is a reserved name."))
+        elif GENERATED_SUFFIX.search(item.name):
+            issues.append(
+                Issue(
+                    level="error",
+                    where=where,
+                    message="Names ending in '_studio_msg' or '_studio_warn<n>' are reserved "
+                    "for the validation rules Studio generates.",
+                )
+            )
         names.add((item.name or "").lower())
 
         if item.kind == "group":
@@ -221,6 +272,42 @@ def validate(questionnaire: Questionnaire) -> list[Issue]:
 
         if item.type == "calculate" and item.required:
             issues.append(Issue(level="warning", where=where, message="Calculations cannot be required."))
+
+        for index, rule in enumerate(item.rules, start=1):
+            label = f"validation rule {index}"
+            if not rule.expression.strip():
+                issues.append(
+                    Issue(level="error", where=where, message=f"{label} has no expression.")
+                )
+                continue
+            if not _text(rule.message, questionnaire.defaultLanguage):
+                issues.append(
+                    Issue(
+                        level="warning",
+                        where=where,
+                        message=f"{label} has no message, so interviewers see a generic one.",
+                    )
+                )
+            for language in questionnaire.languages:
+                if language == questionnaire.defaultLanguage:
+                    continue
+                if not (rule.message or {}).get(language, "").strip():
+                    issues.append(
+                        Issue(
+                            level="warning",
+                            where=where,
+                            message=f"{label} has no message in {language}.",
+                        )
+                    )
+
+        if item.rules and item.type in ("note", "calculate", "hidden"):
+            issues.append(
+                Issue(
+                    level="warning",
+                    where=where,
+                    message=f"Validation on a '{item.type}' is not shown to interviewers.",
+                )
+            )
 
         if item.type not in ("calculate", "hidden") and not _text(item.label, questionnaire.defaultLanguage):
             issues.append(

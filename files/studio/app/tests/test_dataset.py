@@ -85,3 +85,30 @@ def test_values_absent_from_the_choice_list_keep_their_own_code():
     member = tables[0]
     assert member.frame["sex"].tolist() == [9.0, 2.0]
     assert member.value_labels["sex"][9] == "9 (not in current form)"
+
+
+def test_nodes_generated_for_validation_are_left_out_of_exports():
+    """The calculates and notes Studio emits carry no respondent data."""
+    from studio.export.schema import Field, FormSchema
+
+    form = FormSchema(title="T", form_id="t", root="/data")
+    for path, data_type in [
+        ("/data/age", "int"),
+        ("/data/age_studio_msg", "string"),
+        ("/data/age_studio_msg_en", "string"),
+        ("/data/age_studio_warn1", "string"),
+        ("/data/notes", "string"),
+    ]:
+        name = path.rsplit("/", 1)[-1]
+        form.fields[path] = Field(path=path, name=name, data_type=data_type, label=name)
+
+    csv = (
+        "age,age_studio_msg,age_studio_msg_en,age_studio_warn1,notes,KEY\n"
+        "42,,,,hello,uuid:a\n"
+    )
+    table = build_tables({"f.csv": csv}, form, BuildOptions())[0]
+
+    assert "age" in table.frame.columns
+    assert "notes" in table.frame.columns, "a column merely containing 'notes' is kept"
+    for generated in ("age_studio_msg", "age_studio_msg_en", "age_studio_warn1"):
+        assert generated not in table.frame.columns

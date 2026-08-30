@@ -2,6 +2,8 @@
 // left, a properties panel on the right, and choice lists shared across both.
 
 import { api, saveResponse } from './api.js';
+import { parse as parseExpression } from './expr.js';
+import { openPreview } from './preview.js';
 import { checkbox, clear, confirmDialog, el, field, groupedSelect, input, modal, select, textarea, toast } from './ui.js';
 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
@@ -49,6 +51,18 @@ export function createDesigner(ctx, record, onExit) {
     const stamp = (items) => items.forEach((item) => {
       if (!item.id) item.id = uid();
       item.children = item.children || [];
+      item.rules = item.rules || [];
+      // Questionnaires saved before multi-rule validation carry a single
+      // constraint; fold it in here as the server does on save.
+      if (item.constraint && item.constraint.trim()) {
+        item.rules.unshift({
+          expression: item.constraint,
+          message: item.constraintMessage || {},
+          severity: 'error',
+        });
+        item.constraint = '';
+        item.constraintMessage = {};
+      }
       stamp(item.children);
     });
     stamp(copy.items);
@@ -396,9 +410,6 @@ export function createDesigner(ctx, record, onExit) {
         !isDisplayOnly && item.required ? localizedInput(item, 'requiredMessage', 'Message when missing') : null,
         field('Relevance', input(item.relevant, (v) => { item.relevant = v; markDirty(); }, { class: 'mono' }),
           'show only when true, e.g. ${age} > 17'),
-        !isDisplayOnly ? field('Constraint', input(item.constraint, (v) => { item.constraint = v; markDirty(); }, { class: 'mono' }),
-          'e.g. . >= 0 and . <= 120') : null,
-        !isDisplayOnly && item.constraint ? localizedInput(item, 'constraintMessage', 'Message when invalid') : null,
         field('Calculation', input(item.calculation, (v) => { item.calculation = v; markDirty(); scheduleValidate(); }, { class: 'mono' }),
           item.type === 'calculate' ? 'required for this type' : 'optional derived value'),
         field('Default value', input(item.default, (v) => { item.default = v; markDirty(); })),
@@ -407,6 +418,10 @@ export function createDesigner(ctx, record, onExit) {
         checkbox('Read only', item.readOnly, (v) => { item.readOnly = v; markDirty(); }),
         appearanceControl(item),
       ]));
+    }
+
+    if (item.kind === 'question' && !['note', 'hidden'].includes(item.type)) {
+      sections.push(rulesSection(item));
     }
 
     sections.push(el('div', { class: 'section' }, [
@@ -447,6 +462,87 @@ export function createDesigner(ctx, record, onExit) {
     let counter = 1;
     while (taken.has(candidate)) { counter += 1; candidate = `${base}_${counter}`; }
     return candidate;
+  }
+
+  // -- validation rules ---------------------------------------------------
+
+  function rulesSection(item) {
+    const host = el('div', { class: 'section' });
+
+    function draw() {
+      clear(host);
+      host.appendChild(el('div', { style: 'display:flex; align-items:center; gap:10px' }, [
+        el('h3', { text: 'Validation', style: 'margin:0' }),
+        el('div', { style: 'flex:1' }),
+        el('button', { class: 'mini', text: '+ Add rule', onclick: () => {
+          item.rules.push({ expression: '', message: {}, severity: 'error' });
+          markDirty(); draw(); scheduleValidate();
+        } }),
+      ]));
+
+      if (!item.rules.length) {
+        host.appendChild(el('p', { class: 'small muted', style: 'margin-top:10px', text:
+          'No checks yet. An error stops the interviewer; a warning is shown but can be ignored.' }));
+        return;
+      }
+
+      item.rules.forEach((rule, index) => {
+        host.appendChild(ruleCard(item, rule, index, draw));
+      });
+    }
+
+    draw();
+    return host;
+  }
+
+  function ruleCard(item, rule, index, redraw) {
+    const card = el('div', { class: `rule-card ${rule.severity}` });
+
+    const problem = el('div', { class: 'rule-problem' });
+    const checkExpression = (value) => {
+      clear(problem);
+      if (!value.trim()) return;
+      try {
+        parseExpression(value);
+      } catch (error) {
+        // Still valid for Collect; only the in-designer preview is limited.
+        problem.appendChild(el('span', {
+          text: `Preview cannot evaluate this (${error.message}). It is still sent to Central.`,
+        }));
+      }
+    };
+
+    card.appendChild(el('div', { class: 'rule-head' }, [
+      select(
+        [{ value: 'error', label: 'Error — blocks' }, { value: 'warning', label: 'Warning — advisory' }],
+        rule.severity,
+        (v) => { rule.severity = v; markDirty(); redraw(); scheduleValidate(); },
+        { style: 'width:auto' },
+      ),
+      el('div', { style: 'flex:1' }),
+      el('button', { class: 'mini ghost', text: '✕', title: 'Remove this rule', onclick: () => {
+        item.rules.splice(index, 1); markDirty(); redraw(); scheduleValidate();
+      } }),
+    ]));
+
+    const expression = input(rule.expression, (v) => {
+      rule.expression = v; markDirty(); checkExpression(v); scheduleValidate();
+    }, { class: 'mono', placeholder: '. >= 0 and . <= 120' });
+    card.appendChild(field('Condition that must be true', expression));
+    card.appendChild(problem);
+    checkExpression(rule.expression);
+
+    const language = state.language;
+    const message = input(rule.message?.[language] || '', (v) => {
+      rule.message = rule.message || {};
+      if (v) rule.message[language] = v; else delete rule.message[language];
+      markDirty(); scheduleValidate();
+    }, { placeholder: 'Shown when the condition fails' });
+    card.appendChild(field(
+      `Message${state.doc.languages.length > 1 ? ` (${language})` : ''}`, message,
+    ));
+
+    return card;
   }
 
   // -- choice lists -------------------------------------------------------
@@ -734,39 +830,8 @@ export function createDesigner(ctx, record, onExit) {
     });
   }
 
-  function openPreview() {
-    const body = el('div');
-    const render = (items, host) => {
-      for (const item of items) {
-        if (item.kind === 'group') {
-          const inner = el('div', { class: 'body' });
-          host.appendChild(el('div', { class: 'preview-group' }, [
-            el('div', { class: 'head', text: `${labelFor(item) || item.name}${item.repeat ? ' (repeats)' : ''}` }),
-            inner,
-          ]));
-          render(item.children, inner);
-          continue;
-        }
-        const list = state.doc.choiceLists.find((l) => l.name === item.choiceList);
-        host.appendChild(el('div', { class: 'preview-q' }, [
-          el('div', { class: 'q-label' }, [
-            labelFor(item) || item.name,
-            item.required ? el('span', { class: 'req', text: ' *' }) : null,
-          ]),
-          (item.hint || {})[state.language] ? el('div', { class: 'q-hint', text: item.hint[state.language] }) : null,
-          list ? el('ul', {}, list.options.map((option) => el('li', {
-            text: `${option.value} — ${option.label?.[state.language] || ''}`,
-          }))) : el('div', { class: 'small muted', text: shortType(item.type) }),
-        ]));
-      }
-    };
-    render(state.doc.items, body);
-    modal({
-      title: `Preview — ${state.doc.title}`,
-      wide: true,
-      body: state.doc.items.length ? body : el('div', { class: 'empty', text: 'Nothing to preview yet.' }),
-      actions: (close) => [el('button', { text: 'Close', onclick: close })],
-    });
+  function showPreview() {
+    openPreview(state.doc, state.language);
   }
 
   function openSettings() {
@@ -874,7 +939,7 @@ export function createDesigner(ctx, record, onExit) {
     barHost.appendChild(el('div', { class: 'spacer' }));
     barHost.appendChild(statusHost);
     barHost.appendChild(el('button', { text: 'Settings', onclick: openSettings }));
-    barHost.appendChild(el('button', { text: 'Preview', onclick: openPreview }));
+    barHost.appendChild(el('button', { text: 'Preview', onclick: showPreview }));
     barHost.appendChild(el('button', { text: 'History', onclick: openVersions }));
     barHost.appendChild(el('button', { text: 'XLSForm', title: 'Download as XLSForm', onclick: downloadXlsform }));
     barHost.appendChild(el('button', { text: 'Save', onclick: save }));

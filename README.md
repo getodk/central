@@ -43,8 +43,10 @@ served at `/studio/` that adds a questionnaire designer and statistical export
 to Central:
 
 * Design forms in the browser — sections, repeat rosters, choice lists, skip
-  logic, constraints and translations — save them, and publish them to Central
-  as XLSForms.
+  logic, multi-rule validation and translations — save them, and publish them to
+  Central as XLSForms.
+* Fill the questionnaire in an interactive preview that runs your skip logic and
+  validation live, before you publish anything.
 * Export submissions as **Stata (`.dta`)** and **SPSS (`.sav`)** files with
   variable labels, value labels and data types already applied, plus a codebook.
 
