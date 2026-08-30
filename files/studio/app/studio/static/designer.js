@@ -360,6 +360,8 @@ export function createDesigner(ctx, record, onExit) {
         item.repeat ? field('Repeat count',
           input(item.repeatCount, (v) => { item.repeatCount = v; markDirty(); }, { class: 'mono' }),
           'an expression such as ${hhsize}; leave blank to let the interviewer add rows') : null,
+        field('Relevance', input(item.relevant, (v) => { item.relevant = v; markDirty(); }, { class: 'mono' }),
+          'ask this whole section only when true, e.g. ${age} > 17'),
         appearanceControl(item),
       ]));
     }

@@ -159,6 +159,12 @@ def _emit_items(
             keyword = "repeat" if item.repeat else "group"
             row = _base_row(item, languages, multilingual)
             row["type"] = f"begin_{keyword}"
+            # A section carries its own enabling condition and appearance, which
+            # apply to everything nested inside it.
+            for source, target in (("relevant", "relevant"), ("appearance", "appearance")):
+                value = str(getattr(item, source) or "").strip()
+                if value:
+                    row[target] = value
             if item.repeat and item.repeatCount.strip():
                 row["repeat_count"] = item.repeatCount.strip()
             rows.append(row)
@@ -337,6 +343,8 @@ def _import_survey(
             item.kind = "group"
             item.repeat = keyword == "begin_repeat"
             item.repeatCount = _get(row, "repeat_count")
+            item.relevant = _get(row, "relevant")
+            item.appearance = _get(row, "appearance")
             _attach(item, stack, root)
             stack.append(item)
             continue
