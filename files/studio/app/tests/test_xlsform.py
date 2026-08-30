@@ -79,6 +79,35 @@ def test_single_language_uses_plain_label_column():
     assert f"label::{EN}" not in data["survey"][0]
 
 
+def test_sections_keep_their_enabling_condition_and_appearance():
+    """A section's relevance gates everything nested inside it, so it must survive."""
+    questionnaire = Questionnaire(
+        title="T", formId="t", languages=[EN], defaultLanguage=EN,
+        items=[
+            Item(kind="group", name="sec", label={EN: "Section"},
+                 relevant="${age} > 17", appearance="field-list",
+                 children=[Item(kind="question", type="text", name="q1", label={EN: "Q1"})]),
+            Item(kind="group", name="roster", label={EN: "Roster"}, repeat=True,
+                 relevant="${hh} > 0", repeatCount="${hh}", appearance="table-list",
+                 children=[Item(kind="question", type="text", name="q2", label={EN: "Q2"})]),
+        ],
+    )
+    workbook = xlsform.to_workbook(questionnaire)
+    rows = {r["name"]: r for r in sheets(workbook)["survey"] if r["type"].startswith("begin")}
+    assert rows["sec"]["relevant"] == "${age} > 17"
+    assert rows["sec"]["appearance"] == "field-list"
+    assert rows["roster"]["relevant"] == "${hh} > 0"
+    assert rows["roster"]["appearance"] == "table-list"
+    assert rows["roster"]["repeat_count"] == "${hh}"
+
+    restored, _ = xlsform.from_workbook(workbook)
+    groups = {i.name: i for i, _ in restored.walk() if i.kind == "group"}
+    assert groups["sec"].relevant == "${age} > 17"
+    assert groups["sec"].appearance == "field-list"
+    assert groups["roster"].relevant == "${hh} > 0"
+    assert groups["roster"].appearance == "table-list"
+
+
 def test_choice_attributes_become_extra_columns():
     data = sheets(xlsform.to_workbook(sample()))
     row = next(r for r in data["choices"] if r["name"] == "c")
