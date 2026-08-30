@@ -185,6 +185,36 @@ Publishing to Central will not overwrite a form by surprise: publishing a form
 id that already exists is refused, and the designer offers to publish a new
 draft of that form instead.
 
+## Theme
+
+Studio uses the Survey Solutions palette and type, so a team working across both
+tools meets one visual language. The colours are taken from Survey Solutions'
+own stylesheet (`src/UI/WB.UI.Frontend/src/assets/css/_variables.scss`) and are
+declared once at the top of `studio/static/styles.css`:
+
+| Token | Value | Survey Solutions name |
+| --- | --- | --- |
+| `--ss-blue` | `#2a81cb` | `$blue` |
+| `--ss-blue-pale` | `#eff4f8` | `$blue-super-light` |
+| `--ss-text` | `#3f3f3f` | `$gray_text` |
+| `--ss-form-line` | `#dbdfe2` | `$gray_form` |
+| `--ss-gray-highlight` | `#f3f3f3` | `$gray-highlighting` |
+| `--ss-green` | `#3ca21a` | `$green` |
+| `--ss-red` | `#e74924` | `$red_error` |
+| `--ss-amber` | `#f9bd07` | `$warning_color` |
+
+Roboto is bundled in `studio/static/fonts/` rather than fetched from a font
+service: Central is often deployed without outbound internet, and the page's
+CSP allows fonts only from its own origin. The files are Roboto under the
+Apache License 2.0 — see the `NOTICE.txt` beside them.
+
+Brand colours are used unchanged for fills, borders and icons. Where the same
+colour would carry small text it is darkened just enough to reach WCAG AA
+(4.5:1), keeping its hue: Survey Solutions' `$gray_light` reaches only 2.4:1 on
+white, and white on `$blue` only 4.1:1, so text greys use `#6b6b6b` and filled
+buttons use the darker blue. To re-theme, change the `--ss-*` tokens; everything
+else refers to them.
+
 ## Configuration
 
 All optional; the defaults suit a normal installation.

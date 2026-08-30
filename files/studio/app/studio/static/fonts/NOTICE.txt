@@ -1,0 +1,12 @@
+Roboto
+======
+
+The Roboto font files in this directory (RobotoRegular.woff2,
+RobotoMedium.woff2, RobotoBold.woff2) are Copyright Google Inc. and are
+licensed under the Apache License, Version 2.0:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+They are bundled so that Central Studio matches the Survey Solutions interface
+without depending on an external font service, which would not work on the
+offline and low-connectivity servers Central is often deployed to.
