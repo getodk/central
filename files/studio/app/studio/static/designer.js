@@ -49,24 +49,35 @@ export function createDesigner(ctx, record, onExit) {
     copy.choiceLists = copy.choiceLists || [];
     copy.items = copy.items || [];
     const stamp = (items) => items.forEach((item) => {
-      if (!item.id) item.id = uid();
-      item.children = item.children || [];
-      item.rules = item.rules || [];
-      // Questionnaires saved before multi-rule validation carry a single
-      // constraint; fold it in here as the server does on save.
-      if (item.constraint && item.constraint.trim()) {
-        item.rules.unshift({
-          expression: item.constraint,
-          message: item.constraintMessage || {},
-          severity: 'error',
-        });
-        item.constraint = '';
-        item.constraintMessage = {};
-      }
+      withDefaults(item);
       stamp(item.children);
     });
     stamp(copy.items);
     return copy;
+  }
+
+  // Everything an item needs to be renderable. Applied both to questionnaires
+  // read back from the server and to items added here, so a newly added
+  // question is never missing a field the properties panel reads.
+  function withDefaults(item) {
+    if (!item.id) item.id = uid();
+    item.children = item.children || [];
+    item.rules = item.rules || [];
+    item.label = item.label || {};
+    item.hint = item.hint || {};
+    item.requiredMessage = item.requiredMessage || {};
+    // Questionnaires saved before multi-rule validation carry a single
+    // constraint; fold it in as the server does on save.
+    if (item.constraint && item.constraint.trim()) {
+      item.rules.unshift({
+        expression: item.constraint,
+        message: item.constraintMessage || {},
+        severity: 'error',
+      });
+    }
+    item.constraint = '';
+    item.constraintMessage = {};
+    return item;
   }
 
   function walk(items = state.doc.items, parent = null, out = []) {
@@ -126,7 +137,7 @@ export function createDesigner(ctx, record, onExit) {
       ? { id: uid(), kind: 'group', name: uniqueName(base), label: {}, children: [], repeat: questionType === 'repeat', repeatCount: '', relevant: '', appearance: '' }
       : { id: uid(), kind: 'question', type: questionType || 'text', name: uniqueName(base), label: {}, hint: {}, required: false, relevant: '', constraint: '', constraintMessage: {}, requiredMessage: {}, calculation: '', default: '', appearance: '', readOnly: false, choiceList: '', choiceFilter: '', parameters: '', children: [] };
 
-    siblingsOf(parent).splice(index, 0, item);
+    siblingsOf(parent).splice(index, 0, withDefaults(item));
     state.selectedId = item.id;
     markDirty();
     refresh();
@@ -153,6 +164,8 @@ export function createDesigner(ctx, record, onExit) {
       (node.children || []).forEach(rename);
     };
     rename(copy);
+    const applyDefaults = (node) => { withDefaults(node); node.children.forEach(applyDefaults); };
+    applyDefaults(copy);
     const list = siblingsOf(entry.parent);
     list.splice(list.indexOf(entry.item) + 1, 0, copy);
     state.selectedId = copy.id;
@@ -480,7 +493,7 @@ export function createDesigner(ctx, record, onExit) {
         } }),
       ]));
 
-      if (!item.rules.length) {
+      if (!withDefaults(item).rules.length) {
         host.appendChild(el('p', { class: 'small muted', style: 'margin-top:10px', text:
           'No checks yet. An error stops the interviewer; a warning is shown but can be ignored.' }));
         return;
