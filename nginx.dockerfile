@@ -46,4 +46,19 @@ COPY files/nginx/robots.txt /usr/share/nginx/html
 COPY --from=intermediate dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
 
+# Add a Studio entry to Central's navbar by referencing a script from its
+# index.html. This is done here, at build time, rather than with nginx's
+# sub_filter: sub_filter strips ETag and Last-Modified from every response it
+# touches, which would cost Central's main page its revalidation caching.
+# The mock frontend used by the nginx tests has no <head>, so it is skipped.
+RUN if grep -q 'central-nav.js' /usr/share/nginx/html/index.html; then \
+      echo "[nginx] Studio navbar link already present"; \
+    elif grep -q '</head>' /usr/share/nginx/html/index.html; then \
+      sed -i 's#</head>#  <script src="/studio/static/central-nav.js" defer></script>\n  </head>#' \
+        /usr/share/nginx/html/index.html; \
+      echo "[nginx] Studio navbar link injected into index.html"; \
+    else \
+      echo "[nginx] no </head> in index.html; Studio navbar link not injected"; \
+    fi
+
 ENTRYPOINT [ "/scripts/setup-odk.sh" ]
