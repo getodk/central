@@ -21,6 +21,7 @@ from .models import (
     ChoiceOption,
     Item,
     Questionnaire,
+    Rule,
 )
 
 _TRUE = {"yes", "true", "1", "y"}
@@ -29,7 +30,6 @@ _TRUE = {"yes", "true", "1", "y"}
 _TRANSLATABLE = {
     "label": "label",
     "hint": "hint",
-    "constraint_message": "constraintMessage",
     "required_message": "requiredMessage",
 }
 
@@ -42,8 +42,9 @@ def to_workbook(questionnaire: Questionnaire) -> bytes:
     multilingual = len(questionnaire.languages) > 1
     languages = questionnaire.languages or [questionnaire.defaultLanguage]
 
+    slugs = _language_slugs(languages)
     survey_rows: list[dict[str, str]] = []
-    _emit_items(questionnaire.items, survey_rows, questionnaire, languages, multilingual)
+    _emit_items(questionnaire.items, survey_rows, questionnaire, languages, multilingual, slugs)
 
     survey_columns = _columns(
         ["type", "name"]
@@ -153,6 +154,7 @@ def _emit_items(
     questionnaire: Questionnaire,
     languages: list[str],
     multilingual: bool,
+    slugs: dict[str, str],
 ) -> None:
     for item in items:
         if item.kind == "group":
@@ -168,7 +170,7 @@ def _emit_items(
             if item.repeat and item.repeatCount.strip():
                 row["repeat_count"] = item.repeatCount.strip()
             rows.append(row)
-            _emit_items(item.children, rows, questionnaire, languages, multilingual)
+            _emit_items(item.children, rows, questionnaire, languages, multilingual, slugs)
             rows.append({"type": f"end_{keyword}", "name": item.name})
             continue
 
@@ -180,7 +182,6 @@ def _emit_items(
             row["read_only"] = "yes"
         for source, target in (
             ("relevant", "relevant"),
-            ("constraint", "constraint"),
             ("calculation", "calculation"),
             ("default", "default"),
             ("appearance", "appearance"),
@@ -190,7 +191,34 @@ def _emit_items(
             value = str(getattr(item, source) or "").strip()
             if value:
                 row[target] = value
+
+        errors = item.rules_of("error")
+        if len(errors) == 1:
+            row["constraint"] = errors[0].expression.strip()
+            for column in _lang_columns("constraint_message", languages, multilingual):
+                language = column.split("::", 1)[1] if "::" in column else languages[0]
+                row[column] = _message_for(errors[0].message, language)
+        elif len(errors) > 1:
+            # One constraint is all XLSForm allows, so combine them and let a
+            # generated calculate say which one failed.
+            row["constraint"] = " and ".join(f"({r.expression.strip()})" for r in errors)
+            for language in languages:
+                rows.append(
+                    {
+                        "type": "calculate",
+                        "name": _picker_name(item.name, language, slugs, multilingual),
+                        "calculation": _message_picker(errors, item.name, language),
+                    }
+                )
+            for column in _lang_columns("constraint_message", languages, multilingual):
+                language = column.split("::", 1)[1] if "::" in column else languages[0]
+                picker = _picker_name(item.name, language, slugs, multilingual)
+                row[column] = "${" + picker + "}"
+
         rows.append(row)
+
+        for index, rule in enumerate(item.rules_of("warning"), start=1):
+            rows.append(_warning_row(item, rule, index, languages, multilingual))
 
 
 def _base_row(item: Item, languages: list[str], multilingual: bool) -> dict[str, str]:
@@ -208,6 +236,129 @@ def _xlsform_type(item: Item) -> str:
     if spec.get("choices"):
         return f"{item.type} {item.choiceList}".strip()
     return item.type
+
+
+
+# -- compiling validation rules -------------------------------------------
+#
+# XLSForm allows a question exactly one constraint and one message, and has no
+# notion of a non-blocking check. Several rules with their own messages are
+# therefore compiled down:
+#
+#   errors   -> one combined constraint, plus a hidden calculate per language
+#               that picks the message belonging to whichever rule failed
+#   warnings -> a note shown under the question while the rule is unsatisfied
+#
+# The generated nodes are named with a reserved suffix so the exporter can keep
+# them out of the data.
+
+
+def _rewrite_self(expression: str, name: str) -> str:
+    """Rewrite '.' to a ${name} reference.
+
+    A rule reads naturally as `. >= 0` on its own question, but once it is
+    lifted into a separate calculate '.' would mean that calculate's own node.
+    Quoted text and decimal points are left alone.
+    """
+    out: list[str] = []
+    index = 0
+    length = len(expression)
+
+    while index < length:
+        char = expression[index]
+
+        if char in ("'", '"'):
+            end = expression.find(char, index + 1)
+            if end == -1:
+                out.append(expression[index:])
+                break
+            out.append(expression[index : end + 1])
+            index = end + 1
+            continue
+
+        if char == ".":
+            before = expression[index - 1] if index else ""
+            after = expression[index + 1] if index + 1 < length else ""
+            if before.isdigit() or after.isdigit() or after == "." or before == ".":
+                out.append(char)
+            else:
+                out.append("${" + name + "}")
+            index += 1
+            continue
+
+        out.append(char)
+        index += 1
+
+    return "".join(out)
+
+
+def _xpath_literal(text: str) -> str:
+    """Quote a message for use inside an XPath expression."""
+    text = str(text or "")
+    if "'" not in text:
+        return f"'{text}'"
+    if '"' not in text:
+        return f'"{text}"'
+    # XPath 1.0 has no escape character, so straighten the inner quotes.
+    return "'" + text.replace("'", "\u2019") + "'"
+
+
+def _language_slugs(languages: list[str]) -> dict[str, str]:
+    """Short, unique identifiers for language names, used in generated names."""
+    slugs: dict[str, str] = {}
+    used: set[str] = set()
+    for index, language in enumerate(languages):
+        match = re.search(r"\(([A-Za-z0-9_-]+)\)\s*$", language)
+        base = match.group(1) if match else re.sub(r"[^A-Za-z0-9]+", "", language)
+        base = (base or f"l{index + 1}").lower()
+        candidate = base
+        counter = 1
+        while candidate in used:
+            counter += 1
+            candidate = f"{base}{counter}"
+        used.add(candidate)
+        slugs[language] = candidate
+    return slugs
+
+
+def _picker_name(name: str, language: str, slugs: dict[str, str], multilingual: bool) -> str:
+    return f"{name}_studio_msg_{slugs[language]}" if multilingual else f"{name}_studio_msg"
+
+
+def _message_for(message: dict[str, str], language: str) -> str:
+    value = (message or {}).get(language, "")
+    if value.strip():
+        return value
+    for candidate in (message or {}).values():
+        if candidate.strip():
+            return candidate
+    return ""
+
+
+def _message_picker(rules: list[Rule], name: str, language: str) -> str:
+    """An if-chain returning the message of the first rule that fails."""
+    expression = "''"
+    for rule in reversed(rules):
+        condition = _rewrite_self(rule.expression.strip(), name)
+        text = _xpath_literal(_message_for(rule.message, language))
+        expression = f"if(not({condition}), {text}, {expression})"
+    return expression
+
+
+def _warning_row(
+    item: Item, rule: Rule, index: int, languages: list[str], multilingual: bool
+) -> dict[str, str]:
+    """A note that appears under the question while a soft rule is unsatisfied."""
+    row: dict[str, str] = {
+        "type": "note",
+        "name": f"{item.name}_studio_warn{index}",
+        "relevant": "${%s} != '' and not(%s)"
+        % (item.name, _rewrite_self(rule.expression.strip(), item.name)),
+    }
+    for column in _lang_columns("label", languages, multilingual):
+        language = column.split("::", 1)[1] if "::" in column else languages[0]
+        row[column] = _message_for(rule.message, language)
+    return row
 
 
 # -- import ----------------------------------------------------------------
@@ -323,6 +474,70 @@ def _import_choices(rows: list[dict[str, str]], languages: list[str]) -> list[Ch
     return list(lists.values())
 
 
+_GENERATED_NAME = re.compile(r"^(?P<owner>.+?)_studio_(?:msg(?:_[A-Za-z0-9]+)?|warn(?P<index>\d+))$")
+_WARN_RELEVANT = re.compile(r"^\$\{[^}]+\}\s*!=\s*''\s+and\s+not\((?P<expression>.*)\)\s*$", re.S)
+_PICKER_STEP = re.compile(r"if\(not\((?P<condition>.*?)\),\s*(?P<quote>['\"])(?P<message>.*?)(?P=quote),", re.S)
+
+
+def _unrewrite_self(expression: str, name: str) -> str:
+    """Turn ${name} back into '.' when re-importing a generated expression."""
+    return expression.replace("${" + name + "}", ".")
+
+
+def _recover_rules(
+    owner: str,
+    row: dict[str, str],
+    pickers: dict[str, str],
+    languages: list[str],
+) -> list[Rule]:
+    """Rebuild error rules from a constraint Studio previously compiled."""
+    constraint = _get(row, "constraint").strip()
+    if not constraint:
+        return []
+
+    messages = _localized(row, "constraint_message", languages)
+    referenced = {
+        language: re.fullmatch(r"\$\{(.+?)\}", text.strip())
+        for language, text in messages.items()
+    }
+    picker_names = {
+        language: match.group(1)
+        for language, match in referenced.items()
+        if match is not None and match.group(1) in pickers
+    }
+
+    if not picker_names:
+        # An ordinary single-constraint question.
+        return [Rule(expression=_unrewrite_self(constraint, owner), message=messages)]
+
+    # Messages live in the generated calculates, one per language.
+    per_language: dict[str, list[str]] = {}
+    for language, picker in picker_names.items():
+        per_language[language] = [
+            m.group("message") for m in _PICKER_STEP.finditer(pickers[picker])
+        ]
+
+    parts = [p.strip() for p in re.split(r"\)\s+and\s+\(", constraint.strip())]
+    if parts:
+        parts[0] = parts[0].lstrip("(")
+        parts[-1] = parts[-1].rstrip(")")
+
+    count = max((len(v) for v in per_language.values()), default=0)
+    if count != len(parts):
+        # Shapes disagree, so keep the constraint whole rather than guess.
+        return [Rule(expression=_unrewrite_self(constraint, owner), message={})]
+
+    rules: list[Rule] = []
+    for position, part in enumerate(parts):
+        message = {
+            language: values[position]
+            for language, values in per_language.items()
+            if position < len(values)
+        }
+        rules.append(Rule(expression=_unrewrite_self(part, owner), message=message))
+    return rules
+
+
 def _import_survey(
     rows: list[dict[str, str]], languages: list[str]
 ) -> tuple[list[Item], list[str]]:
@@ -330,7 +545,36 @@ def _import_survey(
     stack: list[Item] = []
     warnings: list[str] = []
 
+    # Studio's own generated nodes are folded back into rules rather than
+    # imported as questions in their own right.
+    pickers = {
+        _get(row, "name"): _get(row, "calculation")
+        for row in rows
+        if _get(row, "type").strip() == "calculate" and "_studio_msg" in _get(row, "name")
+    }
+    soft_rules: dict[str, list[tuple[int, Rule]]] = {}
+    for row in rows:
+        match = _GENERATED_NAME.match(_get(row, "name"))
+        if match is None or match.group("index") is None:
+            continue
+        relevant = _WARN_RELEVANT.match(_get(row, "relevant").strip())
+        if relevant is None:
+            continue
+        owner = match.group("owner")
+        soft_rules.setdefault(owner, []).append(
+            (
+                int(match.group("index")),
+                Rule(
+                    expression=_unrewrite_self(relevant.group("expression"), owner),
+                    message=_localized(row, "label", languages),
+                    severity="warning",
+                ),
+            )
+        )
+
     for index, row in enumerate(rows, start=2):
+        if _GENERATED_NAME.match(_get(row, "name")):
+            continue
         raw_type = re.sub(r"\s+", " ", _get(row, "type")).strip()
         if not raw_type:
             continue
@@ -376,7 +620,10 @@ def _import_survey(
         item.required = _get(row, "required").lower() in _TRUE
         item.readOnly = _get(row, "read_only").lower() in _TRUE
         item.relevant = _get(row, "relevant")
-        item.constraint = _get(row, "constraint")
+        item.rules = _recover_rules(item.name, row, pickers, languages)
+        item.rules.extend(
+            rule for _, rule in sorted(soft_rules.get(item.name, []), key=lambda p: p[0])
+        )
         item.calculation = _get(row, "calculation")
         item.default = _get(row, "default")
         item.appearance = _get(row, "appearance")

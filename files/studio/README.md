@@ -130,6 +130,57 @@ Also available:
 * **Live checks** — duplicate or invalid variable names, missing choice lists,
   reserved names, calculations without an expression, and missing labels.
 
+### Validation rules
+
+Each question takes as many checks as you need, and each carries its own message
+and severity:
+
+* An **error** stops the interviewer until the answer passes.
+* A **warning** is shown but can be ignored — the Survey Solutions distinction.
+
+Conditions are ODK expressions, where `.` is the answer being checked:
+
+```
+. >= 0 and . <= 120          a number in a range
+regex(., '^[0-9]{7,10}$')    7 to 10 digits
+. <= today()                 not in the future
+. >= ${start_date}           compared with another question
+count-selected(.) <= 3       at most three boxes ticked
+string-length(.) = 8         an exact length
+```
+
+XLSForm allows one constraint and one message per question and has no notion of
+a soft check, so Studio compiles the rules down:
+
+| You write | Studio generates |
+| --- | --- |
+| One error rule | An ordinary `constraint` and `constraint_message` |
+| Several error rules | One combined constraint, plus a hidden calculate per language that returns the message of whichever rule failed |
+| A warning rule | A note shown under the question while the rule is unsatisfied, and only once the question has been answered |
+
+The generated nodes are named `<question>_studio_msg[_<lang>]` and
+`<question>_studio_warn<n>`. Those names are reserved — the designer refuses
+them — and the exporter drops the columns, so your `.dta` and `.sav` files only
+contain real answers. Importing a form Studio generated folds them back into
+rules rather than showing you the scaffolding.
+
+### Interactive preview
+
+**Preview** opens the questionnaire as a form you can actually fill in. As you
+type it evaluates relevance, calculations and every validation rule, so you can
+see the wording, the skip logic and the error messages exactly as an interviewer
+meets them. Rosters gain and lose rows as their count question changes, and
+**Check answers** reveals everything still outstanding.
+
+The preview evaluates expressions with a small engine of its own, covering the
+comparison, arithmetic and boolean operators and the common functions —
+`selected`, `count-selected`, `string-length`, `regex`, `today`, `if`, `concat`,
+`coalesce`, `substring`, `round` and friends. Anything outside that (for
+instance `indexed-repeat` or `position`) is reported on the question as not
+evaluated here and passed to Central untouched, rather than quietly guessed at.
+It is a simulation for checking wording and logic; publish a draft and open it in
+Central to test on a real device.
+
 Publishing to Central will not overwrite a form by surprise: publishing a form
 id that already exists is refused, and the designer offers to publish a new
 draft of that form instead.
@@ -172,7 +223,14 @@ CENTRAL_API=http://localhost:8383 STUDIO_DATA_DIR=/tmp/studio \
 
 Open <http://localhost:8686/studio/>.
 
-Run the tests with `python3 -m pytest tests`. They cover the XForm parser, the
+Run the tests with:
+
+```sh
+python3 -m pytest tests           # Python
+node --test tests/js/*.test.mjs   # the preview's expression engine
+```
+
+They cover the XForm parser, the
 typing and labelling rules, the Stata/SPSS writers (including round-tripping
 files back through `pyreadstat`), XLSForm generation and import, and the API —
 including that a user cannot reach a project Central would not give them. One
@@ -187,11 +245,13 @@ against each other end to end.
 | `studio/main.py` | HTTP endpoints |
 | `studio/auth.py` | Token validation and project access checks |
 | `studio/central.py` | Client for Central's API |
-| `studio/models.py` | Questionnaire document and its validation rules |
+| `studio/models.py` | Questionnaire document, rules, and its validation |
 | `studio/xlsform.py` | Questionnaire ⇄ XLSForm |
 | `studio/db.py` | SQLite storage and version history |
 | `studio/export/schema.py` | XForm → labels, choices and types |
 | `studio/export/dataset.py` | CSV → typed, labelled tables |
 | `studio/export/writers.py` | Tables → `.dta` / `.sav` / `.csv` / codebook |
 | `studio/export/service.py` | Fetch, build, bundle |
+| `studio/static/expr.js` | The preview's XPath-subset evaluator |
+| `studio/static/preview.js` | The interactive, fillable preview |
 | `studio/static/` | The browser app (no build step) |

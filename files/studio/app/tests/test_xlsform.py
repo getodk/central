@@ -140,8 +140,9 @@ def test_round_trip_through_a_workbook_is_lossless():
     assert flat["hh"].kind == "group" and not flat["hh"].repeat
     assert flat["member"].repeat and flat["member"].repeatCount == "${hhsize}"
     assert flat["village"].required is True
-    assert flat["hhsize"].constraint == ". > 0"
-    assert flat["hhsize"].constraintMessage[EN] == "Must be positive"
+    # A single constraint now lives in the rules list, not the legacy field.
+    assert [(r.expression, r.severity) for r in flat["hhsize"].rules] == [(". > 0", "error")]
+    assert flat["hhsize"].rules[0].message[EN] == "Must be positive"
     assert flat["sex"].choiceList == "sex_list"
     assert flat["sex"].label[FR] == "Sexe"
     assert flat["total"].calculation == "count(${member})"
@@ -202,3 +203,142 @@ def test_validation_catches_common_mistakes():
     assert any("Duplicate name" in m for m in messages)
     assert any("does not exist" in m for m in messages)
     assert any("calculation is required" in m for m in messages)
+
+
+# -- multi-rule validation -------------------------------------------------
+
+
+def rules_form(*rules, languages=(EN,)):
+    from studio.models import Rule  # noqa: F401  (imported for callers' clarity)
+
+    return Questionnaire(
+        title="T", formId="t", languages=list(languages), defaultLanguage=languages[0],
+        items=[Item(kind="question", type="integer", name="age",
+                    label={lang: "Age" for lang in languages}, rules=list(rules))],
+    )
+
+
+def survey_rows(questionnaire):
+    return sheets(xlsform.to_workbook(questionnaire))["survey"]
+
+
+def test_a_legacy_constraint_becomes_a_rule():
+    item = Item(kind="question", type="integer", name="age",
+                constraint=". >= 0", constraintMessage={EN: "No negatives."})
+    assert [(r.expression, r.severity) for r in item.rules] == [(". >= 0", "error")]
+    assert item.rules[0].message == {EN: "No negatives."}
+    # The old fields are cleared so `rules` is the only source of truth.
+    assert item.constraint == "" and item.constraintMessage == {}
+
+
+def test_one_error_rule_compiles_to_a_plain_constraint():
+    from studio.models import Rule
+
+    rows = survey_rows(rules_form(Rule(expression=". >= 0", message={EN: "No negatives."})))
+    assert len(rows) == 1, "no scaffolding for a single rule"
+    assert rows[0]["constraint"] == ". >= 0"
+    assert rows[0]["constraint_message"] == "No negatives."
+
+
+def test_several_error_rules_combine_and_pick_their_own_message():
+    from studio.models import Rule
+
+    rows = survey_rows(rules_form(
+        Rule(expression=". >= 0", message={EN: "No negatives."}),
+        Rule(expression=". <= 120", message={EN: "Too high."}),
+    ))
+    picker = next(r for r in rows if r["type"] == "calculate")
+    question = next(r for r in rows if r["name"] == "age")
+
+    assert question["constraint"] == "(. >= 0) and (. <= 120)"
+    assert question["constraint_message"] == "${age_studio_msg}"
+    assert picker["name"] == "age_studio_msg"
+    # '.' must become a reference: inside the calculate it would mean the
+    # calculate's own node.
+    assert "${age} >= 0" in picker["calculation"]
+    assert "'No negatives.'" in picker["calculation"]
+    assert "'Too high.'" in picker["calculation"]
+
+
+def test_each_language_gets_its_own_message_picker():
+    from studio.models import Rule
+
+    rows = survey_rows(rules_form(
+        Rule(expression=". >= 0", message={EN: "No negatives.", FR: "Pas de négatif."}),
+        Rule(expression=". <= 120", message={EN: "Too high.", FR: "Trop élevé."}),
+        languages=(EN, FR),
+    ))
+    pickers = {r["name"]: r["calculation"] for r in rows if r["type"] == "calculate"}
+    assert set(pickers) == {"age_studio_msg_en", "age_studio_msg_fr"}
+    assert "Pas de négatif." in pickers["age_studio_msg_fr"]
+    assert "No negatives." in pickers["age_studio_msg_en"]
+
+    question = next(r for r in rows if r["name"] == "age")
+    assert question[f"constraint_message::{EN}"] == "${age_studio_msg_en}"
+    assert question[f"constraint_message::{FR}"] == "${age_studio_msg_fr}"
+
+
+def test_a_warning_becomes_a_note_shown_only_once_answered():
+    from studio.models import Rule
+
+    rows = survey_rows(rules_form(
+        Rule(expression=". <= 100", message={EN: "Please confirm."}, severity="warning"),
+    ))
+    note = next(r for r in rows if r["type"] == "note")
+    assert note["name"] == "age_studio_warn1"
+    assert note["label"] == "Please confirm."
+    # Blank answers must not trip the warning.
+    assert note["relevant"] == "${age} != '' and not(${age} <= 100)"
+    # A warning never blocks, so it must not reach the constraint.
+    assert next(r for r in rows if r["name"] == "age").get("constraint", "") == ""
+
+
+def test_messages_containing_apostrophes_stay_valid_xpath():
+    from studio.models import Rule
+
+    rows = survey_rows(rules_form(
+        Rule(expression=". >= 0", message={EN: "Don't use negatives."}),
+        Rule(expression=". <= 120", message={EN: "Too high."}),
+    ))
+    calculation = next(r for r in rows if r["type"] == "calculate")["calculation"]
+    assert '"Don\'t use negatives."' in calculation
+
+
+def test_rules_survive_a_round_trip_including_warnings():
+    from studio.models import Rule
+
+    original = Questionnaire(
+        title="T", formId="t", languages=[EN, FR], defaultLanguage=EN,
+        items=[Item(kind="question", type="integer", name="age", label={EN: "Age", FR: "Âge"}, rules=[
+            Rule(expression=". >= 0", message={EN: "No negatives.", FR: "Pas de négatif."}),
+            Rule(expression=". <= 120", message={EN: "Too high.", FR: "Trop élevé."}),
+            Rule(expression=". <= 100", message={EN: "Confirm.", FR: "Confirmez."}, severity="warning"),
+        ])],
+    )
+    restored, warnings = xlsform.from_workbook(xlsform.to_workbook(original))
+    assert warnings == []
+
+    items = [i for i, _ in restored.walk()]
+    assert [i.name for i in items] == ["age"], "generated nodes must not import as questions"
+
+    assert [(r.expression, r.severity) for r in items[0].rules] == [
+        (". >= 0", "error"), (". <= 120", "error"), (". <= 100", "warning"),
+    ]
+    assert items[0].rules[1].message == {EN: "Too high.", FR: "Trop élevé."}
+
+
+def test_generated_names_are_reserved():
+    questionnaire = Questionnaire(
+        title="T", formId="t",
+        items=[Item(kind="question", type="text", name="q_studio_msg", label={EN: "x"})],
+    )
+    assert any("reserved" in i.message for i in validate(questionnaire) if i.level == "error")
+
+
+def test_a_rule_without_an_expression_is_an_error():
+    from studio.models import Rule
+
+    questionnaire = rules_form(Rule(expression="", message={EN: "x"}))
+    assert any(
+        i.level == "error" and "no expression" in i.message for i in validate(questionnaire)
+    )

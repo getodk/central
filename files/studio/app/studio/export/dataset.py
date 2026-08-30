@@ -43,6 +43,10 @@ META_LABELS = {
 _NUMERIC_META = {"AttachmentsPresent", "AttachmentsExpected", "Edits", "SubmitterID"}
 _DATETIME_META = {"SubmissionDate"}
 
+# Nodes Studio generates when compiling validation rules. They carry no
+# respondent data, so they are left out of the exported tables.
+_GENERATED = re.compile(r"_studio_(msg(_[A-Za-z0-9]+)?|warn\d+)$")
+
 _GEO_PARTS = {
     "Latitude": "latitude",
     "Longitude": "longitude",
@@ -205,6 +209,9 @@ def _add_column(
             table.column_labels[header] = f"{base_label} ({_GEO_PARTS[part]})"
             return
         _add_meta_column(table, header, series)
+        return
+
+    if _GENERATED.search(fld.name):
         return
 
     if fld.data_type == "binary" and options.drop_attachments:
