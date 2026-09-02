@@ -110,7 +110,7 @@ map $spa_name $spa_csp {
 
 map $upstream_http_content_security_policy $central_backend_csp {
   # pass through any Content-Security-Policy received from upstream services (central-backend, enketo)
-  ""      "default-src 'report-sample' 'none'; form-action 'none'; frame-ancestors 'none'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report";
+  ""      "default-src 'report-sample' 'none'; form-action 'none'; frame-ancestors 'self'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report";
   default $upstream_http_content_security_policy;
 }
 
