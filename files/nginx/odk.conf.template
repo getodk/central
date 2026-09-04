@@ -110,7 +110,7 @@ map $spa_name $spa_csp {
 
 map $upstream_http_content_security_policy $central_backend_csp {
   # pass through any Content-Security-Policy received from upstream services (central-backend, enketo)
-  ""      "default-src 'report-sample' 'none'; form-action 'none'; frame-ancestors 'none'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report";
+  ""      "default-src 'report-sample' 'none'; form-action 'self'; frame-ancestors 'self'; img-src http://${DOMAIN}/favicon.ico; report-uri /csp-report";
   default $upstream_http_content_security_policy;
 }
 
@@ -121,7 +121,6 @@ server {
 
   ssl_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
   ssl_certificate_key /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/privkey.pem;
-  ssl_trusted_certificate /etc/${SSL_TYPE}/live/${CERT_DOMAIN}/fullchain.pem;
 
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
@@ -209,9 +208,8 @@ server {
     proxy_pass http://service:8383;
     proxy_redirect off;
 
-    # buffer requests, but not responses, so streaming out works.
     proxy_request_buffering on;
-    proxy_buffering off;
+    proxy_buffering on;
     proxy_read_timeout 2m;
   }
 

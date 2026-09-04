@@ -1,4 +1,4 @@
-FROM ghcr.io/enketo/enketo:7.6.1
+FROM ghcr.io/enketo/enketo:7.6.4
 
 ENV ENKETO_SRC_DIR=/srv/src/enketo/packages/enketo-express
 WORKDIR ${ENKETO_SRC_DIR}
