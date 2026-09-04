@@ -28,7 +28,7 @@ services:
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
   mail:
-    image: "registry.gitlab.com/egos-tech/smtp:1.2.8"
+    image: "registry.gitlab.com/egos-tech/smtp:2.0.7"
     volumes:
       - ./files/mail/rsa.private:/etc/exim4/dkim.key.temp:ro
     environment:
