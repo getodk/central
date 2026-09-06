@@ -25,7 +25,7 @@ jobs:
     - run: ./test/check-scripts.sh
     - run: ./test/check-for-large-files.sh
     - run: ./test/check-dockerfiles.sh
-    - run: cd test && npm clean-install
+    - run: cd test && npm clean-install --no-audit
     - run: cd test && npm run lint
     - run: cd test && npm run test:github-actions
   test-envsub:
@@ -42,7 +42,7 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
-    - run: cd test/nginx && npm clean-install
+    - run: cd test/nginx && npm clean-install --no-audit
     - run: cd test/nginx && ./setup-tests.sh
     - run: cd test/nginx && npm run test:nginx:mocha
     - run: cd test/nginx && ./lint-config.sh
@@ -76,7 +76,7 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
-    - run: cd test/nginx && npm clean-install
+    - run: cd test/nginx && npm clean-install --no-audit
     - run: cd test/nginx && npm run test:service
   test-images:
     timeout-minutes: 10

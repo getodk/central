@@ -8,5 +8,5 @@ RUN apt-get update \
 WORKDIR /workspace
 
 COPY ./mock-sentry .
-RUN npm clean-install
+RUN npm clean-install --no-audit
 ENTRYPOINT ["npm", "run", "start"]
