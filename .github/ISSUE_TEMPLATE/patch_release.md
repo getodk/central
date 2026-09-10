@@ -19,7 +19,8 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 ## Steps
 
 - [ ] Decide the release version (`vXXXX.X.Y`). The same version is used for `central`, `central-backend`, and `central-frontend`, so the `central` release URL (`https://github.com/getodk/central/releases/tag/vXXXX.X.Y`) can be referenced from the `central-frontend` and `central-backend` release bodies.
-- [ ] Write an announcement about the release for the forum.
+- [ ] List all the issues in `central` and `web-forms` repos to be included in this release, and tick them off when they have been cherry-picked into the release branch
+  - [ ] {{ first issue }}
 
 ### Get the repository
 
