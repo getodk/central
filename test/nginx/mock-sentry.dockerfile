@@ -1,4 +1,4 @@
-FROM node:24.16.0-slim
+FROM node:24.20.0-slim
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -8,5 +8,5 @@ RUN apt-get update \
 WORKDIR /workspace
 
 COPY ./mock-sentry .
-RUN npm clean-install
+RUN npm clean-install --no-audit
 ENTRYPOINT ["npm", "run", "start"]

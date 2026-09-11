@@ -1,7 +1,7 @@
-FROM node:24.16.0-slim
+FROM node:24.20.0-slim
 
 WORKDIR /workspace
 
 COPY ./mock-http-server .
-RUN npm clean-install
+RUN npm clean-install --no-audit
 ENTRYPOINT ["npm", "run", "start"]

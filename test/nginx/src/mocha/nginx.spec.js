@@ -5,6 +5,7 @@ const {
   assertSentryReceived,
   requestSentryMock,
   resetSentryMock,
+  sleep,
 } = require('../lib');
 const request = require('./request');
 
@@ -47,8 +48,8 @@ const contentSecurityPolicies = {
         reportSample,
         none,
       ],
-      'form-action': none,
-      'frame-ancestors': none,
+      'form-action': self,
+      'frame-ancestors': self,
       'img-src': 'http://odk-nginx.example.test/favicon.ico', // http: scheme permits secure upgrade to https://
       'report-uri':  '/csp-report',
     },
@@ -435,6 +436,78 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         assert.isNull(res.headers.get('Content-Encoding'));
       });
     });
+  });
+
+  describe('response buffering', () => {
+    it('should buffer responses in nginx, not backend services', async function() {
+      const testTimeout = 5_000;
+      this.timeout(testTimeout);
+
+      let controller;
+
+      try {
+        // given
+        controller = new AbortController();
+        const { signal } = controller;
+
+        // when
+        const res = await apiFetch('/v1/projects/123/forms/some_form_id/attachments/100MB.csv', { signal });
+        // then
+        assert.equal(res.status, 200);
+
+        // when
+        const reader = res.body.getReader();
+        const initialRead = await reader.read();
+        let bytesRead = initialRead.value.length;
+        // then
+        assert.isFalse(initialRead.done);
+        assert.isAtMost(bytesRead, 16_384);
+        assert.equal(new TextDecoder('utf8').decode(initialRead.value).split('\n', 1)[0], 'row_number,timestamp,random-number');
+        // and
+        assert.deepEqual(await getOpenProcessorCount(), { openProcessorCount:1, completedProcessorCount:0 });
+
+        // when
+        await untilOpenProcessorCountIs({ timeout:testTimeout, openProcessorCount:0, completedProcessorCount:1 });
+        // and
+        while(true) {
+          const { done, value } = await reader.read();
+          if(done) break;
+          bytesRead += value.length;
+        }
+        // then
+        assert.equal(bytesRead, 100_000_000);
+      } finally {
+        controller.abort();
+      }
+    });
+
+    async function getOpenProcessorCount() {
+      const res = await request(`http://localhost:8383/__mock_http_server/open-processor-count`);
+      assert.isTrue(res.ok);
+      return await res.json();
+    }
+
+    async function untilOpenProcessorCountIs({ timeout, ...expected }) {
+      let timeoutId;
+      try {
+        let timedOut;
+        timeoutId = setTimeout(() => { timedOut = true; }, timeout);
+
+        while(true) {
+          const { openProcessorCount, completedProcessorCount } = await getOpenProcessorCount();
+          if(openProcessorCount === expected.openProcessorCount &&
+              completedProcessorCount === expected.completedProcessorCount) {
+            break;
+          }
+
+          if(timedOut) throw new Error(`Timeout of ${timeout} ms exceeded.`);
+
+          await sleep(100);
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
   });
 
   it('should serve generated client-config.json', async () => {

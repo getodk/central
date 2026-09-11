@@ -8,15 +8,21 @@ const { assert } = chai;
 module.exports = {
   assert,
   assertSentryReceived,
+  getReceivedSentryCspReports,
   requestSentryMock,
   resetSentryMock,
+  sleep,
 };
 
-async function assertSentryReceived(...expectedRequests) {
+async function getReceivedSentryCspReports() {
   const { status, body } = await requestSentryMock({ path:'/__mock_sentry/event-log' });
   assert.equal(status, 200);
 
-  const actual = JSON.parse(body);
+  return JSON.parse(body);
+}
+
+async function assertSentryReceived(...expectedRequests) {
+  const actual = await getReceivedSentryCspReports();
 
   try {
     assert.deepEqual(actual, expectedRequests);
@@ -55,4 +61,8 @@ function requestSentryMock(opts) {
     req.on('error', reject);
     req.end();
   });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

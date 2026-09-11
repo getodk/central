@@ -99,6 +99,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
   * [packages/web-forms](https://github.com/getodk/central-frontend/blob/master/packages/web-forms/CHANGELOG.md#<version-without-dots>)
   * [packages/xforms-engine](https://github.com/getodk/central-frontend/blob/master/packages/xforms-engine/CHANGELOG.md#<version-without-dots>)
   * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md#<version-without-dots>)
+  * [Operations infrastructure](https://github.com/getodk/central/blob/master/CHANGELOG.md#<version-without-dots>)
   ```
 
   </details>

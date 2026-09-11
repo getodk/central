@@ -9,4 +9,6 @@ Closes #
 
 #### How does this change impact users? Describe intentional behavior changes from code updates. What are the regression risks?
 
+#### Is this change user-facing or otherwise noteworthy to users? If so, please add an entry for it in CHANGELOG.md.
+
 #### Does this change require updates to documentation? If so, please file an issue [here](https://github.com/getodk/docs/issues/new) and include the link below.
