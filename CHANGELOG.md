@@ -16,8 +16,8 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 
 ## 2026.3.0
 
-- Show error message for incorrect encryption password (#2080)
-- Buffer slow client reads in nginx (#2029)
-- Update infrastructure dependencies (#2120)
-- Fix Google Map tiles in Enketo (#2071)
-- Fix OSM tiles in Enketo in Firefox (#1885)
+- Show error message for incorrect encryption password (getodk/central#2080)
+- Buffer slow client reads in nginx (getodk/central#2029)
+- Update infrastructure dependencies (getodk/central#2120)
+- Fix Google Map tiles in Enketo (getodk/central#2071)
+- Fix OSM tiles in Enketo in Firefox (getodk/central#1885)
