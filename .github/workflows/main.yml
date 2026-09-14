@@ -94,7 +94,7 @@ jobs:
         fetch-tags: true
         submodules: recursive
 
-    - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 600 --max-count 700
+    - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 650 --max-count 750
 
     - run: ./files/ci/extract-frontend-version.sh
     - run: FRONTEND_BUILD_MODE=fetch ./test/test-images.sh
