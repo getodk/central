@@ -99,7 +99,7 @@ Releasing requires two people: one person to push PRs and complete other tasks a
 
   <!-- CHANGELOG section anchors drop dots from the version number: 0.25.0 → #0250 -->
   * [API](https://docs.getodk.org/central-api-changelog/)
-  * Frontend
+  * User interface
     * [apps/central](https://github.com/getodk/central-frontend/tree/master/apps/central/CHANGELOG.md#<version-without-dots>)
     * [apps/forms](https://github.com/getodk/central-frontend/tree/master/apps/forms/CHANGELOG.md#<version-without-dots>)
     * [packages/web-forms](https://github.com/getodk/central-frontend/blob/master/packages/web-forms/CHANGELOG.md#<version-without-dots>)
