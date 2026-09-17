@@ -11,7 +11,7 @@ if diff \
     <(
       env --ignore-environment \
           files/service/with-pgenvblock.pl \
-          <(printf "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0\G=7") \
+          <(printf "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7") \
           env \
       | tr '\0' '\n'
     ) \
