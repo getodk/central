@@ -77,6 +77,7 @@ jobs:
       with:
         node-version-file: test/package.json
     - run: cd test && npm clean-install --no-audit
+    - run: touch ./files/allow-postgres14-upgrade
     - run: cd test && npm run test:service
   test-images:
     timeout-minutes: 10
