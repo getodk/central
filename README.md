@@ -57,4 +57,4 @@ We aim to use the latest [active LTS version of Node.js](https://github.com/node
 
 ## License
 
-All of ODK Central is licensed under the [Apache 2.0](https://raw.githubusercontent.com/getodk/central/master/LICENSE) License.
+ODK Central's source code is licensed under the [Apache 2.0](https://raw.githubusercontent.com/getodk/central/master/LICENSE) License. Docker images also contain third-party software under their respective licenses.
