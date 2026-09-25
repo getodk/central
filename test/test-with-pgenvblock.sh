@@ -11,13 +11,13 @@ test_env() {
 
   log "  Testing: $title..."
   if diff \
-      <(xxd <(
+      <(hexdump --canonical <(
         env --ignore-environment \
             files/service/with-pgenvblock.pl \
             <(printf %b "$envblock") \
             env --null
       )) \
-      <(xxd <(printf %b "$expectedEnv"))
+      <(hexdump --canonical <(printf %b "$expectedEnv"))
   then
     log "    Passed OK."
   else
