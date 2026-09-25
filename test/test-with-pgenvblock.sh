@@ -14,7 +14,7 @@ test_env() {
       <(xxd <(
         env --ignore-environment \
             files/service/with-pgenvblock.pl \
-            <(printf "$envblock") \
+            <(printf %b "$envblock") \
             env --null
       )) \
       <(xxd <(printf %b "$expectedEnv"))
