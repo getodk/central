@@ -17,7 +17,7 @@ test_env() {
             <(printf "$envblock") \
             env --null
       )) \
-      <(xxd <(printf "$expectedEnv"))
+      <(xxd <(printf %b "$expectedEnv"))
   then
     log "    Passed OK."
   else
