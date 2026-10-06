@@ -14,6 +14,10 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
   * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md)
 </details>
 
+## next
+
+- Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
+
 ## 2026.3.0
 
 - Show error message for incorrect encryption password (getodk/central#2080)
