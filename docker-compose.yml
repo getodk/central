@@ -2,23 +2,29 @@ services:
   postgres14:
     build:
       context: .
-      dockerfile: postgres14.dockerfile
+      dockerfile: pgautoupgrade.dockerfile
     shm_size: 512m
     volumes:
-      - postgres14:/var/lib/odk/postgresql/14
+      - type: volume
+        source: postgres14
+        target: /var/lib/postgresql/data
+        volume:
+          subpath: data
+      - ./files/postgres14/upgrade:/postgres14-upgrade
     environment:
       POSTGRES_USER: odk
       POSTGRES_PASSWORD: odk
       POSTGRES_DB: odk
     restart: always
     depends_on:
-      - postgres
+      postgres:
+        condition: service_completed_successfully
   postgres:
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
     build:
       context: .
-      dockerfile: postgres-upgrade.dockerfile
+      dockerfile: postgres-legacy-upgrade.dockerfile
     platform: linux/amd64
     volumes:
       - /var/lib/postgresql/data
@@ -170,7 +176,7 @@ services:
       - /usr/local/etc/redis/redis.conf
     restart: always
 volumes:
-  secrets:
-  postgres14:
   enketo_redis_main:
   enketo_redis_cache:
+  secrets:
+  postgres14:
