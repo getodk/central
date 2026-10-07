@@ -14,7 +14,7 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
   * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md)
 </details>
 
-## next
+## 2026.4.0
 
 - Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
 
