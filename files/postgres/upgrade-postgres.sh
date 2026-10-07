@@ -28,7 +28,7 @@ if [[ -f "$flag_upgradeCompletedOk" ]]; then
     log "!!!"
     log "!!! This is taking up disk space: $(du -hs "$PGDATAOLD" 2>/dev/null | cut -f1)B"
     log "!!!"
-    log "!!! Continue with the instructions at https://docs.getodk.org/central-upgrade/"
+    log "!!! Continue with the instructions at https://docs.getodk.org/central-upgrade/#upgrading-to-central-v2023-2"
     log "!!!"
   fi
 else
