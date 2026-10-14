@@ -48,7 +48,7 @@ EOF
     # * https://pypi.org/project/gixy-ng/#history
     # * https://github.com/dvershinin/gixy/blob/master/CHANGELOG.md
     echo "[lint-config] installing gixy..."
-    pip install gixy-ng==0.2.12
+    pip install gixy-ng==0.2.34
     echo "[lint-config] running gixy..."
     gixy -lll
 
