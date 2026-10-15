@@ -8,18 +8,13 @@ log "Testing..."
 
 log "  Testing: specific postgres-related variables..."
 if diff \
-    <(
+    <(xxd <(
       env --ignore-environment \
           files/service/with-pgenvblock.pl \
           <(printf "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7") \
-          env \
-      | tr '\0' '\n'
-    ) \
-    <(cat <<EOF
-PGSSLMODE=2
-PGDATABASE=4
-EOF
-)
+          env --null
+    )) \
+    <(xxd <(printf "PGSSLMODE=2\0PGDATABASE=4\0"))
 then
   log "    Passed OK."
 else
