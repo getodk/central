@@ -40,6 +40,18 @@ test_env "specific postgres-related variables" \
          "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7" \
          "PGSSLMODE=2\0PGDATABASE=4\0"
 
+test_env "specific postgres-related variables with linebreak (unrelated var)" \
+         "A=1\0PGSSLMODE=2\0C=3\nhas\nlinebreaks\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7" \
+         "PGSSLMODE=2\0PGDATABASE=4\0"
+
+test_env "specific postgres-related variables with linebreak (final var)" \
+         "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7\0PGWITHLINEBREAKS=have\na\nbreak\0I=8" \
+         "PGSSLMODE=2\0PGDATABASE=4\0PGWITHLINEBREAKS=have\na\nbreak\0"
+
+test_env "specific postgres-related variables with linebreak (non-final var)" \
+         "A=1\0PGSSLMODE=2\0C=3\0PGDATABASE=4\0E=5\0NODE_EXTRA_CA_CERTS=5\0G=7\0PGWITHLINEBREAKS=have\na\nbreak\0I=8\0PGAPPNAME=my_app\0K=10" \
+         "PGSSLMODE=2\0PGDATABASE=4\0PGWITHLINEBREAKS=have\na\nbreak\0PGAPPNAME=my_app\0"
+
 log "  Testing: local env + an injected var..."
 # for the skeptical reader, on the below:
 # note that the environment setting (with `export`) runs in a subshell, and as such doesn't touch our own environment,
