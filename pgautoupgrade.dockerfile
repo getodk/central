@@ -5,4 +5,4 @@ COPY files/postgres14/start-postgres.sh /usr/local/bin/
 ENV PGDATA=/var/lib/postgresql/data
 
 ENTRYPOINT []
-CMD ["start-postgres.sh"]
+CMD ["/usr/local/bin/start-postgres.sh"]
