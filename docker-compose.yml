@@ -6,7 +6,7 @@ services:
     # The legacy name is maintained to simplify ops/maintenance.
     build:
       context: .
-      dockerfile: pgautoupgrade.dockerfile
+      dockerfile: postgres-current.dockerfile
     shm_size: 512m
     volumes:
       - type: volume
@@ -29,7 +29,7 @@ services:
     # The legacy name must be maintained to allow access to the anonymous volume.
     build:
       context: .
-      dockerfile: postgres-legacy-upgrade.dockerfile
+      dockerfile: postgres-legacy.dockerfile
     platform: linux/amd64
     volumes:
       - /var/lib/postgresql/data
