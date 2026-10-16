@@ -1,5 +1,6 @@
 #!/bin/bash -eu
 set -o pipefail
+shopt -s inherit_errexit
 
 if [[ $# -lt 2 ]]; then
   echo "Not enough arguments."
