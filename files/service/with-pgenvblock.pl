@@ -1,17 +1,25 @@
-#!/bin/bash -eu
-set -o pipefail
+#!/usr/bin/env perl
 
-if [[ $# -lt 2 ]]; then
-  echo "Not enough arguments."
-  echo "Usage: $0 [path-to-envblock] [program] [program-arg]..."
-  usage 1
-fi
+use warnings;
+use strict;
 
-envFile="$1"
-shift
 
-exec grep --null-data "^PG" "$envFile" |
-    xargs --null \
-    env \
-        --ignore-environment \
-        "$@"
+die "Not enough arguments.\nUsage: with-pgenvblock.pl /path/to/envblock program [program-arg, …]\n" if @ARGV < 2;
+
+my $envblockfile = $ARGV[0];
+
+open my $fh, '<:raw', $envblockfile
+    or die "Cannot open '" . $envblockfile . "': $!";
+my $content = do { local $/; <$fh> };
+close $fh;
+
+my @entries = split /\x00/, $content;
+
+for my $entry (@entries) {
+    if ($entry =~ /\A(?<varname>PG[^=]+)=(?<varvalue>.*)\Z/s) {
+        $ENV{$+{varname}} = $+{varvalue};
+    }
+}
+
+exec @ARGV[1..$#ARGV]
+    or die;
