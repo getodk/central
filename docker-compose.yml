@@ -1,5 +1,9 @@
 services:
   postgres14:
+    # CURRENT PostgreSQL container.
+    # This service runs the LATEST version of postgres specificed in
+    # the associated dockerfile, which is now >v14.
+    # The legacy name is maintained to simplify ops/maintenance.
     build:
       context: .
       dockerfile: pgautoupgrade.dockerfile
@@ -20,6 +24,7 @@ services:
       postgres:
         condition: service_completed_successfully
   postgres:
+    # LEGACY PostgreSQL container.
     # This service upgrades from postgres 9.6 to 14.
     # The legacy name must be maintained to allow access to the anonymous volume.
     build:
@@ -180,3 +185,7 @@ volumes:
   enketo_redis_cache:
   secrets:
   postgres14:
+    # CURRENT PostgreSQL storage volume.
+    # This volume contains the data used by the postgres14 service,
+    # which now runs a version of postgres >v14.
+    # The legacy name is maintained to simplify ops/maintenance.
