@@ -14,6 +14,11 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
   * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md)
 </details>
 
+## 2026.4.0
+
+- Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
+- fix support for multiline values in postgres-related environment variables (getodk/central#2203)
+
 ## 2026.3.0
 
 - Show error message for incorrect encryption password (getodk/central#2080)
