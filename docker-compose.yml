@@ -21,8 +21,7 @@ services:
       POSTGRES_DB: odk
     restart: always
     depends_on:
-      postgres:
-        condition: service_completed_successfully
+      - postgres
   postgres:
     # LEGACY PostgreSQL container.
     # This service upgrades from postgres 9.6 to 14.
