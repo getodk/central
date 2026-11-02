@@ -18,6 +18,8 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 
 - Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
 - fix support for multiline values in postgres-related environment variables (getodk/central#2203)
+- rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
+- rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
 
 ## 2026.3.0
 
