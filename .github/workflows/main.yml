@@ -14,7 +14,7 @@ on:
 jobs:
   test-misc: # quick, simple checks
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - run: docker --version
     - run: docker compose version
@@ -30,13 +30,13 @@ jobs:
     - run: cd test && npm run test:github-actions
   test-envsub:
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - run: cd test/envsub && ./run-tests.sh
   test-nginx:
     timeout-minutes: 4
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - uses: actions/setup-node@v5
@@ -62,13 +62,13 @@ jobs:
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix sentry-mock
   test-secrets:
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - run: ./test/test-secrets.sh
   test-service:
     timeout-minutes: 5
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
       with:
@@ -87,7 +87,7 @@ jobs:
     - test-nginx
     - test-secrets
     - test-service
-    runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
+    runs-on: ubuntu-24.04 # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v5
       with:
@@ -120,7 +120,7 @@ jobs:
       ))
     needs:
     - test-images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
