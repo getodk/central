@@ -42,10 +42,13 @@ services:
       context: .
       dockerfile: service.dockerfile
     depends_on:
+      - secrets
       - postgres14
       - mail
       - pyxform
       - enketo
+    volumes:
+      - secrets:/etc/secrets
     env_file:
       - ".env"
     environment:
