@@ -102,7 +102,7 @@ get_memory_limit() {
 
 determine_worker_count() {
   local memtot=$1
-  if [ "$memtot" -gt 1100000 ]; then
+  if [ "$memtot" -gt 1100000000 ]; then
     echo 4
   else
     echo 1

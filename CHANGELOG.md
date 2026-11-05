@@ -19,6 +19,7 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 - Upgrade PostgreSQL version to v18 (getodk/central#2285)
 - Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
 - fix support for multiline values in postgres-related environment variables (getodk/central#2203)
+- reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
 
 ## 2026.3.0
 
