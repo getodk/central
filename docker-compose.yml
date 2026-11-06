@@ -145,7 +145,7 @@ services:
       - secrets:/etc/secrets
     build:
       context: .
-      dockerfile: secrets.dockerfile
+      dockerfile: enketo-secrets.dockerfile
     command: './generate-secrets.sh'
   enketo:
     volumes:
