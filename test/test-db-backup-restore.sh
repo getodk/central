@@ -63,7 +63,11 @@ log "Starting containers..."
 echo 'SSL_TYPE=selfsign
 DOMAIN=local
 SYSADMIN_EMAIL=no-reply@getodk.org' > ../.env
-docker compose up service
+docker compose up --detach service
+
+log "Waiting for service to become available..."
+sleep 30 # TODO do this properly
+
 log "Ensuring admin user exists..."
 docker compose exec --no-tty service node /usr/odk/lib/bin/cli
 log "Starting backup/restore tests..."
