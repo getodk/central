@@ -63,7 +63,7 @@ log "Starting containers..."
 echo 'SSL_TYPE=selfsign
 DOMAIN=local
 SYSADMIN_EMAIL=no-reply@getodk.org' > ../.env
-docker compose up --detach service
+docker compose up --build --detach service
 
 log "Waiting for service to become available..."
 sleep 30 # TODO do this properly
