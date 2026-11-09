@@ -28,7 +28,7 @@ test_backup_restore() {
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
 url = "http://127.0.0.1:8686/v1/backup"
-user = someone@somewhere.somedomain
+user = test-admin@example.test
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
 http1.1
@@ -71,7 +71,9 @@ sleep 30 # FIXME wait better
 docker ps # FIXME remove this
 
 log "Ensuring admin user exists..."
-docker compose exec -T service node /usr/odk/lib/bin/cli
+adminPassword="topSecret-$RANDOM|123"
+echo "$adminPassword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-create
+                        docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-promote
 log "Starting backup/restore tests..."
 test_backup_restore "without passphrase" ""
 test_backup_restore "with passphrase" "hunter2"
