@@ -166,6 +166,7 @@ const contentSecurityPolicies = {
       'report-uri': '/csp-report',
     }),
   },
+  // TODO differentiate between single-use and multi-use forms
   'form-wrapper': { // web-forms, and the enketo iframe owner
     block: allowGoogleTranslate({
       'default-src': [
