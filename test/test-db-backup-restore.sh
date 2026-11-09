@@ -60,7 +60,7 @@ EOF
 }
 
 log "Starting containers..."
-touch .env
+touch ../.env
 docker compose up
 log "Ensuring admin user exists..."
 docker compose exec --no-tty service node /usr/odk/lib/bin/cli
