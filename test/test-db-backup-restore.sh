@@ -70,7 +70,10 @@ docker compose up --build --detach service
 
 log "Waiting for service to become available..."
 sleep 30 # FIXME wait better
-curl --head "$serviceHost"
+log "curling $serviceHost..."
+curl --head "$serviceHost" || true
+log "curling localhost:8383..."
+curl --head "http://localhost:8383" || true
 #./wait-for-http-response.sh 30 "$serviceHost" || true
 docker ps # FIXME remove this
 
