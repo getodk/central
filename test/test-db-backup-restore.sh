@@ -61,7 +61,7 @@ EOF
 
 log "Starting containers..."
 touch ../.env
-docker compose up
+docker compose up service
 log "Ensuring admin user exists..."
 docker compose exec --no-tty service node /usr/odk/lib/bin/cli
 log "Starting backup/restore tests..."
