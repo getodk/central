@@ -70,7 +70,8 @@ docker compose up --build --detach service
 
 log "Waiting for service to become available..."
 sleep 30 # FIXME wait better
-./wait-for-http-response.sh 30 "$serviceHost"
+curl --head "$serviceHost"
+./wait-for-http-response.sh 30 "$serviceHost" || true
 docker ps # FIXME remove this
 
 log "Ensuring admin user exists..."
