@@ -16,6 +16,8 @@ log() { echo >&2 "[$(basename "$0")] $*"; }
 #
 # See: https://docs.getodk.org/central-backup/
 
+adminPassword="topSecret-$RANDOM|123"
+
 test_backup_restore() {
   local testDescription="$1"
   local passphrase="$2"
@@ -43,7 +45,7 @@ write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NO
 EOF
 
   log "Backing up..."
-  curl --config "$tmpConfig"
+  echo "$adminPassword" | curl --config "$tmpConfig"
 
   log "Identifying backup file..."
   # TODO this likely needs some work
@@ -71,7 +73,6 @@ sleep 30 # FIXME wait better
 docker ps # FIXME remove this
 
 log "Ensuring admin user exists..."
-adminPassword="topSecret-$RANDOM|123"
 echo "$adminPassword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-create
                         docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-promote
 log "Starting backup/restore tests..."
