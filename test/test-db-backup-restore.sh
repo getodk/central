@@ -69,7 +69,7 @@ log "Waiting for service to become available..."
 sleep 30 # TODO do this properly
 
 log "Ensuring admin user exists..."
-docker compose exec --no-tty service node /usr/odk/lib/bin/cli
+docker compose exec -T service node /usr/odk/lib/bin/cli
 log "Starting backup/restore tests..."
 test_backup_restore "without passphrase" ""
 test_backup_restore "with passphrase" "hunter2"
