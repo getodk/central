@@ -36,3 +36,17 @@ jobs:
     - run: cd test && npm clean-install --no-audit
     - run: touch ./files/allow-postgres14-upgrade
     - run: cd test && npm run test:service:db-backup-restore
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-upstream
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix service
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix enketo
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix sentry-mock
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix postgres
+    - if: always()
+      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix postgres14
