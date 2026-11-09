@@ -29,7 +29,7 @@ test_backup_restore() {
 
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
-url = "http://127.0.0.1:8686/v1/backup"
+url = "http://127.0.0.1:8383/v1/backup"
 user = test-admin@example.test
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
@@ -69,7 +69,7 @@ docker compose up --build --detach service
 
 log "Waiting for service to become available..."
 sleep 30 # FIXME wait better
-#./wait-for-http-response.sh 30 localhost:8383
+./wait-for-http-response.sh 30 localhost:8383
 docker ps # FIXME remove this
 
 log "Ensuring admin user exists..."
