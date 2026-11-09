@@ -60,7 +60,9 @@ EOF
 }
 
 log "Starting containers..."
-touch ../.env
+echo 'SSL_TYPE=selfsign
+DOMAIN=local
+SYSADMIN_EMAIL=no-reply@getodk.org' > ../.env
 docker compose up service
 log "Ensuring admin user exists..."
 docker compose exec --no-tty service node /usr/odk/lib/bin/cli
