@@ -46,13 +46,16 @@ EOF
   curl --config "$tmpConfig"
 
   log "Identifying backup file..."
-  backupFile="$backupsDir"/*
+  # TODO this likely needs some work
+  backupFile="$(find "$backupsDir" -type f)"
   log "Backup found at: $backupFile"
 
   log "Verifying backup..."
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | pg_restore --file /dev/null
 
   log "Restoring backup..."
+  # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
+  # shellcheck disable=SC2002
   cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
 }
 
