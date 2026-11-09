@@ -4,6 +4,18 @@ shopt -s inherit_errexit
 
 log() { echo >&2 "[$(basename "$0")] $*"; }
 
+# Test integration of various packages & compatibility between versions, including:
+#
+# * pg_dump & pg_restore inside service container
+# * postgres version in postgres14 container
+# * openssl version in service container
+# * openssl version in postgres14 container
+#
+# NOTE the backup, verify & restore commands/processes used in these tests should
+# follow the official documentation as closely as possible.
+#
+# See: https://docs.getodk.org/central-backup/
+
 test_backup_restore() {
   local testDescription="$1"
   local passphrase="$2"
