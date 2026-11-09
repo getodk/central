@@ -66,7 +66,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org' > ../.env
 docker compose up --build --detach service
 
 log "Waiting for service to become available..."
-sleep 30 # TODO do this properly
+./wait-for-http-response.sh 30 localhost:8383
 
 log "Ensuring admin user exists..."
 docker compose exec -T service node /usr/odk/lib/bin/cli
