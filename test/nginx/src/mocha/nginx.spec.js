@@ -181,7 +181,7 @@ const contentSecurityPolicies = {
         'data:',
       ],
       'form-action': self,
-      'frame-ancestors': self,
+      'frame-ancestors': '*',
       'frame-src': [
         self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
         centralNotifications,
