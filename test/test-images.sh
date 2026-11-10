@@ -101,8 +101,8 @@ log "Verifying db backup/restore..."
 # * openssl version in service container
 # * openssl version in postgres14 container
 #
-# NOTE the backup, verify & restore commands/processes used in these tests should
-# follow the official documentation as closely as possible.
+# NOTE the backup, verify & restore commands, processes & config used in these
+# tests should follow the official documentation as closely as possible.
 #
 # See: https://docs.getodk.org/central-backup/
 
