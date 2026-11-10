@@ -904,6 +904,8 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/f/anything/',
 
       // fake single-use form URLs
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
