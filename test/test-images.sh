@@ -106,7 +106,8 @@ log "Verifying db backup/restore..."
 #
 # See: https://docs.getodk.org/central-backup/
 
-adminPassword="topSecret-$RANDOM|123"
+adminUserEmail=odk-central-admin@example.test
+adminUserPword="topSecret-$RANDOM|123"
 nginxHost="https://localhost"
 
 test_backup_restore() {
@@ -121,7 +122,7 @@ test_backup_restore() {
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
 url = "https://local/v1/backup"
-user = test-admin@example.test
+user = $adminUserEmail
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
 http1.1
@@ -137,7 +138,7 @@ EOF
 
   log "Backing up..."
   curl \
-      --user ":$adminPassword" \
+      --user ":$adminUserPword" \
       --insecure \
       --resolve local:443:127.0.0.1 \
       --config "$tmpConfig"
@@ -163,8 +164,8 @@ log "Waiting for service to become available..."
 ./test/wait-for-http-response.sh 30 "$nginxHost" || true
 
 log "Ensuring admin user exists..."
-echo "$adminPassword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-create
-                        docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-promote
+echo "$adminUserPword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-create
+                         docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-promote
 log "Starting backup/restore tests..."
 test_backup_restore "without passphrase" ""
 test_backup_restore "with passphrase" "hunter2"
