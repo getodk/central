@@ -122,7 +122,7 @@ test_backup_restore() {
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
 url = "https://local/v1/backup"
-user = $adminUserEmail
+user = "$adminUserEmail:$adminUserPword"
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
 http1.1
@@ -138,7 +138,6 @@ EOF
 
   log "Backing up..."
   curl \
-      --user ":$adminUserPword" \
       --insecure \
       --resolve local:443:127.0.0.1 \
       --config "$tmpConfig"
