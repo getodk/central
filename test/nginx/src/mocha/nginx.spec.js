@@ -906,12 +906,12 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       // fake single-use form URLs
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?a=b?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?a=b?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?a=b?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?a=b?st=&y=z',
 
       // invalid submission ID - currently not checking for valid UUIDs
       '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
@@ -933,8 +933,18 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
     });
 
     [
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=1',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=1',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+
+      // fake single-use form URLs; ideally they would be detected correctly, but nginx's query param name matching is case-insensitive
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
     ].forEach(path => {
       it(`should add specific Content Security Policy restrictions for single-use webforms path: ${path}`, async () => {
         // when
