@@ -41,6 +41,53 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
   return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
 };
 
+const csp_formWrapperBase = {
+  block: allowGoogleTranslate({
+    'default-src': [
+      reportSample,
+      none,
+    ],
+    'connect-src': [
+      self,
+      'https:',
+    ],
+    'font-src': [
+      self,
+      'data:',
+    ],
+    'form-action': self,
+    'frame-src': [
+      self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
+      centralNotifications,
+    ],
+    'img-src': [
+      'blob:',
+      'data:',
+      'https:',
+    ],
+    'manifest-src': self,
+    'media-src': [
+      'blob:',
+    ],
+    'object-src': none,
+    'script-src': [
+      reportSample,
+      self,
+      wasmUnsafeEval,
+    ],
+    'style-src': [
+      self,
+      unsafeInline,
+    ],
+    'worker-src': [
+      reportSample,
+      'blob:',
+      'data:',
+    ],
+    'report-uri': '/csp-report',
+  }),
+};
+
 const contentSecurityPolicies = {
   'backend-strict': {
     block: {
@@ -167,52 +214,19 @@ const contentSecurityPolicies = {
     }),
   },
   // TODO differentiate between single-use and multi-use forms
-  'form-wrapper': { // web-forms, and the enketo iframe owner
-    block: allowGoogleTranslate({
-      'default-src': [
-        reportSample,
-        none,
-      ],
-      'connect-src': [
-        self,
-        'https:',
-      ],
-      'font-src': [
-        self,
-        'data:',
-      ],
-      'form-action': self,
+  'form-wrapper-general': { // web-forms, and the enketo iframe owner
+    block: {
+      ...csp_formWrapperBase.block,
+      'frame-ancestors': none,
+    },
+    reportOnly: csp_formWrapperBase.reportOnly,
+  },
+  'form-wrapper-singleUse': { // web-forms, and the enketo iframe owner, specifically for single-use forms
+    block: {
+      ...csp_formWrapperBase.block,
       'frame-ancestors': '*',
-      'frame-src': [
-        self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
-        centralNotifications,
-      ],
-      'img-src': [
-        'blob:',
-        'data:',
-        'https:',
-      ],
-      'manifest-src': self,
-      'media-src': [
-        'blob:',
-      ],
-      'object-src': none,
-      'script-src': [
-        reportSample,
-        self,
-        wasmUnsafeEval,
-      ],
-      'style-src': [
-        self,
-        unsafeInline,
-      ],
-      'worker-src': [
-        reportSample,
-        'blob:',
-        'data:',
-      ],
-      'report-uri': '/csp-report',
-    }),
+    },
+    reportOnly: csp_formWrapperBase.reportOnly,
   },
 };
 
@@ -889,8 +903,14 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/projects/1/forms/some_xml_form_id/draft/preview/',
       '/f/anything',
       '/f/anything/',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+
+      // fake single-use form URLs
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
 
       // invalid submission ID - currently not checking for valid UUIDs
       '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
@@ -907,7 +927,22 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         // then
         assert.equal(res.status, 200);
         assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
-        assertSecurityHeaders(res, { csp:'form-wrapper' });
+        assertSecurityHeaders(res, { csp:'form-wrapper-general' });
+      });
+    });
+
+    [
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+    ].forEach(path => {
+      it(`should add specific Content Security Policy restrictions for single-use webforms path: ${path}`, async () => {
+        // when
+        const res = await apiFetch(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
+        assertSecurityHeaders(res, { csp:'form-wrapper-singleUse' });
       });
     });
 
