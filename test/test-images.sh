@@ -107,7 +107,7 @@ log "Verifying db backup/restore..."
 # See: https://docs.getodk.org/central-backup/
 
 adminPassword="topSecret-$RANDOM|123"
-serviceHost="127.0.0.1:8989"
+nginxHost="https://localhost"
 
 test_backup_restore() {
   local testDescription="$1"
@@ -120,7 +120,7 @@ test_backup_restore() {
 
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
-url = "http://$serviceHost/v1/backup"
+url = "$nginxHost/v1/backup"
 user = test-admin@example.test
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
@@ -156,7 +156,7 @@ EOF
 docker ps
 
 log "Waiting for service to become available..."
-./test/wait-for-http-response.sh 30 "$serviceHost" || true
+./test/wait-for-http-response.sh 30 "$nginxHost" || true
 
 log "Ensuring admin user exists..."
 echo "$adminPassword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-create
