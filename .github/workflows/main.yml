@@ -19,34 +19,38 @@ jobs:
     - run: docker --version
     - run: docker compose version
     - uses: actions/checkout@v5
+    - run: ./test/check-submodules.sh
+    - run: ./test/test-with-pgenvblock.sh
     - run: sudo apt-get install shellcheck
     - run: ./test/check-scripts.sh
-  test-service:
-    timeout-minutes: 5
-    runs-on: ubuntu-24.04
+    - run: ./test/check-for-large-files.sh
+    - run: ./test/check-dockerfiles.sh
+    - run: cd test && npm clean-install --no-audit
+    - run: cd test && npm run lint
+    - run: cd test && npm run test:github-actions
+  test-images:
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04 # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v5
       with:
-        submodules: true
-    - run: touch .env
-    - run: docker compose pull --include-deps service
-    - uses: actions/setup-node@v5
-      with:
-        node-version-file: test/package.json
-    - run: cd test && npm clean-install --no-audit
-    - run: touch ./files/allow-postgres14-upgrade
-    - run: cd test && npm run test:service:db-backup-restore
+        fetch-depth: 0
+        fetch-tags: true
+        submodules: recursive
+
+    - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 650 --max-count 750
+
+    - run: ./files/ci/extract-frontend-version.sh
+    - run: FRONTEND_BUILD_MODE=fetch ./test/test-images.sh
+
+    # Check out the current frontend version referenced by docker-compose, as it should build OK.
+    - run: |
+           git clone \
+               --depth 1 \
+               --branch "$FRONTEND_VERSION" \
+               https://github.com/getodk/central-frontend.git \
+               client
+    - run: FRONTEND_BUILD_MODE=source ./test/test-images.sh
+
     - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-upstream
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix service
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix enketo
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix sentry-mock
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix postgres
-    - if: always()
-      run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix postgres14
+      run: docker compose logs
