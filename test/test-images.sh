@@ -136,7 +136,7 @@ write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NO
 EOF
 
   log "Backing up..."
-  echo "$adminPassword" | curl --config "$tmpConfig"
+  echo "$adminPassword" | curl --insecure --config "$tmpConfig"
 
   log "Identifying backup file..."
   # TODO this likely needs some work
