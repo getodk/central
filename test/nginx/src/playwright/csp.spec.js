@@ -148,9 +148,18 @@ test.describe('frame rules', () => {
       allowedFrameDestinations: [ /*none*/ ],
     },
     {
-      // TODO differentiate between single-use and multi-use forms
-      description: 'form-wrapper',
+      description: 'form-wrapper-general',
       centralUrl: 'https://odk-nginx.example.test:9001/projects/1/forms/xml-form-id/submissions/new',
+      allowedFrameAncestors: [
+        'odkCentral',
+      ],
+      allowedFrameDestinations: [
+        'odkCentral',
+      ],
+    },
+    {
+      description: 'form-wrapper-singleUse',
+      centralUrl: 'https://odk-nginx.example.test:9001/projects/1/forms/xml-form-id/submissions/new?st=1',
       allowedFrameAncestors: ALL_HOSTS,
       allowedFrameDestinations: [
         'odkCentral',
