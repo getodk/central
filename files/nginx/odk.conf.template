@@ -85,6 +85,11 @@ map $arg_st $redirect_single_prefix {
   default "/new${is_args}${args}${qp_deliminator}single=true";
 }
 
+map $arg_st $formwrapper_frame_ancestors {
+  ~.+     "*";
+  default "'self'";
+}
+
 # Note: using $request_uri here remains safe while percent-encodings are not
 # normalised in frontend URLs.  Tracked at https://github.com/getodk/central/issues/1532
 map $request_uri $spa_name {
@@ -102,7 +107,7 @@ map $spa_name $spa_csp {
   # Use 'none' per directive instead of falling back to default-src to make CSP violation reports more specific
 
   form-wrapper
-    "default-src 'report-sample' 'none'; connect-src 'self' https:; font-src 'self' data:; form-action 'self'; frame-ancestors *; frame-src 'self' https://getodk.github.io/central/; img-src blob: data: https:; manifest-src 'self'; media-src blob:; object-src 'none'; script-src 'report-sample' 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'report-sample' blob: data:; report-uri /csp-report";
+    "default-src 'report-sample' 'none'; connect-src 'self' https:; font-src 'self' data:; form-action 'self'; frame-ancestors $formwrapper_frame_ancestors; frame-src 'self' https://getodk.github.io/central/; img-src blob: data: https:; manifest-src 'self'; media-src blob:; object-src 'none'; script-src 'report-sample' 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'report-sample' blob: data:; report-uri /csp-report";
 
   default
     "default-src 'report-sample' 'none'; connect-src 'self' ${SENTRY_DSN_FRONTEND_ROOT} https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report";
