@@ -120,7 +120,7 @@ test_backup_restore() {
 
   log "Writing curl config file..."
   cat >"$tmpConfig" <<EOF
-url = "$nginxHost/v1/backup"
+url = "https://local/v1/backup"
 user = test-admin@example.test
 json = {"passphrase":"$passphrase"}
 output-dir = $backupsDir
@@ -136,7 +136,7 @@ write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NO
 EOF
 
   log "Backing up..."
-  echo "$adminPassword" | curl --insecure --config "$tmpConfig"
+  echo "$adminPassword" | curl --insecure --resolve local:127.0.0.1 --config "$tmpConfig"
 
   log "Identifying backup file..."
   # TODO this likely needs some work
