@@ -152,6 +152,9 @@ EOF
   cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
 }
 
+# FIXME debug remove
+docker ps
+
 log "Waiting for service to become available..."
 ./test/wait-for-http-response.sh 30 "$serviceHost" || true
 
