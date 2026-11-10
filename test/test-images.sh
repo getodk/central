@@ -153,7 +153,7 @@ EOF
 }
 
 log "Waiting for service to become available..."
-./wait-for-http-response.sh 30 "$serviceHost" || true
+./test/wait-for-http-response.sh 30 "$serviceHost" || true
 
 log "Ensuring admin user exists..."
 echo "$adminPassword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email test-admin@example.test user-create
