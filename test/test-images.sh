@@ -138,6 +138,8 @@ EOF
 
   log "Backing up..."
   curl \
+      --trace-ascii \
+      --verbose \
       --insecure \
       --resolve local:443:127.0.0.1 \
       --config "$tmpConfig"
