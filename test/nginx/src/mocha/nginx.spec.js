@@ -214,18 +214,18 @@ const contentSecurityPolicies = {
     }),
   },
   'form-wrapper-general': { // web-forms, and the enketo iframe owner
+    ...csp_formWrapperBase,
     block: {
       ...csp_formWrapperBase.block,
       'frame-ancestors': none,
     },
-    reportOnly: csp_formWrapperBase.reportOnly,
   },
   'form-wrapper-singleUse': { // web-forms, and the enketo iframe owner, specifically for single-use forms
+    ...csp_formWrapperBase,
     block: {
       ...csp_formWrapperBase.block,
       'frame-ancestors': '*',
     },
-    reportOnly: csp_formWrapperBase.reportOnly,
   },
 };
 
