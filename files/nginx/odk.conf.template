@@ -86,8 +86,8 @@ map $arg_st $redirect_single_prefix {
 }
 
 map $arg_st $formwrapper_frame_ancestors {
-  ~.+     "*";
-  default "'self'";
+  ~.+     "'matched-st'";
+  default "'no-matched-st'";
 }
 
 # Note: using $request_uri here remains safe while percent-encodings are not
