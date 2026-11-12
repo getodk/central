@@ -116,8 +116,8 @@ map $upstream_http_content_security_policy $central_backend_csp {
 
 # Disable proxy buffering for backup downloads to prevent chunk truncation
 map $uri $backend_proxy_buffering {
-  ~^/v1/backup$ "off";
-  default       "on";
+  ~^/v1/backup$ off;
+  default       on;
 }
 
 server {
