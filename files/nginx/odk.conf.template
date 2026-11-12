@@ -213,7 +213,7 @@ server {
     proxy_read_timeout 2m;
 
     # Disable proxy buffering for backup downloads to prevent chunk truncation
-    location = /v1/backup {
+    location ~ /v\d/backup {
       proxy_buffering off;
     }
   }
