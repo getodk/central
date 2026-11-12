@@ -114,6 +114,12 @@ map $upstream_http_content_security_policy $central_backend_csp {
   default $upstream_http_content_security_policy;
 }
 
+# Disable proxy buffering for backup downloads to prevent chunk truncation
+map $uri $backend_proxy_buffering {
+  ~^/v1/backup$ "off";
+  default       "on";
+}
+
 server {
   listen 443 ssl;
   http2 on;
@@ -209,13 +215,8 @@ server {
     proxy_redirect off;
 
     proxy_request_buffering on;
-    proxy_buffering on;
+    proxy_buffering $backend_proxy_buffering;
     proxy_read_timeout 2m;
-
-    # Disable proxy buffering for backup downloads to prevent chunk truncation
-    location ~ /v\d/backup {
-      proxy_buffering off;
-    }
   }
 
   location @blank.html {
