@@ -42,6 +42,7 @@ COPY files/nginx/setup-odk.sh \
 
 COPY files/nginx/redirector.conf /usr/share/odk/nginx/
 COPY files/nginx/common-headers.conf /usr/share/odk/nginx/
+COPY files/nginx/central-backend.conf /usr/share/odk/nginx/
 COPY files/nginx/robots.txt /usr/share/nginx/html
 COPY --from=intermediate dist/ /usr/share/nginx/html
 COPY --from=intermediate /tmp/version.txt /usr/share/nginx/html
