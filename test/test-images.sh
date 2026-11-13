@@ -116,6 +116,7 @@ test_backup_restore() {
   local tmpConfig
   tmpConfig="$(mktemp)"
   backupsDir="$(mktemp --directory)"
+  backupFile="$backupsDir/backup.enc.bin"
 
   log "Testing backup $testDescription..."
 
@@ -124,7 +125,7 @@ test_backup_restore() {
 url = "https://local/v1/backup"
 user = "$adminUserEmail:$adminUserPword"
 json = {"passphrase":"$passphrase"}
-output-dir = $backupsDir
+#output-dir = $backupsDir
 http1.1
 show-error
 fail
@@ -136,7 +137,6 @@ create-dirs
 write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
 EOF
 
-  backupFile="backup.enc.bin"
   log "Backing up to $backupFile ..."
   curl \
       --verbose \
