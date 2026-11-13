@@ -232,7 +232,7 @@ server {
   # central-frontend
   location / {
     root /usr/share/nginx/html;
-    try_files $uri $uri/ "$spa_html$is_args$args";
+    try_files $uri $uri/ "$spa_html";
 
     add_header Content-Security-Policy "$spa_csp" always;
 
