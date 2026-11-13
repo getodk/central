@@ -198,6 +198,36 @@ EOF
   docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
   log "DB recreated."
 
+  log "Debugging what might be owned by the odk user after we dropped the whole db..."
+  docker compose exec postgres14 psql -U odk odk -c "
+    SELECT n.nspname AS schema_name
+         , c.relname AS object_name
+         , CASE c.relkind
+             WHEN 'r' THEN 'table'
+             WHEN 'v' THEN 'view'
+             WHEN 'm' THEN 'materialized view'
+             WHEN 'S' THEN 'sequence'
+             WHEN 'f' THEN 'foreign table'
+             ELSE c.relkind::text
+           END AS object_type
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      JOIN pg_authid a ON a.oid = c.relowner
+      WHERE a.rolname = 'odk'
+        AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+  "
+  log "---"
+  docker compose exec postgres14 psql -U odk odk -c "
+    SELECT b.classid::regclass AS dependent_type
+         , b.objid AS dependent_object_id
+         , b.refclassid::regclass AS referenced_type
+         , d.extname AS extension_name
+      FROM pg_depend b
+      LEFT JOIN pg_extension d ON d.oid = b.objid
+      WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
+  "
+  log "---"
+
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
   # shellcheck disable=SC2002
