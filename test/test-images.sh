@@ -156,7 +156,7 @@ EOF
 
   log "Verifying backup..."
   # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
-  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | pg_restore --file /dev/null
+  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
 
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
