@@ -22,6 +22,7 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 - reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
 - rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
 - rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
+- allow embeddeding of public-access forms in iframes (getodk/central#2321)
 
 ## 2026.3.0
 
