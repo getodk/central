@@ -136,7 +136,7 @@ create-dirs
 write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
 EOF
 
-  backupFile="$backupsDir/backup.enc.bin"
+  backupFile="backup.enc.bin"
   log "Backing up to $backupFile ..."
   curl \
       --verbose \
