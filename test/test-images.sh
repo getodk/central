@@ -162,7 +162,7 @@ EOF
   docker compose stop service
 
   log "Debugging what might be owned by the odk user..."
-  docker compose exec postgres14 psql -U jubilant jubilant -c "
+  docker compose exec postgres14 psql -U odk odk -c "
     SELECT n.nspname AS schema_name
          , c.relname AS object_name
          , CASE c.relkind
@@ -180,7 +180,7 @@ EOF
         AND n.nspname NOT IN ('pg_catalog', 'information_schema')
   "
   log "---"
-  docker compose exec postgres14 psql -U jubilant jubilant -c "
+  docker compose exec postgres14 psql -U odk odk -c "
     SELECT b.classid::regclass AS dependent_type
          , b.objid AS dependent_object_id
          , p.refclassid::regclass AS referenced_type
