@@ -193,9 +193,9 @@ EOF
 
   log "Manually dropping and recreating DB to avoid weird errors..."
   log "Dropping db..."
-  docker compose exec postgres14 psql -U odk odk -c "DROP DATABASE IF EXISTS odk"
+  docker compose exec postgres14 psql -U odk postgres -c "DROP DATABASE IF EXISTS odk"
   log "DB dropped; recreating..."
-  docker compose exec postgres14 psql -U odk odk -c "CREATE DATABASE odk OWNER odk"
+  docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
   log "DB recreated."
 
   log "Restoring backup..."
