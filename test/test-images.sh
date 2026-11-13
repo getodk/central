@@ -119,7 +119,7 @@ test_backup_restore() {
   backupFile="$backupsDir/backup.enc.bin"
 
   log "Checking pg_dump version..."
-  docker compose exec service pg_dump --version
+  docker compose exec service pg_dump --version # FIXME delete this - just for debug
 
   log "Testing backup $testDescription..."
 
