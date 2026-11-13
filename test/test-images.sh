@@ -129,7 +129,7 @@ json = {"passphrase":"$passphrase"}
 http1.1
 show-error
 fail
-remote-name
+#remote-name
 #remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
 remove-on-error
 no-clobber
