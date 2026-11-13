@@ -126,7 +126,7 @@ url = "https://local/v1/backup"
 user = "$adminUserEmail:$adminUserPword"
 json = {"passphrase":"$passphrase"}
 #output-dir = $backupsDir
-http1.1
+#http1.1
 show-error
 fail
 #remote-name
