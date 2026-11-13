@@ -14,7 +14,7 @@ on:
 jobs:
   test-misc: # quick, simple checks
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - run: docker --version
     - run: docker compose version
@@ -30,25 +30,25 @@ jobs:
     - run: cd test && npm run test:github-actions
   test-envsub:
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - run: cd test/envsub && ./run-tests.sh
   test-nginx:
     timeout-minutes: 4
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
-    - run: cd test/nginx && npm clean-install --no-audit
+    - run: cd test && npm clean-install --no-audit
     - run: cd test/nginx && ./setup-tests.sh
-    - run: cd test/nginx && npm run test:nginx:mocha
+    - run: cd test && npm run test:nginx:mocha
     - run: cd test/nginx && ./lint-config.sh
 
-    - run: cd test/nginx && npx playwright install --with-deps chromium-headless-shell
-    - run: cd test/nginx && npm run test:nginx:playwright
+    - run: cd test && npx playwright install --with-deps chromium-headless-shell
+    - run: cd test && npm run test:nginx:playwright
 
     - if: always()
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix nginx-ssl-selfsign
@@ -62,13 +62,13 @@ jobs:
       run: cd test/nginx && docker compose -f nginx.test.docker-compose.yml logs --no-log-prefix sentry-mock
   test-secrets:
     timeout-minutes: 2
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
     - run: ./test/test-secrets.sh
   test-service:
     timeout-minutes: 5
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
       with:
@@ -76,8 +76,9 @@ jobs:
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
-    - run: cd test/nginx && npm clean-install --no-audit
-    - run: cd test/nginx && npm run test:service
+    - run: cd test && npm clean-install --no-audit
+    - run: touch ./files/allow-postgres14-upgrade
+    - run: cd test && npm run test:service
   test-images:
     timeout-minutes: 10
     needs:
@@ -86,7 +87,7 @@ jobs:
     - test-nginx
     - test-secrets
     - test-service
-    runs-on: ubuntu-latest # TODO matrix to run on all expected versions?
+    runs-on: ubuntu-24.04 # TODO matrix to run on all expected versions?
     steps:
     - uses: actions/checkout@v5
       with:
@@ -119,7 +120,7 @@ jobs:
       ))
     needs:
     - test-images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
