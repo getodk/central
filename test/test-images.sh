@@ -158,10 +158,17 @@ EOF
   # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
 
+  log "Stopping service container to allow db restore..."
+  docker compose stop service
+
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
   # shellcheck disable=SC2002
-  cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
+  cat "$backupFile" | docker compose run --rm -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
+
+  log "Restarting service container..."
+  docker compose start service
+  check_path 5 /v1/projects '{"message":"Could not authenticate with the provided credentials.","code":401.2}'
 }
 
 # FIXME debug remove
