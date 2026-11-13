@@ -264,6 +264,9 @@ EOF
   "
   log "---"
 
+
+  docker compose exec postgres14 psql -U odk odk -c "ALTER EXTENSION plpgsql OWNER TO postgres"
+
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
   # shellcheck disable=SC2002
