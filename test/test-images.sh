@@ -183,7 +183,7 @@ EOF
   docker compose exec postgres14 psql -U odk odk -c "
     SELECT b.classid::regclass AS dependent_type
          , b.objid AS dependent_object_id
-         , p.refclassid::regclass AS referenced_type
+         , b.refclassid::regclass AS referenced_type
          , d.extname AS extension_name
       FROM pg_depend b
       LEFT JOIN pg_extension d ON d.oid = b.objid
