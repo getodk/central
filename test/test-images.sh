@@ -112,7 +112,7 @@ nginxHost="https://localhost"
 
 show_db_ownership() {
   log "Checking ownerships..."
-  docker compose exec postgres14 psql -U odk odk -c "
+  docker compose exec postgres14 psql -U odk postgres -c "
     SELECT n.nspname AS schema_name
          , c.relname AS object_name
          , CASE c.relkind
@@ -130,7 +130,7 @@ show_db_ownership() {
         AND n.nspname NOT IN ('pg_catalog', 'information_schema')
   "
   log "---"
-  docker compose exec postgres14 psql -U odk odk -c "
+  docker compose exec postgres14 psql -U odk postgres -c "
     SELECT b.classid::regclass AS dependent_type
          , b.objid AS dependent_object_id
          , b.refclassid::regclass AS referenced_type
@@ -139,7 +139,7 @@ show_db_ownership() {
       LEFT JOIN pg_extension d ON d.oid = b.objid
       WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
   "
-  docker compose exec postgres14 psql -U odk odk -c "
+  docker compose exec postgres14 psql -U odk postgres -c "
     (
       SELECT 'Table/View/Seq' AS object_type
            , n.nspname || '.' || c.relname AS object_name
