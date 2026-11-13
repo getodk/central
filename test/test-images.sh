@@ -118,6 +118,9 @@ test_backup_restore() {
   backupsDir="$(mktemp --directory)"
   backupFile="$backupsDir/backup.enc.bin"
 
+  log "Checking pg_dump version..."
+  docker compose exec service pg_dump --version
+
   log "Testing backup $testDescription..."
 
   log "Writing curl config file..."
