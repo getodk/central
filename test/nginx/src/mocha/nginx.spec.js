@@ -516,7 +516,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://abcdef0123456789abcdef0123456789@o-fake-dsn.ingest.sentry.io/1234567890123456' });
+    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://abcdef0123456789abcdef0123456789@o-fake-dsn.ingest.sentry.io/1234567890123456', googleMapsKey:'example-google-maps-key' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 
@@ -526,7 +526,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
 
     // then
     assert.equal(res.status, 200);
-    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://abcdef0123456789abcdef0123456789@o-fake-dsn.ingest.sentry.io/1234567890123456' });
+    assert.deepEqual(await res.json(), { oidcEnabled:false, sentryDsn:'https://abcdef0123456789abcdef0123456789@o-fake-dsn.ingest.sentry.io/1234567890123456', googleMapsKey:'example-google-maps-key' });
     assertSecurityHeaders(res, { csp:'central-frontend' });
   });
 

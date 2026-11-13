@@ -123,6 +123,7 @@ services:
       - SENTRY_PROJECT=${SENTRY_PROJECT:-1298632}
       - OIDC_ENABLED=${OIDC_ENABLED:-false}
       - SENTRY_DSN_FRONTEND=${SENTRY_DSN_FRONTEND:-}
+      - GOOGLE_MAPS_KEY=${GOOGLE_MAPS_KEY:-}
     volumes:
       - ./files/local/customssl/:/etc/customssl/live/local/:ro
       - ./files/nginx/odk.conf.template:/usr/share/odk/nginx/odk.conf.template:ro
