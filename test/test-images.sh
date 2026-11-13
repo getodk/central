@@ -129,24 +129,21 @@ http1.1
 show-error
 fail
 remote-name
-remote-header-name
+#remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
 remove-on-error
 no-clobber
 create-dirs
 write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
 EOF
 
-  log "Backing up..."
+  backupFile="$backupsDir/backup.enc.bin"
+  log "Backing up to $backupFile ..."
   curl \
       --verbose \
       --insecure \
       --resolve local:443:127.0.0.1 \
+      --output "$backupFile" \
       --config "$tmpConfig"
-
-  log "Identifying backup file..."
-  # TODO this likely needs some work
-  backupFile="$(find "$backupsDir" -type f)"
-  log "Backup found at: $backupFile"
 
   log "Verifying backup..."
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | pg_restore --file /dev/null
