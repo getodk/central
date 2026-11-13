@@ -226,6 +226,44 @@ EOF
       LEFT JOIN pg_extension d ON d.oid = b.objid
       WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
   "
+  docker compose exec postgres14 psql -U odk odk -c "
+    SELECT 
+        'Table/View/Seq' AS object_type, 
+        n.nspname || '.' || c.relname AS object_name 
+    FROM pg_class c 
+    JOIN pg_namespace n ON n.oid = c.relnamespace 
+    JOIN pg_authid a ON a.oid = c.relowner 
+    WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    
+    UNION ALL
+    
+    SELECT 
+        'Function/Procedure' AS object_type, 
+        n.nspname || '.' || p.proname AS object_name 
+    FROM pg_proc p 
+    JOIN pg_namespace n ON n.oid = p.pronamespace 
+    JOIN pg_authid a ON a.oid = p.proowner 
+    WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    
+    UNION ALL
+    
+    SELECT 
+        'Type' AS object_type, 
+        n.nspname || '.' || t.typname AS object_name 
+    FROM pg_type t 
+    JOIN pg_namespace n ON n.oid = t.typnamespace 
+    JOIN pg_authid a ON a.oid = t.typowner 
+    WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    
+    UNION ALL
+    
+    SELECT 
+        'Extension' AS object_type, 
+        extname AS object_name 
+    FROM pg_extension e 
+    JOIN pg_authid a ON a.oid = e.extowner 
+    WHERE a.rolname = 'odk';
+  "
   log "---"
 
   log "Restoring backup..."
