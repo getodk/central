@@ -120,6 +120,8 @@ test_backup_restore() {
 
   log "Checking pg_dump version..."
   docker compose exec service pg_dump --version # FIXME delete this - just for debug
+  log "Checking pg_restore version..."
+  pg_restore --version
 
   log "Testing backup $testDescription..."
 
