@@ -198,13 +198,13 @@ server {
   # End of Enketo Configuration.
 
   # central-backend
-  location ~ ^/v\d {
-    include /usr/share/odk/nginx/central-backend.conf;
-    proxy_buffering on;
-  }
   location = /v1/backup {
     include /usr/share/odk/nginx/central-backend.conf;
     proxy_buffering off;
+  }
+  location ~ ^/v\d {
+    include /usr/share/odk/nginx/central-backend.conf;
+    proxy_buffering on;
   }
 
   location @blank.html {
