@@ -191,6 +191,13 @@ EOF
   "
   log "---"
 
+  log "Manually dropping and recreating DB to avoid weird errors..."
+  docker compose run --rm postgres14 psql -U odk odk -c "
+    DROP DATABASE IF EXISTS odk;
+    CREATE DATABASE odk OWNER odk;
+  "
+  log "DB dropped & recreated."
+
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
   # shellcheck disable=SC2002
