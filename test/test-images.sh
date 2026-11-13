@@ -120,7 +120,9 @@ test_backup_restore() {
 
   log "Checking pg_dump version..."
   docker compose exec service pg_dump --version # FIXME delete this - just for debug
-  log "Checking pg_restore version..."
+  log "Checking container pg_restore version..."
+  docker compose exec service pg_restore --version # FIXME delete this - just for debug
+  log "Checking local pg_restore version..."
   pg_restore --version
 
   log "Testing backup $testDescription..."
@@ -153,6 +155,7 @@ EOF
       # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
 
   log "Verifying backup..."
+  # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | pg_restore --file /dev/null
 
   log "Restoring backup..."
