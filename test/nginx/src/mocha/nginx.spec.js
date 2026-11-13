@@ -220,7 +220,7 @@ const contentSecurityPolicies = {
       'frame-ancestors': self,
     },
   },
-  'form-wrapper-singleUse': { // web-forms, and the enketo iframe owner, specifically for single-use forms
+  'form-wrapper-publicAccess': { // web-forms, and the enketo iframe owner, specifically for public-access forms
     ...csp_formWrapperBase,
     block: {
       ...csp_formWrapperBase.block,
@@ -903,7 +903,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/f/anything',
       '/f/anything/',
 
-      // fake single-use form URLs
+      // fake public-access form URLs
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=&y=z',
@@ -938,7 +938,7 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
 
-      // fake single-use form URLs; ideally they would be detected correctly, but nginx's query param name matching is case-insensitive
+      // fake public-access form URLs; ideally they would be detected correctly, but nginx's query param name matching is case-insensitive
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
@@ -946,14 +946,14 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
       '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
     ].forEach(path => {
-      it(`should add specific Content Security Policy restrictions for single-use webforms path: ${path}`, async () => {
+      it(`should add specific Content Security Policy restrictions for public-access webforms path: ${path}`, async () => {
         // when
         const res = await apiFetch(path);
 
         // then
         assert.equal(res.status, 200);
         assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
-        assertSecurityHeaders(res, { csp:'form-wrapper-singleUse' });
+        assertSecurityHeaders(res, { csp:'form-wrapper-publicAccess' });
       });
     });
 

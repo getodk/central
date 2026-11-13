@@ -158,7 +158,7 @@ test.describe('frame rules', () => {
       ],
     },
     {
-      description: 'form-wrapper-singleUse',
+      description: 'form-wrapper-publicAccess',
       centralUrl: 'https://odk-nginx.example.test:9001/projects/1/forms/xml-form-id/submissions/new?st=1',
       allowedFrameAncestors: ALL_HOSTS,
       allowedFrameDestinations: [
