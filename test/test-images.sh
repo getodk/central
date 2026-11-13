@@ -143,7 +143,9 @@ EOF
       --insecure \
       --resolve local:443:127.0.0.1 \
       --output "$backupFile" \
-      --config "$tmpConfig"
+      --config "$tmpConfig" \
+      --http1.0
+      # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
 
   log "Verifying backup..."
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | pg_restore --file /dev/null
