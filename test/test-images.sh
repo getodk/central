@@ -93,4 +93,181 @@ if [[ "$processCount" != 4 ]]; then
   exit 1
 fi
 
+log "Verifying db backup/restore..."
+# Test integration of various packages & compatibility between versions, including:
+#
+# * pg_dump & pg_restore inside service container
+# * postgres version in postgres14 container
+# * openssl version in service container
+# * openssl version in postgres14 container
+#
+# NOTE the backup, verify & restore commands, processes & config used in these
+# tests should follow the official documentation as closely as possible.
+#
+# See: https://docs.getodk.org/central-backup/
+
+adminUserEmail=odk-central-admin@example.test
+adminUserPword="topSecret-$RANDOM|123"
+nginxHost="https://localhost"
+
+show_db_ownership() {
+  log "Checking ownerships..."
+  docker compose exec postgres14 psql -U postgres postgres -c "
+    SELECT n.nspname AS schema_name
+         , c.relname AS object_name
+         , CASE c.relkind
+             WHEN 'r' THEN 'table'
+             WHEN 'v' THEN 'view'
+             WHEN 'm' THEN 'materialized view'
+             WHEN 'S' THEN 'sequence'
+             WHEN 'f' THEN 'foreign table'
+             ELSE c.relkind::text
+           END AS object_type
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      JOIN pg_authid a ON a.oid = c.relowner
+      WHERE a.rolname = 'odk'
+        AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+  "
+  log "---"
+  docker compose exec postgres14 psql -U postgres postgres -c "
+    SELECT b.classid::regclass AS dependent_type
+         , b.objid AS dependent_object_id
+         , b.refclassid::regclass AS referenced_type
+         , d.extname AS extension_name
+      FROM pg_depend b
+      LEFT JOIN pg_extension d ON d.oid = b.objid
+      WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
+  "
+  docker compose exec postgres14 psql -U postgres postgres -c "
+    (
+      SELECT 'Table/View/Seq' AS object_type
+           , n.nspname || '.' || c.relname AS object_name
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_authid a ON a.oid = c.relowner
+        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    )
+    UNION ALL
+    (
+      SELECT 'Function/Procedure' AS object_type
+           , n.nspname || '.' || p.proname AS object_name
+        FROM pg_proc p
+        JOIN pg_namespace n ON n.oid = p.pronamespace
+        JOIN pg_authid a ON a.oid = p.proowner
+        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    )
+    UNION ALL
+    (
+      SELECT 'Type' AS object_type
+           , n.nspname || '.' || t.typname AS object_name
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        JOIN pg_authid a ON a.oid = t.typowner
+        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    )
+    UNION ALL
+    (
+      SELECT 'Extension' AS object_type
+           , extname AS object_name
+        FROM pg_extension e
+        JOIN pg_authid a ON a.oid = e.extowner
+        WHERE a.rolname = 'odk'
+    );
+  "
+  log "---"
+}
+
+test_backup_restore() {
+  local testDescription="$1"
+  local passphrase="$2"
+  local tmpConfig
+  tmpConfig="$(mktemp)"
+  backupsDir="$(mktemp --directory)"
+  backupFile="$backupsDir/backup.enc.bin"
+
+  log "Checking pg_dump version..."
+  docker compose exec service pg_dump --version # FIXME delete this - just for debug
+  log "Checking container pg_restore version..."
+  docker compose exec service pg_restore --version # FIXME delete this - just for debug
+  log "Checking local pg_restore version..."
+  pg_restore --version
+
+  log "Testing backup $testDescription..."
+
+  log "Writing curl config file..."
+  cat >"$tmpConfig" <<EOF
+url = "https://local/v1/backup"
+user = "$adminUserEmail:$adminUserPword"
+json = {"passphrase":"$passphrase"}
+#output-dir = $backupsDir
+#http1.1
+show-error
+fail
+#remote-name
+#remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
+remove-on-error
+no-clobber
+create-dirs
+write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
+EOF
+
+  log "Backing up to $backupFile ..."
+  curl \
+      --verbose \
+      --insecure \
+      --resolve local:443:127.0.0.1 \
+      --output "$backupFile" \
+      --config "$tmpConfig" \
+      --http1.0
+      # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
+
+  log "Verifying backup..."
+  # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
+  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
+
+  log "Stopping service container to allow db restore..."
+  docker compose stop service
+
+  show_db_ownership
+
+  log "Manually dropping and recreating DB to avoid weird errors..."
+  log "Dropping db..."
+  docker compose exec postgres14 psql -U postgres postgres -c "DROP DATABASE IF EXISTS odk"
+  docker compose exec postgres14 psql -U postgres postgres -c "VACUUM FULL ANALYZE;"
+  show_db_ownership
+  log "DB dropped; recreating..."
+  docker compose exec postgres14 psql -U postgres postgres -c "CREATE DATABASE odk OWNER odk"
+  log "DB recreated."
+
+  show_db_ownership
+
+  docker compose exec postgres14 psql -U postgres odk -c "DROP EXTENSION IF EXISTS plpgsql CASCADE"
+  #docker compose exec postgres14 psql -U postgres postgres -c "ALTER EXTENSION plpgsql OWNER TO postgres"
+
+  show_db_ownership
+
+  log "Restoring backup..."
+  # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
+  # shellcheck disable=SC2002
+  cat "$backupFile" | docker compose run --rm -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
+
+  log "Restarting service container..."
+  docker compose start service
+  check_path 5 /v1/projects '{"message":"Could not authenticate with the provided credentials.","code":401.2}'
+}
+
+# FIXME debug remove
+docker ps
+
+log "Waiting for service to become available..."
+./test/wait-for-http-response.sh 30 "$nginxHost" || true
+
+log "Ensuring admin user exists..."
+echo "$adminUserPword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-create
+                         docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-promote
+log "Starting backup/restore tests..."
+test_backup_restore "without passphrase" ""
+test_backup_restore "with passphrase" "hunter2"
+
 log "All OK."

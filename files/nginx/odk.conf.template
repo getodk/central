@@ -203,19 +203,13 @@ server {
   # End of Enketo Configuration.
 
   # central-backend
+  location = /v1/backup {
+    include /usr/share/odk/nginx/central-backend.conf;
+    proxy_buffering off;
+  }
   location ~ ^/v\d {
-    proxy_hide_header Content-Security-Policy;
-    add_header Content-Security-Policy $central_backend_csp always;
-
-    include /usr/share/odk/nginx/common-headers.conf;
-
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass http://service:8383;
-    proxy_redirect off;
-
-    proxy_request_buffering on;
+    include /usr/share/odk/nginx/central-backend.conf;
     proxy_buffering on;
-    proxy_read_timeout 2m;
   }
 
   location @blank.html {
