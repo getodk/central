@@ -112,7 +112,7 @@ nginxHost="https://localhost"
 
 show_db_ownership() {
   log "Checking ownerships..."
-  docker compose exec postgres14 psql -U odk postgres -c "
+  docker compose exec postgres14 psql -U postgres postgres -c "
     SELECT n.nspname AS schema_name
          , c.relname AS object_name
          , CASE c.relkind
@@ -130,7 +130,7 @@ show_db_ownership() {
         AND n.nspname NOT IN ('pg_catalog', 'information_schema')
   "
   log "---"
-  docker compose exec postgres14 psql -U odk postgres -c "
+  docker compose exec postgres14 psql -U postgres postgres -c "
     SELECT b.classid::regclass AS dependent_type
          , b.objid AS dependent_object_id
          , b.refclassid::regclass AS referenced_type
@@ -139,7 +139,7 @@ show_db_ownership() {
       LEFT JOIN pg_extension d ON d.oid = b.objid
       WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
   "
-  docker compose exec postgres14 psql -U odk postgres -c "
+  docker compose exec postgres14 psql -U postgres postgres -c "
     (
       SELECT 'Table/View/Seq' AS object_type
            , n.nspname || '.' || c.relname AS object_name
@@ -233,17 +233,17 @@ EOF
 
   log "Manually dropping and recreating DB to avoid weird errors..."
   log "Dropping db..."
-  docker compose exec postgres14 psql -U odk postgres -c "DROP DATABASE IF EXISTS odk"
-  docker compose exec postgres14 psql -U odk postgres -c "VACUUM FULL ANALYZE;"
+  docker compose exec postgres14 psql -U postgres postgres -c "DROP DATABASE IF EXISTS odk"
+  docker compose exec postgres14 psql -U postgres postgres -c "VACUUM FULL ANALYZE;"
   show_db_ownership
   log "DB dropped; recreating..."
-  docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
+  docker compose exec postgres14 psql -U postgres postgres -c "CREATE DATABASE odk OWNER odk"
   log "DB recreated."
 
   show_db_ownership
 
-  docker compose exec postgres14 psql -U odk odk -c "DROP EXTENSION IF EXISTS plpgsql CASCADE"
-  #docker compose exec postgres14 psql -U odk postgres -c "ALTER EXTENSION plpgsql OWNER TO postgres"
+  docker compose exec postgres14 psql -U postgres odk -c "DROP EXTENSION IF EXISTS plpgsql CASCADE"
+  #docker compose exec postgres14 psql -U postgres postgres -c "ALTER EXTENSION plpgsql OWNER TO postgres"
 
   show_db_ownership
 
