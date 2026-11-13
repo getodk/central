@@ -110,95 +110,8 @@ adminUserEmail=odk-central-admin@example.test
 adminUserPword="topSecret-$RANDOM|123"
 nginxHost="https://localhost"
 
-test_backup_restore() {
-  local testDescription="$1"
-  local passphrase="$2"
-  local tmpConfig
-  tmpConfig="$(mktemp)"
-  backupsDir="$(mktemp --directory)"
-  backupFile="$backupsDir/backup.enc.bin"
-
-  log "Checking pg_dump version..."
-  docker compose exec service pg_dump --version # FIXME delete this - just for debug
-  log "Checking container pg_restore version..."
-  docker compose exec service pg_restore --version # FIXME delete this - just for debug
-  log "Checking local pg_restore version..."
-  pg_restore --version
-
-  log "Testing backup $testDescription..."
-
-  log "Writing curl config file..."
-  cat >"$tmpConfig" <<EOF
-url = "https://local/v1/backup"
-user = "$adminUserEmail:$adminUserPword"
-json = {"passphrase":"$passphrase"}
-#output-dir = $backupsDir
-#http1.1
-show-error
-fail
-#remote-name
-#remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
-remove-on-error
-no-clobber
-create-dirs
-write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
-EOF
-
-  log "Backing up to $backupFile ..."
-  curl \
-      --verbose \
-      --insecure \
-      --resolve local:443:127.0.0.1 \
-      --output "$backupFile" \
-      --config "$tmpConfig" \
-      --http1.0
-      # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
-
-  log "Verifying backup..."
-  # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
-  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
-
-  log "Stopping service container to allow db restore..."
-  docker compose stop service
-
-  log "Debugging what might be owned by the odk user..."
-  docker compose exec postgres14 psql -U odk odk -c "
-    SELECT n.nspname AS schema_name
-         , c.relname AS object_name
-         , CASE c.relkind
-             WHEN 'r' THEN 'table'
-             WHEN 'v' THEN 'view'
-             WHEN 'm' THEN 'materialized view'
-             WHEN 'S' THEN 'sequence'
-             WHEN 'f' THEN 'foreign table'
-             ELSE c.relkind::text
-           END AS object_type
-      FROM pg_class c
-      JOIN pg_namespace n ON n.oid = c.relnamespace
-      JOIN pg_authid a ON a.oid = c.relowner
-      WHERE a.rolname = 'odk'
-        AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-  "
-  log "---"
-  docker compose exec postgres14 psql -U odk odk -c "
-    SELECT b.classid::regclass AS dependent_type
-         , b.objid AS dependent_object_id
-         , b.refclassid::regclass AS referenced_type
-         , d.extname AS extension_name
-      FROM pg_depend b
-      LEFT JOIN pg_extension d ON d.oid = b.objid
-      WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
-  "
-  log "---"
-
-  log "Manually dropping and recreating DB to avoid weird errors..."
-  log "Dropping db..."
-  docker compose exec postgres14 psql -U odk postgres -c "DROP DATABASE IF EXISTS odk"
-  log "DB dropped; recreating..."
-  docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
-  log "DB recreated."
-
-  log "Debugging what might be owned by the odk user after we dropped the whole db..."
+show_db_ownership() {
+  log "Checking ownerships..."
   docker compose exec postgres14 psql -U odk odk -c "
     SELECT n.nspname AS schema_name
          , c.relname AS object_name
@@ -263,10 +176,75 @@ EOF
     );
   "
   log "---"
+}
 
+test_backup_restore() {
+  local testDescription="$1"
+  local passphrase="$2"
+  local tmpConfig
+  tmpConfig="$(mktemp)"
+  backupsDir="$(mktemp --directory)"
+  backupFile="$backupsDir/backup.enc.bin"
+
+  log "Checking pg_dump version..."
+  docker compose exec service pg_dump --version # FIXME delete this - just for debug
+  log "Checking container pg_restore version..."
+  docker compose exec service pg_restore --version # FIXME delete this - just for debug
+  log "Checking local pg_restore version..."
+  pg_restore --version
+
+  log "Testing backup $testDescription..."
+
+  log "Writing curl config file..."
+  cat >"$tmpConfig" <<EOF
+url = "https://local/v1/backup"
+user = "$adminUserEmail:$adminUserPword"
+json = {"passphrase":"$passphrase"}
+#output-dir = $backupsDir
+#http1.1
+show-error
+fail
+#remote-name
+#remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
+remove-on-error
+no-clobber
+create-dirs
+write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
+EOF
+
+  log "Backing up to $backupFile ..."
+  curl \
+      --verbose \
+      --insecure \
+      --resolve local:443:127.0.0.1 \
+      --output "$backupFile" \
+      --config "$tmpConfig" \
+      --http1.0
+      # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
+
+  log "Verifying backup..."
+  # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
+  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
+
+  log "Stopping service container to allow db restore..."
+  docker compose stop service
+
+  show_db_ownership
+
+  log "Manually dropping and recreating DB to avoid weird errors..."
+  log "Dropping db..."
+  docker compose exec postgres14 psql -U odk postgres -c "DROP DATABASE IF EXISTS odk"
+  show_db_ownership
+  log "DB dropped; recreating..."
+  docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
+  log "DB recreated."
+
+  show_db_ownership
 
   docker compose exec postgres14 psql -U odk odk -c "DROP EXTENSION IF EXISTS plpgsql CASCADE"
   #docker compose exec postgres14 psql -U odk postgres -c "ALTER EXTENSION plpgsql OWNER TO postgres"
+
+  show_db_ownership
 
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
