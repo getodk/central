@@ -41,6 +41,53 @@ const allowGoogleTranslate = ({ 'connect-src':connectSrc, 'img-src':imgSrc, ...o
   return { ...others, 'connect-src':connectSrc, 'img-src':imgSrc };
 };
 
+const csp_formWrapperBase = {
+  block: allowGoogleTranslate({
+    'default-src': [
+      reportSample,
+      none,
+    ],
+    'connect-src': [
+      self,
+      'https:',
+    ],
+    'font-src': [
+      self,
+      'data:',
+    ],
+    'form-action': self,
+    'frame-src': [
+      self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
+      centralNotifications,
+    ],
+    'img-src': [
+      'blob:',
+      'data:',
+      'https:',
+    ],
+    'manifest-src': self,
+    'media-src': [
+      'blob:',
+    ],
+    'object-src': none,
+    'script-src': [
+      reportSample,
+      self,
+      wasmUnsafeEval,
+    ],
+    'style-src': [
+      self,
+      unsafeInline,
+    ],
+    'worker-src': [
+      reportSample,
+      'blob:',
+      'data:',
+    ],
+    'report-uri': '/csp-report',
+  }),
+};
+
 const contentSecurityPolicies = {
   'backend-strict': {
     block: {
@@ -166,52 +213,19 @@ const contentSecurityPolicies = {
       'report-uri': '/csp-report',
     }),
   },
-  'form-wrapper': { // web-forms, and the enketo iframe owner
-    block: allowGoogleTranslate({
-      'default-src': [
-        reportSample,
-        none,
-      ],
-      'connect-src': [
-        self,
-        'https:',
-      ],
-      'font-src': [
-        self,
-        'data:',
-      ],
-      'form-action': self,
+  'form-wrapper-general': { // web-forms, and the enketo iframe owner
+    ...csp_formWrapperBase,
+    block: {
+      ...csp_formWrapperBase.block,
       'frame-ancestors': self,
-      'frame-src': [
-        self, // web-forms wrapper pages also host /enketo-passthrough/ URLs via iframes
-        centralNotifications,
-      ],
-      'img-src': [
-        'blob:',
-        'data:',
-        'https:',
-      ],
-      'manifest-src': self,
-      'media-src': [
-        'blob:',
-      ],
-      'object-src': none,
-      'script-src': [
-        reportSample,
-        self,
-        wasmUnsafeEval,
-      ],
-      'style-src': [
-        self,
-        unsafeInline,
-      ],
-      'worker-src': [
-        reportSample,
-        'blob:',
-        'data:',
-      ],
-      'report-uri': '/csp-report',
-    }),
+    },
+  },
+  'form-wrapper-publicAccess': { // web-forms, and the enketo iframe owner, specifically for public-access forms
+    ...csp_formWrapperBase,
+    block: {
+      ...csp_formWrapperBase.block,
+      'frame-ancestors': '*',
+    },
   },
 };
 
@@ -888,8 +902,16 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
       '/projects/1/forms/some_xml_form_id/draft/preview/',
       '/f/anything',
       '/f/anything/',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
-      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+
+      // fake public-access form URLs
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?a=b?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?a=b?st=',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?a=b?st=&y=z',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?a=b?st=&y=z',
 
       // invalid submission ID - currently not checking for valid UUIDs
       '/projects/1/forms/some_xml_form_id/submissions/any-old-nonsense/edit',
@@ -906,7 +928,32 @@ function standardTestSuite({ fetchHttp, fetchHttp6, apiFetch, apiFetch6, forward
         // then
         assert.equal(res.status, 200);
         assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
-        assertSecurityHeaders(res, { csp:'form-wrapper' });
+        assertSecurityHeaders(res, { csp:'form-wrapper-general' });
+      });
+    });
+
+    [
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=1',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=1',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?st=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+
+      // fake public-access form URLs; ideally they would be detected correctly, but nginx's query param name matching is case-insensitive
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?ST=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?St=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+      '/f/SCUZtGUjC7fgL2O1AXqqG8YN8Jdkthi/?sT=vcm7tFeqEFR1Itrmjq50KEFSrK$osbXrtu',
+    ].forEach(path => {
+      it(`should add specific Content Security Policy restrictions for public-access webforms path: ${path}`, async () => {
+        // when
+        const res = await apiFetch(path);
+
+        // then
+        assert.equal(res.status, 200);
+        assert.equal(await res.text(), '<div id="form-wrapper"></div>\n');
+        assertSecurityHeaders(res, { csp:'form-wrapper-publicAccess' });
       });
     });
 
