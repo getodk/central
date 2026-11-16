@@ -19,6 +19,7 @@ jobs:
     - run: docker --version
     - run: docker compose version
     - uses: actions/checkout@v5
+    - uses: ./.github/actions/relegate-azure-mirrors
     - run: ./test/check-submodules.sh
     - run: ./test/test-with-pgenvblock.sh
     - run: sudo apt-get install shellcheck
@@ -33,12 +34,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
+    - uses: ./.github/actions/relegate-azure-mirrors
     - run: cd test/envsub && ./run-tests.sh
   test-nginx:
     timeout-minutes: 4
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
+    - uses: ./.github/actions/relegate-azure-mirrors
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
@@ -65,6 +68,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
+    - uses: ./.github/actions/relegate-azure-mirrors
     - run: ./test/test-secrets.sh
   test-service:
     timeout-minutes: 5
@@ -73,6 +77,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         submodules: true
+    - uses: ./.github/actions/relegate-azure-mirrors
     - uses: actions/setup-node@v5
       with:
         node-version-file: test/package.json
@@ -94,6 +99,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
+    - uses: ./.github/actions/relegate-azure-mirrors
 
     - run: ./test/check-docker-context.sh --min-size 5000 --max-size 10000 --min-count 650 --max-count 750
 
@@ -136,6 +142,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
         submodules: recursive
+    - uses: ./.github/actions/relegate-azure-mirrors
     - name: Log into registry ${{ env.REGISTRY }}
       uses: docker/login-action@v4
       with:
