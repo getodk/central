@@ -22,7 +22,9 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 - reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
 - rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
 - rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
-- Add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
+- allow embeddeding of public-access forms in iframes (getodk/central#2321)
+- update postgresql-client in the `service` container from v14 to v18 (getodk/central#2317)
+- add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
 
 ## 2026.3.0
 

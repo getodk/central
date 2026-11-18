@@ -49,7 +49,7 @@ RUN apt-get update \
         gpg \
         cron \
         procps \
-        postgresql-client-14 \
+        postgresql-client-18 \
         netcat-traditional \
         openssl \
     && rm -rf /var/lib/apt/lists/* \
