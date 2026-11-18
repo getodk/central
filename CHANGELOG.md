@@ -18,13 +18,13 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 
 - Upgrade PostgreSQL version to v18 (getodk/central#2285)
 - Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
-- fix support for multiline values in postgres-related environment variables (getodk/central#2203)
-- reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
-- rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
-- rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
-- allow embeddeding of public-access forms in iframes (getodk/central#2321)
-- update postgresql-client in the `service` container from v14 to v18 (getodk/central#2317)
-- add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
+- Fix support for multiline values in postgres-related environment variables (getodk/central#2203)
+- Reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
+- Rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
+- Rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
+- Allow embedding of public-access forms in iframes (getodk/central#2321)
+- Update postgresql-client in the `service` container from v14 to v18 (getodk/central#2317)
+- Add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
 
 ## 2026.3.0
 
