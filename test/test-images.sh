@@ -148,7 +148,6 @@ EOF
   backupFile="$(find "$backupDir" -type f)"
   log "Backup found at: $backupFile"
 
-
   log "Verifying backup..."
   # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
   openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
