@@ -116,13 +116,6 @@ test_backup_restore() {
   tmpConfig="$(mktemp)"
   backupDir="$(mktemp --directory)"
 
-  log "Checking pg_dump version..."
-  docker compose exec service pg_dump --version # FIXME delete this - just for debug
-  log "Checking container pg_restore version..."
-  docker compose exec service pg_restore --version # FIXME delete this - just for debug
-  log "Checking local pg_restore version..."
-  pg_restore --version
-
   log "Testing backup $testDescription..."
 
   log "Writing curl config file..."
