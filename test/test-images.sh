@@ -110,74 +110,6 @@ adminUserEmail=odk-central-admin@example.test
 adminUserPword="topSecret-$RANDOM|123"
 nginxHost="https://localhost"
 
-show_db_ownership() {
-  log "Checking ownerships..."
-  docker compose exec postgres14 psql -U odk postgres -c "
-    SELECT n.nspname AS schema_name
-         , c.relname AS object_name
-         , CASE c.relkind
-             WHEN 'r' THEN 'table'
-             WHEN 'v' THEN 'view'
-             WHEN 'm' THEN 'materialized view'
-             WHEN 'S' THEN 'sequence'
-             WHEN 'f' THEN 'foreign table'
-             ELSE c.relkind::text
-           END AS object_type
-      FROM pg_class c
-      JOIN pg_namespace n ON n.oid = c.relnamespace
-      JOIN pg_authid a ON a.oid = c.relowner
-      WHERE a.rolname = 'odk'
-        AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-  "
-  log "---"
-  docker compose exec postgres14 psql -U odk postgres -c "
-    SELECT b.classid::regclass AS dependent_type
-         , b.objid AS dependent_object_id
-         , b.refclassid::regclass AS referenced_type
-         , d.extname AS extension_name
-      FROM pg_depend b
-      LEFT JOIN pg_extension d ON d.oid = b.objid
-      WHERE b.refobjid = (SELECT oid FROM pg_roles WHERE rolname = 'odk')
-  "
-  docker compose exec postgres14 psql -U odk postgres -c "
-    (
-      SELECT 'Table/View/Seq' AS object_type
-           , n.nspname || '.' || c.relname AS object_name
-        FROM pg_class c
-        JOIN pg_namespace n ON n.oid = c.relnamespace
-        JOIN pg_authid a ON a.oid = c.relowner
-        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-    )
-    UNION ALL
-    (
-      SELECT 'Function/Procedure' AS object_type
-           , n.nspname || '.' || p.proname AS object_name
-        FROM pg_proc p
-        JOIN pg_namespace n ON n.oid = p.pronamespace
-        JOIN pg_authid a ON a.oid = p.proowner
-        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-    )
-    UNION ALL
-    (
-      SELECT 'Type' AS object_type
-           , n.nspname || '.' || t.typname AS object_name
-        FROM pg_type t
-        JOIN pg_namespace n ON n.oid = t.typnamespace
-        JOIN pg_authid a ON a.oid = t.typowner
-        WHERE a.rolname = 'odk' AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-    )
-    UNION ALL
-    (
-      SELECT 'Extension' AS object_type
-           , extname AS object_name
-        FROM pg_extension e
-        JOIN pg_authid a ON a.oid = e.extowner
-        WHERE a.rolname = 'odk'
-    );
-  "
-  log "---"
-}
-
 test_backup_restore() {
   local testDescription="$1"
   local passphrase="$2"
@@ -228,24 +160,6 @@ EOF
 
   log "Stopping service container to allow db restore..."
   docker compose stop service
-
-  show_db_ownership
-
-  log "Manually dropping and recreating DB to avoid weird errors..."
-  log "Dropping db..."
-  docker compose exec postgres14 psql -U odk postgres -c "DROP DATABASE IF EXISTS odk"
-  docker compose exec postgres14 psql -U odk postgres -c "VACUUM FULL ANALYZE;"
-  show_db_ownership
-  log "DB dropped; recreating..."
-  docker compose exec postgres14 psql -U odk postgres -c "CREATE DATABASE odk OWNER odk"
-  log "DB recreated."
-
-  show_db_ownership
-
-  docker compose exec postgres14 psql -U odk odk -c "DROP EXTENSION IF EXISTS plpgsql CASCADE"
-  #docker compose exec postgres14 psql -U odk postgres -c "ALTER EXTENSION plpgsql OWNER TO postgres"
-
-  show_db_ownership
 
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
