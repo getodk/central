@@ -116,7 +116,6 @@ test_backup_restore() {
   local tmpConfig
   tmpConfig="$(mktemp)"
   backupsDir="$(mktemp --directory)"
-  backupFile="$backupsDir/backup.enc.bin"
 
   log "Checking pg_dump version..."
   docker compose exec service pg_dump --version # FIXME delete this - just for debug
@@ -132,27 +131,28 @@ test_backup_restore() {
 url = "https://local/v1/backup"
 user = "$adminUserEmail:$adminUserPword"
 json = {"passphrase":"$passphrase"}
-#output-dir = $backupsDir
-#http1.1
+output-dir = $backupsDir
+http1.1
 show-error
 fail
-#remote-name
-#remote-header-name # disabled; maybe not a good recommendation?  FIXME research if docs should be updated to remove this
+remote-name
+remote-header-name
 remove-on-error
 no-clobber
 create-dirs
 write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
 EOF
 
-  log "Backing up to $backupFile ..."
+  log "Backing up to $backupDir ..."
   curl \
       --verbose \
       --insecure \
       --resolve local:443:127.0.0.1 \
-      --output "$backupFile" \
-      --config "$tmpConfig" \
-      --http1.0
-      # FIXME remove http1.0 - just trying to get things working, but this is not a permanent solution
+      --config "$tmpConfig"
+
+  log "Identifying backup file..."
+  backupFile=$backupDir/*.enc.bin
+  log "Using backup file: $backupFile"
 
   log "Verifying backup..."
   # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
