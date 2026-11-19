@@ -143,8 +143,9 @@ EOF
       --config "$tmpConfig"
 
   log "Identifying backup file..."
-  backupFile=$backupDir/*.enc.bin
-  log "Using backup file: $backupFile"
+  backupFile="$(find "$backupDir" -type f)"
+  log "Backup found at: $backupFile"
+
 
   log "Verifying backup..."
   # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
