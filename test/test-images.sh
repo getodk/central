@@ -159,9 +159,9 @@ EOF
 
   log "Restoring backup..."
   # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
-  # shellcheck disable=SC2002
   passphraseArg=()
   if ! [[ "$passphrase" = "" ]]; then passphrase+="$passphrase"; fi
+  # shellcheck disable=SC2002
   cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "${passphraseArg[@]}"
 }
 
