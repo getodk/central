@@ -93,4 +93,85 @@ if [[ "$processCount" != 4 ]]; then
   exit 1
 fi
 
+log "Verifying db backup/restore..."
+# Test integration of various packages & compatibility between versions, including:
+#
+# * pg_dump & pg_restore inside service container
+# * postgres version in postgres14 container
+# * openssl version in service container
+# * openssl version on the host
+#
+# NOTE the backup, verify & restore commands, processes & config used in these
+# tests should follow the official documentation as closely as possible.
+#
+# See: https://docs.getodk.org/central-backup/
+
+adminUserEmail="odk-central-admin-$RANDOM@example.test"
+adminUserPword="topSecret-$RANDOM|123"
+
+test_backup_restore() {
+  local testDescription="$1"
+  local passphrase="$2"
+  local tmpConfig
+  tmpConfig="$(mktemp)"
+  local backupDir
+  backupDir="$(mktemp --directory)"
+
+  log "Testing backup $testDescription..."
+
+  log "Writing curl config file..."
+  cat >"$tmpConfig" <<EOF
+url = "https://local/v1/backup"
+user = "$adminUserEmail:$adminUserPword"
+json = {"passphrase":"$passphrase"}
+output-dir = $backupDir
+http1.1
+show-error
+fail
+remote-name
+remote-header-name
+remove-on-error
+no-clobber
+create-dirs
+write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
+EOF
+
+  # TODO create a project
+
+  log "Backing up to $backupDir ..."
+  curl \
+      --verbose \
+      --insecure \
+      --resolve local:443:127.0.0.1 \
+      --config "$tmpConfig"
+
+  # TODO create another project
+
+  log "Identifying backup file..."
+  local backupFile
+  backupFile="$(find "$backupDir" -type f)"
+  log "Backup found at: $backupFile"
+
+  log "Verifying backup..."
+  # TODO this may require documentation updates for ensuring the pg_restore version used to check is the same as the version used inside the container
+  openssl enc -d -chacha20 -pbkdf2 -pass "pass:$passphrase" <"$backupFile" | docker compose exec -T service pg_restore --file /dev/null
+
+  log "Restoring backup..."
+  # N.B. "useless use of cat" deliberately echoes documented command at https://docs.getodk.org/central-backup/#restoring-a-backup
+  local passphraseArg=()
+  if ! [[ "$passphrase" = "" ]]; then passphraseArg+=("$passphrase"); fi
+  # shellcheck disable=SC2002
+  cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "${passphraseArg[@]}"
+
+  # TODO check pre-backup project exists
+  # TODO check post-backup project does not exist
+}
+
+log "Ensuring admin user exists..."
+echo "$adminUserPword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-create
+                         docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-promote
+log "Starting backup/restore tests..."
+test_backup_restore "without passphrase" ""
+test_backup_restore "with passphrase" "hunter2"
+
 log "All OK."
