@@ -15,6 +15,7 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 </details>
 
 ## 2026.3.2
+- Update postgres dependency from 14.24 to 14.25
 - Update nginx dependency from 1.31.5 to 1.31.9
 
 ## 2026.3.0
