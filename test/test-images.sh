@@ -108,7 +108,6 @@ log "Verifying db backup/restore..."
 
 adminUserEmail=odk-central-admin@example.test
 adminUserPword="topSecret-$RANDOM|123"
-nginxHost="https://localhost"
 
 test_backup_restore() {
   local testDescription="$1"
