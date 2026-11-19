@@ -136,12 +136,16 @@ create-dirs
 write-out = "%{onerror}%{stderr}\n\n\n\tAN ERROR OCCURRED AND YOUR BACKUP WAS NOT SAVED\n\n\n"
 EOF
 
+  # TODO create a project
+
   log "Backing up to $backupDir ..."
   curl \
       --verbose \
       --insecure \
       --resolve local:443:127.0.0.1 \
       --config "$tmpConfig"
+
+  # TODO create another project
 
   log "Identifying backup file..."
   local backupFile
@@ -158,6 +162,9 @@ EOF
   if ! [[ "$passphrase" = "" ]]; then passphraseArg+=("$passphrase"); fi
   # shellcheck disable=SC2002
   cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "${passphraseArg[@]}"
+
+  # TODO check pre-backup project exists
+  # TODO check post-backup project does not exist
 }
 
 log "Ensuring admin user exists..."
