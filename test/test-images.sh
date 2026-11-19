@@ -114,7 +114,7 @@ test_backup_restore() {
   local passphrase="$2"
   local tmpConfig
   tmpConfig="$(mktemp)"
-  backupsDir="$(mktemp --directory)"
+  backupDir="$(mktemp --directory)"
 
   log "Checking pg_dump version..."
   docker compose exec service pg_dump --version # FIXME delete this - just for debug
@@ -130,7 +130,7 @@ test_backup_restore() {
 url = "https://local/v1/backup"
 user = "$adminUserEmail:$adminUserPword"
 json = {"passphrase":"$passphrase"}
-output-dir = $backupsDir
+output-dir = $backupDir
 http1.1
 show-error
 fail
