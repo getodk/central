@@ -14,6 +14,19 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
   * [packages/xpath](https://github.com/getodk/central-frontend/tree/master/packages/xpath/CHANGELOG.md)
 </details>
 
+## 2026.4.0
+
+- Upgrade PostgreSQL version to v18 (getodk/central#2285)
+- Don't attempt to upload blobs to S3 if not configured (getodk/central#1476)
+- Fix support for multiline values in postgres-related environment variables (getodk/central#2203)
+- Reduce `central-backend` worker count for some systems with &lt;1GB RAM (getodk/central#2306)
+- Rename `secrets.dockerfile` -> `enketo-secrets.dockerfile` (getodk/central#2303)
+- Rename `files/enketo/generate-secrets.sh` -> `files/enketo-secrets/generate-secrets.sh` (getodk/central#2303)
+- Allow embedding of public-access forms in iframes (getodk/central#2321)
+- Update postgresql-client in the `service` container from v14 to v18 (getodk/central#2317)
+- Add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
+- Update nginx dependency from 1.31.5 to 1.31.9
+
 ## 2026.3.0
 
 - Show error message for incorrect encryption password (getodk/central#2080)

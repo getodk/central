@@ -1,4 +1,5 @@
 {
   "oidcEnabled": ${OIDC_ENABLED},
-  "sentryDsn": "${SENTRY_DSN_FRONTEND}"
+  "sentryDsn": "${SENTRY_DSN_FRONTEND}",
+  "googleMapsKey": "${GOOGLE_MAPS_KEY}"
 }

@@ -16,7 +16,7 @@ close $fh;
 my @entries = split /\x00/, $content;
 
 for my $entry (@entries) {
-    if ($entry =~ /\A(?<varname>PG[^=]+)=(?<varvalue>.*)\Z/m) {
+    if ($entry =~ /\A(?<varname>PG[^=]+)=(?<varvalue>.*)\Z/s) {
         $ENV{$+{varname}} = $+{varvalue};
     }
 }

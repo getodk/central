@@ -2,7 +2,7 @@
 set -o pipefail
 shopt -s inherit_errexit
 
-flag_upgradeCompletedOk="$PGDATA/../.postgres14-upgrade-successful"
+flag_upgradeCompletedOk="/postgres14-upgrade/upgrade-successful"
 
 logPrefix="$(basename "$0")"
 log() {
@@ -10,11 +10,11 @@ log() {
 }
 
 if ! [[ -f "$flag_upgradeCompletedOk" ]]; then
-  log "Waiting for upgrade to complete..."
+  log "Waiting for upgrade to v14 to complete..."
   while ! [[ -f "$flag_upgradeCompletedOk" ]]; do sleep 1; done
-  log "Upgrade complete."
+  log "Upgrade to v14 complete."
 fi
 
 log "Starting postgres..."
 # call ENTRYPOINT + CMD from parent Docker image
-exec docker-entrypoint.sh postgres "$@"
+exec /usr/local/bin/docker-entrypoint.sh postgres "$@"

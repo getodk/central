@@ -1,0 +1,19 @@
+name: Relegate Azure mirrors
+description: Relegate azure Ubuntu repo mirrors, as they can be fatally slow
+
+runs:
+  using: 'composite'
+  steps:
+  - shell: bash
+    run: cat /etc/apt/apt-mirrors.txt
+  - name: relegate azure ubuntu mirrors
+    shell: bash
+    run: |
+      sudo sed \
+           --in-place \
+           -E \
+           --expression       '/archive.ubuntu.com\/ubuntu\/[[:space:]]+priority:/ s/priority:2/priority:1/' \
+           --expression '/azure.archive.ubuntu.com\/ubuntu\/[[:space:]]+priority:/ s/priority:[-0-9]+/priority:999/' \
+           /etc/apt/apt-mirrors.txt
+  - shell: bash
+    run: cat /etc/apt/apt-mirrors.txt
