@@ -99,7 +99,7 @@ log "Verifying db backup/restore..."
 # * pg_dump & pg_restore inside service container
 # * postgres version in postgres14 container
 # * openssl version in service container
-# * openssl version in postgres14 container
+# * openssl version in host container
 #
 # NOTE the backup, verify & restore commands, processes & config used in these
 # tests should follow the official documentation as closely as possible.
