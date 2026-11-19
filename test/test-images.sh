@@ -106,7 +106,7 @@ log "Verifying db backup/restore..."
 #
 # See: https://docs.getodk.org/central-backup/
 
-adminUserEmail=odk-central-admin@example.test
+adminUserEmail="odk-central-admin-$RANDOM@example.test"
 adminUserPword="topSecret-$RANDOM|123"
 
 test_backup_restore() {
