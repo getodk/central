@@ -114,6 +114,7 @@ test_backup_restore() {
   local passphrase="$2"
   local tmpConfig
   tmpConfig="$(mktemp)"
+  local backupDir
   backupDir="$(mktemp --directory)"
 
   log "Testing backup $testDescription..."
@@ -143,6 +144,7 @@ EOF
       --config "$tmpConfig"
 
   log "Identifying backup file..."
+  local backupFile
   backupFile="$(find "$backupDir" -type f)"
   log "Backup found at: $backupFile"
 
