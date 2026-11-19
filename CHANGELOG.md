@@ -25,6 +25,9 @@ This changelog lists changes to operations infrastructure, i.e., code changes to
 - Allow embedding of public-access forms in iframes (getodk/central#2321)
 - Update postgresql-client in the `service` container from v14 to v18 (getodk/central#2317)
 - Add optional `GOOGLE_MAPS_KEY` to show Google Maps layers in Web Forms map questions (getodk/web-forms#517)
+
+## 2026.3.2
+
 - Update nginx dependency from 1.31.5 to 1.31.9
 
 ## 2026.3.0
