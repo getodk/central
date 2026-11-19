@@ -10,7 +10,7 @@ expectedStatus="${3-200}"
 
 echo >&2 -n "[$(basename "$0")] [$(date)] Waiting for server: $url "
 if timeout "$seconds" bash -c -- "
-  until [[ \$(curl --max-time 1 --silent --output /dev/null -w '%{http_code}' '$url') = \"$expectedStatus\" ]]; do
+  until [[ \$(curl --insecure --max-time 1 --silent --output /dev/null -w '%{http_code}' '$url') = \"$expectedStatus\" ]]; do
     printf >&2 .
     sleep 0.25
   done
