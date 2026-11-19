@@ -164,12 +164,6 @@ EOF
   cat "$backupFile" | docker compose exec -T service node /usr/odk/lib/bin/restore.js - "$passphrase"
 }
 
-# FIXME debug remove
-docker ps
-
-log "Waiting for service to become available..."
-./test/wait-for-http-response.sh 30 "$nginxHost" || true
-
 log "Ensuring admin user exists..."
 echo "$adminUserPword" | docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-create
                          docker compose exec -T service node /usr/odk/lib/bin/cli --email "$adminUserEmail" user-promote
