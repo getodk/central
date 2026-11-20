@@ -93,4 +93,16 @@ if [[ "$processCount" != 4 ]]; then
   exit 1
 fi
 
+log "Verifying cron environ..."
+cronEnv="$(docker compose exec /usr/odk/cron-exec.pl /dev/shm/cron-environ env -0)"
+if diff \
+     <(xxd <(printf %b "$cronEnv")) \
+     <(xxd <(printf %b $'SENTRY_WAT=123'))
+then
+  log "  cron environment generated OK."
+else
+  log "!!! Test failed; see above for differences between '< actual' and '> expected'"
+  exit 1
+fi
+
 log "All OK."

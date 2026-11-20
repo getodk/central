@@ -1,10 +1,12 @@
 #!/usr/bin/env perl
 
+# To be replaced by --env0-from when https://github.com/uutils/coreutils/pull/14609 lands.
+
 use warnings;
 use strict;
 
 
-die "Not enough arguments.\nUsage: with-pgenvblock.pl /path/to/envblock program [program-arg, …]\n" if @ARGV < 2;
+die "Not enough arguments.\nUsage: cron-exec.pl /path/to/envblock program [program-arg, …]\n" if @ARGV < 2;
 
 my $envblockfile = $ARGV[0];
 
@@ -16,7 +18,7 @@ close $fh;
 my @entries = split /\x00/, $content;
 
 for my $entry (@entries) {
-    if ($entry =~ /\A(?<varname>PG[^=]+)=(?<varvalue>.*)\Z/s) {
+    if ($entry =~ /\A(?<varname>[^=]+)=(?<varvalue>.*)\Z/s) {
         $ENV{$+{varname}} = $+{varvalue};
     }
 }
