@@ -94,9 +94,8 @@ if [[ "$processCount" != 4 ]]; then
 fi
 
 log "Verifying cron environ..."
-cronEnv="$(docker compose exec service /usr/odk/cron-exec.pl /dev/shm/cron-environ env -0)"
 if diff \
-     <(xxd <(printf %b "$cronEnv")) \
+     <(docker compose exec service /usr/odk/cron-exec.pl /dev/shm/cron-environ env -0 | xxd) \
      <(xxd <(printf %b $'SENTRY_WAT=123'))
 then
   log "  cron environment generated OK."
