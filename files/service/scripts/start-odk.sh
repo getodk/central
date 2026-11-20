@@ -20,13 +20,6 @@ if [[ -v DB_SSL ]] && ! [[ "$DB_SSL" = "null" ]]; then
 fi
 unset DB_SSL
 
-# Serialize (as a raw env block) the environment set up by docker, for later
-# availability to processes running with a reset environment (such as cronjobs).
-# See https://github.com/getodk/central/issues/1747 .
-# See `man 5 proc_pid_environ` .
-cp --preserve=mode,ownership /proc/self/environ /dev/shm/docker-envblock
-
-
 echo "generating local service configuration.."
 
 ENKETO_API_KEY=$(cat /etc/secrets/enketo-api-key) \
@@ -113,6 +106,9 @@ MEMTOT=$(get_memory_limit)
 WORKER_COUNT=$(determine_worker_count "$MEMTOT")
 export WORKER_COUNT
 echo "using $WORKER_COUNT worker(s) based on available memory ($MEMTOT).."
+
+# Build cron environ last, so that exported variables can be included.
+./build-cron-environ.pl >/dev/shm/cron-environ
 
 echo "starting server."
 exec npx --no pm2-runtime ./pm2.config.js

@@ -93,4 +93,45 @@ if [[ "$processCount" != 4 ]]; then
   exit 1
 fi
 
+log "Verifying cron environ (individual env vars)..."
+if diff \
+     <(docker compose exec service bash -c 'echo "$PGAPPNAME, $SENTRY_ORG_SUBDOMAIN"') \
+     <(echo 'odkcentral, o130137')
+then
+  log "  cron vars working OK."
+else
+  log "!!! Test failed; see above for differences between '< actual' and '> expected'"
+  exit 1
+fi
+
+log "Verifying full cron environ..."
+if diff \
+     <(
+       docker compose exec service \
+           env --ignore-environment \
+               /usr/odk/cron-exec.pl /dev/shm/cron-environ env \
+       | sort \
+       | sed -E -e 's/^SENTRY_TAGS=\{ "version.central": "v20.*/SENTRY_TAGS={ liable to change frequently }/'
+     ) \
+     <(cat <<EOF
+PGAPPNAME=odkcentral
+PGDATABASE=odk
+PGHOST=postgres14
+PGPASSWORD=odk
+PGUSER=odk
+SENTRY_KEY=3cf75f54983e473da6bd07daddf0d2ee
+SENTRY_ORG_SUBDOMAIN=o130137
+SENTRY_PROJECT=1298632
+SENTRY_RELEASE=v2026.3.1
+SENTRY_TAGS={ liable to change frequently }
+SENTRY_TRACE_RATE=0.1
+EOF
+    )
+then
+  log "  cron environment generated OK."
+else
+  log "!!! Test failed; see above for differences between '< actual' and '> expected'"
+  exit 1
+fi
+
 log "All OK."
