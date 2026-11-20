@@ -95,8 +95,26 @@ fi
 
 log "Verifying cron environ..."
 if diff \
-     <(docker compose exec service /usr/odk/cron-exec.pl /dev/shm/cron-environ env -0 | xxd) \
-     <(xxd <(printf %b $'SENTRY_WAT=123'))
+     <(
+       docker compose exec service \
+           env --ignore-environment \
+               /usr/odk/cron-exec.pl /dev/shm/cron-environ env \
+       | sort
+     ) \
+     <(cat <<EOF
+PGAPPNAME=odkcentral
+PGDATABASE=odk
+PGHOST=postgres14
+PGPASSWORD=odk
+PGUSER=odk
+SENTRY_KEY=3cf75f54983e473da6bd07daddf0d2ee
+SENTRY_ORG_SUBDOMAIN=o130137
+SENTRY_PROJECT=1298632
+SENTRY_RELEASE=v2026.3.1
+SENTRY_TAGS={"version.central"="v2026.  3.1-29-g02c8c9f-dirty","version.client"=v2026.3.1-29-g02c8c9f-dirty"}
+SENTRY_TRACE_RATE=0.1
+EOF
+    )
 then
   log "  cron environment generated OK."
 else
