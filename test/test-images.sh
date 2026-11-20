@@ -95,7 +95,7 @@ fi
 
 log "Verifying cron environ (individual env vars)..."
 if diff \
-     <(docker compose exec service bash -c 'echo "$PGAPPNAME, SENTRY_ORG_SUBDOMAIN"') \
+     <(docker compose exec service bash -c 'echo "$PGAPPNAME, $SENTRY_ORG_SUBDOMAIN"') \
      <(echo 'odkcentral, o130137')
 then
   log "  cron vars working OK."
