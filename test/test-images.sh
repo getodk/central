@@ -93,7 +93,18 @@ if [[ "$processCount" != 4 ]]; then
   exit 1
 fi
 
-log "Verifying cron environ..."
+log "Verifying cron environ (individual env vars)..."
+if diff \
+     <(docker compose exec service bash -c 'echo "$PGAPPNAME, SENTRY_ORG_SUBDOMAIN"') \
+     <(echo 'odkcentral, o130137')
+then
+  log "  cron vars working OK."
+else
+  log "!!! Test failed; see above for differences between '< actual' and '> expected'"
+  exit 1
+fi
+
+log "Verifying full cron environ..."
 if diff \
      <(
        docker compose exec service \
