@@ -1,6 +1,15 @@
 #!/usr/bin/env perl
 
-# To be replaced by --env0-from when https://github.com/uutils/coreutils/pull/14609 lands.
+# To be replaced by --env0-from when GNU coreutils 9.12 is available in the service container.
+#
+# Check current version with:
+#
+#     docker compose run --no-deps --rm service env --version
+#
+# See:
+#
+# * https://www.gnu.org/software/coreutils/manual/html_node/env-invocation.html#index-_002d_002denv0_002dfrom
+# * `docker compose run --no-deps --rm service env --help`
 
 use warnings;
 use strict;
