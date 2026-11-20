@@ -99,7 +99,8 @@ if diff \
        docker compose exec service \
            env --ignore-environment \
                /usr/odk/cron-exec.pl /dev/shm/cron-environ env \
-       | sort
+       | sort \
+       | sed -E -e 's/^SENTRY_TAGS=\{ "version.central": "v20.*/SENTRY_TAGS={ liable to change frequently }/'
      ) \
      <(cat <<EOF
 PGAPPNAME=odkcentral
@@ -111,7 +112,7 @@ SENTRY_KEY=3cf75f54983e473da6bd07daddf0d2ee
 SENTRY_ORG_SUBDOMAIN=o130137
 SENTRY_PROJECT=1298632
 SENTRY_RELEASE=v2026.3.1
-SENTRY_TAGS={ "version.central": "v2026.3.1-31-g4beb388-dirty", "version.client": "v2026.3.1-31-g4beb388-dirty" }
+SENTRY_TAGS={ liable to change frequently }
 SENTRY_TRACE_RATE=0.1
 EOF
     )
