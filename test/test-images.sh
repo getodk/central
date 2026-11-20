@@ -111,7 +111,7 @@ SENTRY_KEY=3cf75f54983e473da6bd07daddf0d2ee
 SENTRY_ORG_SUBDOMAIN=o130137
 SENTRY_PROJECT=1298632
 SENTRY_RELEASE=v2026.3.1
-SENTRY_TAGS={"version.central"="v2026.  3.1-29-g02c8c9f-dirty","version.client"=v2026.3.1-29-g02c8c9f-dirty"}
+SENTRY_TAGS={ "version.central": "v2026.3.1-31-g4beb388-dirty", "version.client": "v2026.3.1-31-g4beb388-dirty" }
 SENTRY_TRACE_RATE=0.1
 EOF
     )
