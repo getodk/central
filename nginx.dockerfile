@@ -1,4 +1,4 @@
-FROM node:24.20.0-slim AS intermediate
+FROM node:26.13.1-slim AS intermediate
 
 ARG FRONTEND_BUILD_MODE
 ARG FRONTEND_VERSION
