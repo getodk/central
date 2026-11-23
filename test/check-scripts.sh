@@ -39,17 +39,24 @@ for script in $scriptFiles; do
   log "    Passed OK."
 
   log "  Checking shebang..."
-  shebang="$(head -n3 "$script")"
-  if ! diff <(echo "$shebang") <(printf '%s' "$expectedShebang"); then
+  if [[ -x "$script" ]]; then
+    shebang="$(head -n3 "$script")"
+    if ! diff <(echo "$shebang") <(printf '%s' "$expectedShebang"); then
+      log "    !!!"
+      log "    !!! Missing or unexpected shebang."
+      log "    !!!"
+      log "    !!! To make reasoning about script behaviour easier, please"
+      log "    !!! use the standard shebang and shell config lines:"
+      log "    !!!"
+      echo
+      printf '%s' "$expectedShebang"
+      echo
+      exit 1
+    fi
+  else
     log "    !!!"
-    log "    !!! Missing or unexpected shebang."
+    log "    !!! Non-executable script found!"
     log "    !!!"
-    log "    !!! To make reasoning about script behaviour easier, please"
-    log "    !!! use the standard shebang and shell config lines:"
-    log "    !!!"
-    echo
-    printf '%s' "$expectedShebang"
-    echo
     exit 1
   fi
   log "    Passed OK."
