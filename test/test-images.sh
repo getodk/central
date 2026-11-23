@@ -111,7 +111,7 @@ if diff \
            env --ignore-environment \
                /usr/odk/cron-exec.pl /dev/shm/cron-environ env \
        | sort \
-       | sed -E -e 's/^SENTRY_TAGS=\{ "version.central": "v20.*/SENTRY_TAGS={ liable to change frequently }/'
+       | sed -E -e 's/^SENTRY_TAGS=\{ "version.central": ".*/SENTRY_TAGS={ liable to change frequently }/'
      ) \
      <(cat <<EOF
 PGAPPNAME=odkcentral
