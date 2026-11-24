@@ -1355,7 +1355,7 @@ function assertCacheStrategyApplied(res, expectedCacheStrategy) {
 }
 
 function assertSecurityHeaders(res, { csp }) {
-  assert.equal(res.headers.get('Referrer-Policy'), 'same-origin');
+  assert.equal(res.headers.get('Referrer-Policy'), 'strict-origin-when-cross-origin');
   assert.equal(res.headers.get('Strict-Transport-Security'), 'max-age=63072000');
   assert.equal(res.headers.get('X-Frame-Options'), 'SAMEORIGIN');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
