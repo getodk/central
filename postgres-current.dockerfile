@@ -1,4 +1,4 @@
-FROM pgautoupgrade/pgautoupgrade:18.4-trixie
+FROM pgautoupgrade/pgautoupgrade:18.7-trixie
 
 COPY files/postgres14/start-postgres.sh /usr/local/bin/
 
