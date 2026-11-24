@@ -74,6 +74,9 @@ app.post('/api/:projectId/envelope/', (req, res) => {
 
 app.get('/api/check-cert', (req, res) => res.send('OK'));
 app.post('/api/example-sentry-project/security/', (req, res) => {
+  if(req.get('Authorization')) return res.status(400).send('Sensitive header forwarded from client.');
+  if(req.get('Cookie'))        return res.status(400).send('Sensitive header forwarded from client.');
+
   const { sentry_key } = req.query;
   if(sentry_key !== 'example-sentry-key') {
     logErrorEvent(`Bad sentry API key received: '${sentry_key}'`);
