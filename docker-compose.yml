@@ -9,11 +9,7 @@ services:
       dockerfile: postgres-current.dockerfile
     shm_size: 512m
     volumes:
-      - type: volume
-        source: postgres14
-        target: /var/lib/postgresql/data
-        volume:
-          subpath: data
+      - postgres14:/var/lib/odk/postgresql
       - ./files/postgres14/upgrade:/postgres14-upgrade
     environment:
       POSTGRES_USER: odk
