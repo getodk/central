@@ -34,6 +34,7 @@ BASE_URL=$( [ "${HTTPS_PORT}" = 443 ] && echo https://"${DOMAIN}" || echo https:
 /scripts/envsub.awk \
     < /usr/share/odk/config.json.template \
     > /usr/odk/config/local.json
+node ./remove-empty-email-auth.js /usr/odk/config/local.json
 
 SENTRY_RELEASE="$(cat sentry-versions/server)"
 export SENTRY_RELEASE
