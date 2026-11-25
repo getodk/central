@@ -40,7 +40,7 @@ describe('setup-odk.sh', function() {
           res.headers.get('Content-Security-Policy'),
           [
             `default-src 'report-sample' 'none'`,
-            `connect-src 'self' ${expectedCspEntry} https://translate.google.com https://translate.googleapis.com`,
+            `connect-src 'self' ${expectedCspEntry} https://api.pwnedpasswords.com https://translate.google.com https://translate.googleapis.com`,
             `font-src 'self'`,
             `form-action 'self'`,
             `frame-ancestors 'none'`,
