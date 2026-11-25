@@ -18,56 +18,56 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test.describe('odk-central-backend API calls', () => {
+test.describe('api calls', () => {
+  const apis = {
+    odkCentralBackend: { url:'https://odk-nginx.example.test:9001/v1/projects' },
+    sentryReporting:   { url:'https://o-fake-dsn.ingest.sentry.io/api/1234567890123456/envelope/', method:'POST', body:'{"test":true}' },
+    haveIbeenPwned:    { url:'https://api.pwnedpasswords.com/range/B6347' },
+  };
+
   [
-    // root-app
-    '/',
+    {
+      frontend: 'root-app',
+      path: '/',
+      allowedApis: [
+        'odkCentralBackend',
+        'sentryReporting',
+        'haveIbeenPwned',
+      ],
+    },
+    {
+      frontend: 'forms-app',
+      path: '/f/Xaa1G84VxWFgEQlXQny3AzzWBAzOzGQ?st=d3RVbGZZeX0paTNxxPIUbiyNzevgu9X1GToIIodO9bgu2UZsZMQ8V4QlETre3D9a',
+      allowedApis: [
+        'odkCentralBackend',
+        'sentryReporting',
+      ],
+    },
+  ].forEach(({ frontend, path, allowedApis }) => {
+    test.describe(frontend, () => {
+      allowedApis.forEach(api => {
+        const { url, ...opts } = apis[api];
+        if(!url) throw new Error(`Reference to non-existent entry in allowedApis: '${api}'`);
 
-    // forms-app
-    '/f/Xaa1G84VxWFgEQlXQny3AzzWBAzOzGQ?st=d3RVbGZZeX0paTNxxPIUbiyNzevgu9X1GToIIodO9bgu2UZsZMQ8V4QlETre3D9a',
-  ].forEach(path => {
-    test(`should not be blocked from ${path}`, async ({ page }) => {
-      // given
-      await page.goto(`https://odk-nginx.example.test:9001/${stripLeadingSlash(path)}`);
+        test(`should allow requests to ${api}`, async ({ page }) => {
+          await page.route(url, route => route.fulfill({ status:200, contentType:'text/plain', body:'OK' }));
 
-      // when
-      const res = await page.evaluate(async () => {
-        const res = await fetch('https://odk-nginx.example.test:9001/v1/projects');
-        const { status } = res;
-        const body = await res.text();
-        return { status, body };
+          // given
+          await page.goto(`https://odk-nginx.example.test:9001/${stripLeadingSlash(path)}`);
+
+          // when
+          const res = await page.evaluate(async ({ url, opts }) => {
+            const res = await fetch(url, opts);
+            const { status } = res;
+            const body = await res.text();
+            return { status, body };
+          }, { url, opts });
+
+          // then
+          assert.deepEqual(res, { status:200, body:'OK' });
+          await assertSentryReceived(/* nothing */);
+        });
       });
-
-      // then
-      assert.deepEqual(res, { status:200, body:'OK' });
-      await assertSentryReceived(/* nothing */);
-    });
-  });
-});
-
-test.describe('frontend Sentry reports', () => {
-  [
-    // root-app
-    '/',
-
-    // forms-app
-    '/f/Xaa1G84VxWFgEQlXQny3AzzWBAzOzGQ?st=d3RVbGZZeX0paTNxxPIUbiyNzevgu9X1GToIIodO9bgu2UZsZMQ8V4QlETre3D9a',
-  ].forEach(path => {
-    test(`should not be blocked from ${path}`, async ({ page }) => {
-      // given
-      await page.goto(`https://odk-nginx.example.test:9001/${stripLeadingSlash(path)}`);
-
-      // when
-      const res = await page.evaluate(async () => {
-        const res = await fetch('https://o-fake-dsn.ingest.sentry.io/api/1234567890123456/envelope/', { method:'POST', body:'{"test":true}' });
-        const { status } = res;
-        const body = await res.text();
-        return { status, body };
-      });
-
-      // then
-      assert.deepEqual(res, { status:200, body:'envelope:OK' });
-      await assertSentryReceived(/* nothing */);
     });
   });
 });
@@ -94,7 +94,7 @@ test('catches style-src-elem violation samples', async ({ page }) => {
           'referrer': '',
           'violated-directive': 'style-src-elem',
           'effective-directive': 'style-src-elem',
-          'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://o-fake-dsn.ingest.sentry.io https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
+          'original-policy': `default-src 'report-sample' 'none'; connect-src 'self' https://o-fake-dsn.ingest.sentry.io https://api.pwnedpasswords.com https://translate.google.com https://translate.googleapis.com; font-src 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://getodk.github.io/central/; img-src data: https:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'report-sample' 'self'; style-src 'report-sample' 'self'; style-src-attr 'unsafe-inline'; worker-src 'report-sample' blob:; report-uri /csp-report`,
           'disposition': 'enforce',
           'blocked-uri': 'inline',
           'line-number': 4,
